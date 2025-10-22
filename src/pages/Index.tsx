@@ -1,14 +1,19 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, FileText, Search, Filter } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { getAllPOPs } from "@/utils/storage";
-import { POP } from "@/types/pop";
+import { POP, tiposPOP, turnosDisponiveis } from "@/types/pop";
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [pops, setPops] = useState<POP[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterTipo, setFilterTipo] = useState<string>("todos");
+  const [filterTurno, setFilterTurno] = useState<string>("todos");
 
   const loadPOPs = () => {
     setPops(getAllPOPs());
@@ -17,6 +22,16 @@ const Index = () => {
   useEffect(() => {
     loadPOPs();
   }, []);
+
+  // Filtrar POPs
+  const filteredPOPs = pops.filter((pop) => {
+    const matchSearch = pop.condominioNome
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchTipo = filterTipo === "todos" || pop.tipoPOP === filterTipo;
+    const matchTurno = filterTurno === "todos" || pop.turno === filterTurno;
+    return matchSearch && matchTipo && matchTurno;
+  });
 
   if (showForm) {
     return (
@@ -47,7 +62,7 @@ const Index = () => {
 
       {/* Content */}
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-        <div className="mb-8">
+        <div className="mb-8 space-y-4">
           <Button
             onClick={() => setShowForm(true)}
             size="lg"
@@ -56,6 +71,51 @@ const Index = () => {
             <Plus className="w-5 h-5 mr-2" />
             Novo POP
           </Button>
+
+          {/* Filtros */}
+          {pops.length > 0 && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar por nome do condomínio..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              
+              <Select value={filterTipo} onValueChange={setFilterTipo}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Tipo de POP" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="todos">Todos os tipos</SelectItem>
+                  {tiposPOP.map((tipo) => (
+                    <SelectItem key={tipo.value} value={tipo.value}>
+                      {tipo.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={filterTurno} onValueChange={setFilterTurno}>
+                <SelectTrigger className="w-full sm:w-[200px]">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Turno" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  <SelectItem value="todos">Todos os turnos</SelectItem>
+                  {turnosDisponiveis.map((turno) => (
+                    <SelectItem key={turno.value} value={turno.value}>
+                      {turno.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         {pops.length === 0 ? (
@@ -68,13 +128,33 @@ const Index = () => {
               Clique em "Novo POP" para criar seu primeiro procedimento
             </p>
           </div>
+        ) : filteredPOPs.length === 0 ? (
+          <div className="text-center py-16">
+            <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              Nenhum POP encontrado
+            </h2>
+            <p className="text-muted-foreground mb-6">
+              Tente ajustar os filtros de busca
+            </p>
+            <Button
+              onClick={() => {
+                setSearchTerm("");
+                setFilterTipo("todos");
+                setFilterTurno("todos");
+              }}
+              variant="outline"
+            >
+              Limpar filtros
+            </Button>
+          </div>
         ) : (
           <div>
             <h2 className="text-xl font-semibold text-foreground mb-4">
-              POPs Gerados ({pops.length})
+              POPs Gerados ({filteredPOPs.length} de {pops.length})
             </h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {pops.map((pop) => (
+              {filteredPOPs.map((pop) => (
                 <POPCard key={pop.id} pop={pop} onDelete={loadPOPs} />
               ))}
             </div>

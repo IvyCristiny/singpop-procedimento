@@ -7,163 +7,468 @@ export interface POP {
   dataEmissao: string;
   responsavelElaboracao: string;
   aprovadoPor: string;
+  turno?: string;
+  observacoes?: string;
   createdAt: string;
 }
 
-export const tiposPOP = [
-  { value: "portaria", label: "Portaria / Controle de Acesso" },
-  { value: "limpeza", label: "Limpeza / Conservação" },
-  { value: "zeladoria", label: "Zeladoria" },
-  { value: "jardinagem", label: "Jardinagem" },
-  { value: "manutencao", label: "Manutenção Predial" },
-] as const;
-
-export const popTemplates: Record<string, {
+export interface POPTemplate {
   objetivo: string;
   aplicacao: string;
-  responsabilidades: string;
-  procedimentos: string[];
+  responsabilidades: string[];
+  procedimentos: {
+    [fase: string]: string[];
+  };
   equipamentos: string[];
   registros: string[];
-}> = {
-  portaria: {
-    objetivo: "Estabelecer diretrizes para o controle de acesso de pessoas e veículos, garantindo a segurança do condomínio e o registro adequado de todas as movimentações.",
-    aplicacao: "Este procedimento aplica-se a todos os funcionários da portaria e controle de acesso do condomínio.",
-    responsabilidades: "Porteiro: Executar o controle de acesso conforme estabelecido.\nSupervisor: Garantir o cumprimento do procedimento e treinar os colaboradores.\nSíndico/Administração: Aprovar e revisar o procedimento periodicamente.",
-    procedimentos: [
-      "Identificar todas as pessoas que desejam entrar no condomínio",
-      "Solicitar documento de identificação com foto",
-      "Registrar nome, documento, horário de entrada e destino no livro de ocorrências ou sistema digital",
-      "Contatar o morador por telefone para autorização de entrada de visitantes",
-      "Fornecer crachá de visitante quando aplicável",
-      "Registrar saída de visitantes e recolher crachás",
-      "Anotar todas as ocorrências relevantes durante o turno",
-      "Realizar rondas periódicas conforme escala estabelecida"
+  treinamento: string[];
+  indicadores: string[];
+}
+
+export const tiposPOP = [
+  { value: "portaria24h", label: "Portaria 24h (inclui Rondantes)", icon: "ShieldCheck" },
+  { value: "ronda", label: "Ronda Noturna 12h", icon: "Eye" },
+  { value: "limpeza", label: "ASG / Zeladoria / AOSD", icon: "Sparkles" },
+  { value: "vigilancia", label: "Vigilância (Armada e Desarmada)", icon: "Shield" },
+  { value: "jardinagem", label: "Jardinagem", icon: "Trees" },
+  { value: "piscineiro", label: "Piscineiro", icon: "Waves" },
+  { value: "manutencao", label: "Auxiliar de Manutenção", icon: "Wrench" },
+  { value: "concierge", label: "Concierge", icon: "UserCheck" },
+  { value: "administrador", label: "Administrador Dedicado", icon: "Briefcase" },
+] as const;
+
+export const turnosDisponiveis = [
+  { value: "24h", label: "24 horas" },
+  { value: "12h-diurno", label: "12 horas diurno (06h-18h)" },
+  { value: "12h-noturno", label: "12 horas noturno (18h-06h)" },
+  { value: "8h-comercial", label: "8 horas comercial" },
+  { value: "nao-aplicavel", label: "Não aplicável" },
+] as const;
+
+export const popTemplates: Record<string, POPTemplate> = {
+  portaria24h: {
+    objetivo: "Garantir controle rigoroso de acesso, atendimento cordial e resposta rápida a ocorrências, 24/7.",
+    aplicacao: "Este procedimento aplica-se a todos os funcionários da portaria e controle de acesso do condomínio, incluindo rondantes.",
+    responsabilidades: [
+      "Controle de pedestres e veículos",
+      "Monitoramento de áreas e sistemas (CFTV, interfones, alarmes)",
+      "Registro e comunicação de ocorrências",
+      "Atendimento a moradores e prestadores com postura profissional"
     ],
+    procedimentos: {
+      "Abertura de turno": [
+        "Registrar horário de entrada e revisar ocorrências anteriores",
+        "Testar interfone, rádio e câmeras",
+        "Conferir lista de visitantes e prestadores esperados",
+        "Verificar chaves, crachás e planilhas de controle"
+      ],
+      "Controle de pedestres": [
+        "Cumprimentar e solicitar identificação com documento com foto",
+        "Confirmar autorização de entrada antes de liberar acesso",
+        "Registrar dados de visitante (nome, documento, horário)",
+        "Liberar entrada somente após confirmação com morador ou administração"
+      ],
+      "Controle de veículos": [
+        "Conferir placa e autorização do condutor",
+        "Registrar informações de entrada e saída",
+        "Orientar sobre estacionamento",
+        "Bloquear acesso não autorizado e comunicar supervisão"
+      ],
+      "Prestadores e obras": [
+        "Conferir ordem de serviço, EPI e ferramentas",
+        "Registrar dados e liberar com crachá de prestador",
+        "Informar zeladoria/síndico sobre início e término",
+        "Recolher crachá e verificar saída ao final"
+      ],
+      "Correspondências e encomendas": [
+        "Conferir destinatário e unidade",
+        "Registrar recebimento e armazenar com segurança",
+        "Notificar destinatário via interfone ou aplicativo",
+        "Registrar entrega mediante assinatura"
+      ],
+      "Ocorrências e emergências": [
+        "Manter calma e seguir protocolos de emergência",
+        "Registrar data, hora e fato ocorrido",
+        "Acionar autoridades ou supervisão conforme necessidade",
+        "Jamais abandonar o posto"
+      ],
+      "Encerramento de turno": [
+        "Atualizar registros e entregar turno ao próximo colaborador",
+        "Sinalizar pendências à supervisão"
+      ]
+    },
     equipamentos: [
-      "Livro de registro de ocorrências ou sistema digital",
+      "Uniforme e crachá",
+      "Rádio comunicador",
+      "Livro de ocorrências ou sistema digital",
+      "Lanterna e apito (para rondantes)",
       "Telefone/interfone",
-      "Crachás de identificação para visitantes",
-      "Câmeras de segurança (quando disponíveis)"
+      "Computador ou tablet",
+      "Crachás de identificação para visitantes"
     ],
     registros: [
       "Livro de ocorrências diário",
       "Registro de entrada e saída de visitantes",
       "Relatório de passagem de turno"
+    ],
+    treinamento: [
+      "Atendimento e comunicação profissional",
+      "Controle de acesso e vigilância preventiva",
+      "Operação de sistemas CFTV e interfones",
+      "Conduta ética e LGPD"
+    ],
+    indicadores: [
+      "Registros completos e pontuais",
+      "Cumprimento de rondas e autorizações",
+      "Tempo médio de liberação de acesso",
+      "Feedback do síndico e moradores"
+    ]
+  },
+  ronda: {
+    objetivo: "Executar vigilância preventiva em áreas internas e externas durante o período noturno.",
+    aplicacao: "Este procedimento aplica-se a todos os funcionários responsáveis pela ronda noturna do condomínio.",
+    responsabilidades: [
+      "Realizar rondas regulares conforme roteiro estabelecido",
+      "Verificar portões, iluminação e áreas críticas",
+      "Registrar ocorrências e comunicar anormalidades"
+    ],
+    procedimentos: {
+      "Início do turno": [
+        "Retirar roteiro e equipamentos",
+        "Verificar funcionamento de rádios e lanternas"
+      ],
+      "Ronda": [
+        "Cumprir circuito a cada 90-120 minutos",
+        "Inspecionar portões, sensores e iluminação",
+        "Observar movimentações suspeitas e manter postura atenta",
+        "Comunicar irregularidades à portaria ou supervisão"
+      ],
+      "Finalização": [
+        "Consolidar relatório de ronda com pontos verificados e ocorrências",
+        "Registrar dados no sistema ou planilha"
+      ]
+    },
+    equipamentos: [
+      "Uniforme noturno",
+      "Lanterna tática",
+      "Rádio comunicador",
+      "Check-list ou aplicativo de ronda",
+      "EPI (bota e capa de chuva)"
+    ],
+    registros: [
+      "Relatório de ronda",
+      "Check-list de pontos verificados",
+      "Registro de ocorrências"
+    ],
+    treinamento: [
+      "Segurança patrimonial",
+      "Comunicação via rádio",
+      "Primeiros socorros e resposta a emergências"
+    ],
+    indicadores: [
+      "Cumprimento do roteiro de ronda",
+      "Número de ocorrências detectadas e resolvidas",
+      "Tempo médio de resposta"
     ]
   },
   limpeza: {
-    objetivo: "Estabelecer rotinas de limpeza e conservação das áreas comuns do condomínio, garantindo higiene, saúde e bem-estar dos moradores e funcionários.",
+    objetivo: "Garantir limpeza e conservação das áreas comuns do condomínio.",
     aplicacao: "Este procedimento aplica-se a todos os funcionários responsáveis pela limpeza e conservação do condomínio.",
-    responsabilidades: "Auxiliar de Limpeza: Executar as tarefas de limpeza conforme programação.\nSupervisor: Verificar a qualidade da limpeza e o cumprimento das rotinas.\nZelador/Síndico: Aprovar o procedimento e disponibilizar recursos necessários.",
-    procedimentos: [
-      "Verificar a disponibilidade de todos os materiais e equipamentos necessários",
-      "Iniciar a limpeza pelas áreas mais altas (tetos, luminárias) seguindo para as mais baixas",
-      "Varrer todas as áreas comuns (halls, corredores, escadas)",
-      "Limpar pisos com produtos adequados para cada tipo de superfície",
-      "Limpar vidros, espelhos e superfícies de inox",
-      "Limpar e desinfetar banheiros de uso comum",
-      "Retirar lixo de todas as lixeiras e substituir sacos",
-      "Organizar materiais e equipamentos após o uso",
-      "Reportar ao supervisor qualquer dano ou necessidade de manutenção identificada"
+    responsabilidades: [
+      "Executar limpeza diária e periódica conforme cronograma",
+      "Manejo correto de produtos químicos e EPIs",
+      "Coleta e descarte de resíduos",
+      "Comunicação de irregularidades"
     ],
+    procedimentos: {
+      "Preparação": [
+        "Vestir EPIs e verificar diluições corretas dos produtos",
+        "Organizar carrinho funcional e definir setores de trabalho"
+      ],
+      "Rotina diária": [
+        "Limpar halls, elevadores, escadas e corredores conforme cronograma",
+        "Utilizar produtos adequados para cada tipo de superfície",
+        "Higienizar banheiros e repor insumos",
+        "Realizar varrição e limpeza de garagem e áreas externas"
+      ],
+      "Finalização": [
+        "Repor materiais de limpeza e guardar equipamentos",
+        "Preencher check-list diário e comunicar irregularidades"
+      ]
+    },
     equipamentos: [
-      "Vassouras, rodos, pás",
-      "Baldes, esponjas e panos de limpeza",
-      "Produtos de limpeza (multiuso, desinfetante, detergente)",
-      "Luvas de proteção e uniformes",
-      "Escadas ou equipamento para áreas altas",
-      "Aspirador de pó (quando disponível)"
+      "Luvas, botas e óculos de proteção",
+      "Mop, vassouras, rodos e panos de microfibra",
+      "Produtos de limpeza diluídos corretamente",
+      "Carrinho funcional"
     ],
     registros: [
       "Check-list diário de limpeza",
       "Controle de consumo de materiais",
       "Relatório de ocorrências e necessidades de manutenção"
+    ],
+    treinamento: [
+      "Técnicas de limpeza profissional",
+      "Segurança no uso de produtos químicos",
+      "Organização e 5S"
+    ],
+    indicadores: [
+      "Checklists concluídos",
+      "Avaliação quinzenal de qualidade",
+      "Controle de consumo de materiais"
     ]
   },
-  zeladoria: {
-    objetivo: "Definir as atividades de zeladoria do condomínio, garantindo o bom funcionamento das instalações e a conservação do patrimônio.",
-    aplicacao: "Este procedimento aplica-se ao zelador e demais funcionários envolvidos na manutenção básica do condomínio.",
-    responsabilidades: "Zelador: Executar pequenos reparos e manutenções preventivas.\nSupervisor: Coordenar as atividades e priorizar demandas.\nSíndico/Administração: Aprovar manutenções e fornecer recursos necessários.",
-    procedimentos: [
-      "Realizar inspeção diária das áreas comuns e instalações",
-      "Verificar funcionamento de equipamentos (bombas, portões, iluminação)",
-      "Executar pequenos reparos (troca de lâmpadas, ajuste de fechaduras, etc.)",
-      "Manter limpas e organizadas as áreas técnicas (casa de bombas, depósitos)",
-      "Acompanhar prestadores de serviço durante manutenções especializadas",
-      "Registrar todas as ocorrências e serviços realizados",
-      "Comunicar ao supervisor necessidades de manutenção especializada",
-      "Manter estoque básico de materiais para pequenos reparos"
+  vigilancia: {
+    objetivo: "Proteger pessoas e patrimônio do condomínio, atuando de forma preventiva.",
+    aplicacao: "Este procedimento aplica-se a todos os vigilantes (armados e desarmados) do condomínio.",
+    responsabilidades: [
+      "Cumprir instruções de posto",
+      "Realizar rondas e manter postura atenta",
+      "Registrar e comunicar ocorrências",
+      "Acionar forças de segurança quando necessário"
     ],
+    procedimentos: {
+      "Início do turno": [
+        "Assumir posto e revisar informações do plantão anterior",
+        "Verificar rádios, alarmes e equipamentos de segurança"
+      ],
+      "Durante o turno": [
+        "Executar rondas estratégicas e observar movimentações suspeitas",
+        "Manter presença ostensiva e postura profissional",
+        "Acionar protocolo em situações de emergência"
+      ],
+      "Encerramento": [
+        "Registrar ocorrências com hora, fato e providência",
+        "Entregar posto com relatório completo"
+      ]
+    },
     equipamentos: [
-      "Ferramentas básicas (alicate, chave de fenda, martelo, etc.)",
-      "Escada",
-      "Lâmpadas de reposição",
-      "Materiais elétricos e hidráulicos básicos",
-      "EPIs (luvas, óculos de proteção, etc.)"
+      "Uniforme tático",
+      "Rádio comunicador",
+      "Lanterna",
+      "Colete balístico e arma (para vigilantes armados)"
     ],
     registros: [
-      "Livro de manutenções realizadas",
-      "Check-list de inspeção diária",
-      "Controle de materiais utilizados"
+      "Livro de ocorrências",
+      "Relatório de turno",
+      "Registro de rondas"
+    ],
+    treinamento: [
+      "Legislação da segurança privada",
+      "Procedimentos de emergência",
+      "Uso progressivo da força"
+    ],
+    indicadores: [
+      "Tempo médio de resposta a ocorrências",
+      "Cumprimento de rondas",
+      "Relatórios completos e auditáveis"
     ]
   },
   jardinagem: {
-    objetivo: "Estabelecer rotinas de manutenção e conservação das áreas verdes do condomínio, garantindo um ambiente agradável e saudável.",
+    objetivo: "Manter e preservar as áreas verdes e paisagismo do condomínio.",
     aplicacao: "Este procedimento aplica-se a todos os funcionários responsáveis pela jardinagem do condomínio.",
-    responsabilidades: "Jardineiro: Executar os serviços de jardinagem conforme programação.\nSupervisor: Verificar a execução e qualidade dos serviços.\nZelador/Síndico: Aprovar o procedimento e disponibilizar recursos.",
-    procedimentos: [
-      "Verificar condições climáticas e adequar atividades programadas",
-      "Aparar grama regularmente, mantendo altura adequada",
-      "Podar plantas, arbustos e cercas vivas conforme necessário",
-      "Regar plantas e jardins nos horários adequados",
-      "Remover folhas secas, galhos e ervas daninhas",
-      "Adubar plantas e jardins conforme cronograma",
-      "Realizar controle de pragas quando necessário",
-      "Limpar e organizar ferramentas após o uso",
-      "Reportar necessidade de replantio ou substituição de plantas"
+    responsabilidades: [
+      "Realizar podas, irrigação e adubação",
+      "Controlar pragas e doenças",
+      "Manter equipamentos em bom estado"
     ],
+    procedimentos: {
+      "Rotina semanal": [
+        "Planejar zonas de poda e irrigação",
+        "Efetuar corte de grama e recolher aparas",
+        "Realizar adubação conforme cronograma",
+        "Remover ervas daninhas e resíduos vegetais"
+      ],
+      "Finalização": [
+        "Limpar área trabalhada e guardar ferramentas",
+        "Registrar atividades executadas"
+      ]
+    },
     equipamentos: [
-      "Cortador de grama",
-      "Tesoura de poda e ferramentas de jardinagem",
-      "Mangueiras e sistema de irrigação",
-      "Rastelos, enxadas e pás",
-      "Adubos e produtos para controle de pragas",
-      "EPIs (luvas, botas, protetor solar)"
+      "Tesouras, roçadeira, soprador, enxada e pá",
+      "Luvas, botas e protetor auricular",
+      "Adubos e fertilizantes"
     ],
     registros: [
       "Cronograma mensal de jardinagem",
       "Controle de adubação e tratamentos",
       "Registro de serviços realizados"
+    ],
+    treinamento: [
+      "Técnicas de poda e irrigação",
+      "Operação segura de equipamentos",
+      "Controle de pragas"
+    ],
+    indicadores: [
+      "Condição visual das áreas verdes",
+      "Cumprimento de cronograma",
+      "Fotos comparativas (antes e depois)"
+    ]
+  },
+  piscineiro: {
+    objetivo: "Manter a piscina limpa, tratada e segura para uso.",
+    aplicacao: "Este procedimento aplica-se a todos os funcionários responsáveis pela manutenção de piscinas do condomínio.",
+    responsabilidades: [
+      "Verificar pH e cloro diariamente",
+      "Controlar produtos químicos e dosagens",
+      "Limpar e aspirar a piscina conforme cronograma"
+    ],
+    procedimentos: {
+      "Diário": [
+        "Medir pH e cloro livre e ajustar dosagens",
+        "Limpar bordas e peneirar superfície",
+        "Aspirar fundo e verificar filtros",
+        "Registrar parâmetros e produtos usados"
+      ],
+      "Semanal": [
+        "Realizar backwash e inspeção da bomba",
+        "Verificar vazamentos e funcionamento geral"
+      ]
+    },
+    equipamentos: [
+      "Kit de teste de pH e cloro",
+      "Aspirador, escova e peneira",
+      "Produtos químicos (cloro, algicida, clarificante)",
+      "EPIs (luvas, máscara, óculos)"
+    ],
+    registros: [
+      "Planilha de parâmetros diários",
+      "Controle de produtos químicos",
+      "Relatório semanal de manutenção"
+    ],
+    treinamento: [
+      "Balanceamento químico da água",
+      "Segurança química",
+      "Manutenção do sistema hidráulico"
+    ],
+    indicadores: [
+      "Parâmetros dentro da faixa ideal",
+      "Registros diários completos",
+      "Zero reclamações por água turva"
     ]
   },
   manutencao: {
-    objetivo: "Estabelecer procedimentos para manutenção predial preventiva e corretiva, garantindo o funcionamento adequado das instalações e segurança dos usuários.",
+    objetivo: "Executar reparos simples e apoiar inspeções de manutenção predial.",
     aplicacao: "Este procedimento aplica-se a todos os profissionais envolvidos na manutenção predial do condomínio.",
-    responsabilidades: "Técnico de Manutenção: Executar manutenções conforme programação.\nSupervisor: Coordenar as atividades e priorizar demandas.\nSíndico/Administração: Aprovar procedimento e fornecer recursos necessários.",
-    procedimentos: [
-      "Realizar inspeções periódicas em todas as instalações prediais",
-      "Verificar funcionamento de sistemas elétricos, hidráulicos e de gás",
-      "Executar manutenção preventiva conforme cronograma estabelecido",
-      "Realizar reparos corretivos em sistemas e equipamentos",
-      "Testar sistemas de segurança (alarmes, extintores, iluminação de emergência)",
-      "Lubrificar equipamentos e componentes mecânicos",
-      "Registrar todas as atividades realizadas",
-      "Solicitar serviços especializados quando necessário",
-      "Manter estoque de peças e materiais de reposição"
+    responsabilidades: [
+      "Realizar reparos elétricos e hidráulicos de baixa complexidade",
+      "Apoiar inspeções preventivas",
+      "Reportar falhas e riscos à gestão"
     ],
+    procedimentos: {
+      "Elétrica": [
+        "Desligar circuito e testar ausência de tensão",
+        "Substituir lâmpadas e tomadas",
+        "Religar e testar funcionamento"
+      ],
+      "Hidráulica": [
+        "Fechar registro e corrigir vazamentos simples",
+        "Trocar vedações e sifões"
+      ],
+      "Preventiva": [
+        "Executar checklist semanal de iluminação, bombas e tomadas",
+        "Comunicar anomalias e solicitar técnico especializado se necessário"
+      ]
+    },
     equipamentos: [
-      "Ferramentas elétricas e manuais",
-      "Multímetro e equipamentos de medição",
-      "Escadas e andaimes",
-      "Materiais elétricos, hidráulicos e de construção",
-      "EPIs completos (capacete, luvas, óculos, etc.)"
+      "Ferramentas manuais e elétricas",
+      "Multímetro",
+      "EPIs (luvas, óculos)",
+      "Materiais de reposição (lâmpadas, tomadas, vedações)"
     ],
     registros: [
       "Cronograma de manutenção preventiva",
       "Relatório de manutenções realizadas",
-      "Controle de materiais e peças utilizadas",
-      "Registro de chamados e ocorrências"
+      "Controle de materiais e peças utilizadas"
+    ],
+    treinamento: [
+      "NR-10 básica",
+      "Noções de elétrica e hidráulica",
+      "Segurança no uso de ferramentas"
+    ],
+    indicadores: [
+      "Taxa de resolução de falhas simples",
+      "Checklists 100% preenchidos",
+      "Zero acidentes"
+    ]
+  },
+  concierge: {
+    objetivo: "Oferecer atendimento personalizado aos moradores e visitantes do condomínio.",
+    aplicacao: "Este procedimento aplica-se a todos os funcionários de concierge do condomínio.",
+    responsabilidades: [
+      "Gerenciar reservas de espaços e atendimento de solicitações",
+      "Atender moradores presencialmente e via telefone",
+      "Registrar e acompanhar demandas até a resolução"
+    ],
+    procedimentos: {
+      "Atendimento": [
+        "Cumprimentar e identificar a solicitação",
+        "Registrar no sistema (solicitante, assunto, prazo)",
+        "Encaminhar demanda ao setor responsável",
+        "Retornar com solução ou status atualizado"
+      ],
+      "Reservas": [
+        "Verificar disponibilidade de espaço",
+        "Confirmar e registrar agendamento conforme regras internas"
+      ]
+    },
+    equipamentos: [
+      "Computador ou tablet",
+      "Telefone ou interfone",
+      "Sistema de reservas e atendimento"
+    ],
+    registros: [
+      "Sistema de gestão de solicitações",
+      "Agenda de reservas",
+      "Relatório de atendimentos"
+    ],
+    treinamento: [
+      "Atendimento e etiqueta corporativa",
+      "Comunicação escrita e verbal",
+      "Gestão de sistemas condominiais"
+    ],
+    indicadores: [
+      "Tempo médio de atendimento",
+      "Satisfação dos moradores",
+      "Cumprimento das regras de reservas"
+    ]
+  },
+  administrador: {
+    objetivo: "Gerir processos administrativos, financeiros e contratuais do condomínio com eficiência e transparência.",
+    aplicacao: "Este procedimento aplica-se ao administrador dedicado do condomínio.",
+    responsabilidades: [
+      "Elaborar relatórios mensais e controlar orçamento",
+      "Supervisionar fornecedores e contratos",
+      "Atuar como elo entre síndico e empresa"
+    ],
+    procedimentos: {
+      "Ciclo mensal": [
+        "Consolidar receitas e despesas",
+        "Atualizar previsão orçamentária e fluxo de caixa",
+        "Emitir relatório financeiro e prestação de contas",
+        "Revisar contratos e fornecedores",
+        "Preparar pauta de assembleias e comunicações"
+      ]
+    },
+    equipamentos: [
+      "Computador e acesso a sistema administrativo",
+      "Planilhas e documentos fiscais",
+      "Repositório de arquivos digitais"
+    ],
+    registros: [
+      "Relatórios financeiros mensais",
+      "Atas de reuniões",
+      "Controle de contratos"
+    ],
+    treinamento: [
+      "Gestão financeira condominial",
+      "Legislação e compliance",
+      "Comunicação executiva"
+    ],
+    indicadores: [
+      "Aderência ao orçamento",
+      "Pontualidade na prestação de contas",
+      "Feedback do síndico e da diretoria"
     ]
   }
 };
