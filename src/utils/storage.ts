@@ -1,4 +1,5 @@
 import { POP } from "@/types/pop";
+import { migrateAllPOPs } from "./migration";
 
 const STORAGE_KEY = "singpop_pops";
 
@@ -12,7 +13,8 @@ export const getAllPOPs = (): POP[] => {
   const stored = localStorage.getItem(STORAGE_KEY);
   if (!stored) return [];
   try {
-    return JSON.parse(stored);
+    const pops = JSON.parse(stored);
+    return migrateAllPOPs(pops);
   } catch {
     return [];
   }

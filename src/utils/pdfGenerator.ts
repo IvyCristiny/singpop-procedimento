@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { POP, popTemplates } from "@/types/pop";
+import { POP } from "@/types/pop";
+import { Activity } from "@/types/schema";
 
 export const generatePDF = (pop: POP) => {
   const doc = new jsPDF();

@@ -1,7 +1,10 @@
+import { ProcedureStep } from "./schema";
+
 export interface POP {
   id: string;
   condominioNome: string;
-  tipoPOP: string;
+  functionId: string;        // NOVO: ID da função
+  activityId: string;        // NOVO: ID da atividade
   codigoPOP: string;
   versao: string;
   dataEmissao: string;
@@ -9,7 +12,11 @@ export interface POP {
   aprovadoPor: string;
   turno?: string;
   observacoes?: string;
+  customSteps?: ProcedureStep[];  // NOVO: Steps personalizados
   createdAt: string;
+  
+  // Manter compatibilidade temporária
+  tipoPOP?: string;
 }
 
 export interface POPTemplate {
