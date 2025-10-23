@@ -32,7 +32,7 @@ export const generatePDF = (pop: POP, activity: Activity) => {
   // Tipo do POP
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text(pop.tipoPOP.toUpperCase(), 14, 48);
+  doc.text(activity.name.toUpperCase(), 14, 48);
   
   // Informações do documento
   doc.setFontSize(10);
