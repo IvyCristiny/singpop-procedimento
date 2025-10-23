@@ -6,7 +6,7 @@ import { Plus, Search, Filter, FileText } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { getAllPOPs } from "@/utils/storage";
-import { POP, turnosDisponiveis } from "@/types/pop";
+import { POP } from "@/types/pop";
 import { catalog } from "@/data/catalog";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
@@ -15,7 +15,6 @@ const Index = () => {
   const [pops, setPops] = useState<POP[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
-  const [filterTurno, setFilterTurno] = useState<string>("todos");
 
   const loadPOPs = () => {
     setPops(getAllPOPs());
@@ -31,8 +30,7 @@ const Index = () => {
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchFuncao = filterFuncao === "todos" || pop.functionId === filterFuncao;
-    const matchTurno = filterTurno === "todos" || pop.turno === filterTurno;
-    return matchSearch && matchFuncao && matchTurno;
+    return matchSearch && matchFuncao;
   });
 
   if (showForm) {
@@ -106,21 +104,6 @@ const Index = () => {
                   ))}
                 </SelectContent>
               </Select>
-
-              <Select value={filterTurno} onValueChange={setFilterTurno}>
-                <SelectTrigger className="w-full sm:w-[200px]">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Turno" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todos os turnos</SelectItem>
-                  {turnosDisponiveis.map((turno) => (
-                    <SelectItem key={turno.value} value={turno.value}>
-                      {turno.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           )}
         </div>
@@ -148,7 +131,6 @@ const Index = () => {
               onClick={() => {
                 setSearchTerm("");
                 setFilterFuncao("todos");
-                setFilterTurno("todos");
               }}
               variant="outline"
             >

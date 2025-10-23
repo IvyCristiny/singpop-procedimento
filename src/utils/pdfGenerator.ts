@@ -33,12 +33,12 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   
   // Símbolos ASCII para substituir emojis (compatíveis com jsPDF)
   const icons = {
-    objetivo: "[>]",
-    aplicacao: "[#]",
+    objetivo: "[O]",
+    aplicacao: "[A]",
     responsabilidades: "[=]",
-    procedimento: "[@]",
+    procedimento: "[P]",
     recursos: "[*]",
-    treinamento: "[+]",
+    treinamento: "[T]",
     indicadores: "[%]",
     observacoes: "[!]",
     tempo: "[T]",
@@ -107,13 +107,8 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   doc.text(`Código: ${pop.codigoPOP}`, 142, 10);
   doc.text(`Versão: ${pop.versao}`, 142, 14);
   doc.text(`Condomínio: ${pop.condominioNome}`, 142, 18);
-  
-  const turnoLabel = pop.turno === "24h" ? "24h" :
-                     pop.turno === "12h-diurno" ? "12h Diurno" :
-                     pop.turno === "12h-noturno" ? "12h Noturno" :
-                     pop.turno === "8h-comercial" ? "8h Comercial" : "N/A";
-  doc.text(`Turno: ${turnoLabel}`, 142, 22);
-  doc.text(`Emissão: ${new Date(pop.dataEmissao).toLocaleDateString("pt-BR")}`, 142, 26);
+  doc.text(`Revisado em: ${new Date(pop.dataRevisao).toLocaleDateString("pt-BR")}`, 142, 22);
+  doc.text(`Apresentado em: ${new Date(pop.dataApresentacao).toLocaleDateString("pt-BR")}`, 142, 26);
   
   let yPosition = 42;
   
@@ -351,11 +346,11 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
     // Direita: Paginação
     doc.text(`Pagina ${i}/${pageCount}`, 196, 285, { align: "right" });
     
-    // Segunda linha: Data de emissão
+    // Segunda linha: Informações de revisão
     doc.setFontSize(6);
-    doc.text(`Emissao: ${new Date(pop.dataEmissao).toLocaleDateString("pt-BR")}`, 14, 289);
-    doc.text("[REV] Revisao anual ou a cada alteracao de processo", 105, 289, { align: "center" });
-    doc.text(`${pop.responsavelElaboracao} / ${pop.aprovadoPor}`, 196, 289, { align: "right" });
+    doc.text(`Revisado em: ${new Date(pop.dataRevisao).toLocaleDateString("pt-BR")}`, 14, 289);
+    doc.text(`Apresentado em: ${new Date(pop.dataApresentacao).toLocaleDateString("pt-BR")}`, 105, 289, { align: "center" });
+    doc.text(`${pop.responsavelElaboracao} / ${pop.nomeColaborador}`, 196, 289, { align: "right" });
   }
   
   return doc;

@@ -24,14 +24,6 @@ interface POPFormProps {
   onSave: () => void;
 }
 
-const turnosDisponiveis = [
-  { value: "24h", label: "24 horas" },
-  { value: "12h-diurno", label: "12 horas - Diurno (06h-18h)" },
-  { value: "12h-noturno", label: "12 horas - Noturno (18h-06h)" },
-  { value: "8h", label: "8 horas - Comercial" },
-  { value: "n/a", label: "Não aplicável" }
-];
-
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   
@@ -43,10 +35,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const [formData, setFormData] = useState({
     condominioNome: "",
     versao: "01",
-    dataEmissao: new Date().toISOString().split("T")[0],
+    dataRevisao: new Date().toISOString().split("T")[0],
     responsavelElaboracao: "",
-    aprovadoPor: "",
-    turno: "",
+    nomeColaborador: "",
+    dataApresentacao: new Date().toISOString().split("T")[0],
     observacoes: ""
   });
 
@@ -109,7 +101,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
-    if (!formData.condominioNome || !formData.responsavelElaboracao || !formData.aprovadoPor) {
+    if (!formData.condominioNome || !formData.responsavelElaboracao || !formData.nomeColaborador) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios antes de gerar o PDF.",
@@ -139,10 +131,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       activityId: selectedActivityId,
       codigoPOP,
       versao: formData.versao,
-      dataEmissao: formData.dataEmissao,
+      dataRevisao: formData.dataRevisao,
       responsavelElaboracao: formData.responsavelElaboracao,
-      aprovadoPor: formData.aprovadoPor,
-      turno: formData.turno,
+      nomeColaborador: formData.nomeColaborador,
+      dataApresentacao: formData.dataApresentacao,
       observacoes: formData.observacoes,
       customSteps: useCustomSteps ? customSteps : undefined,
       createdAt: new Date().toISOString()
@@ -233,33 +225,27 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="turno">Turno/Jornada</Label>
-                      <Select value={formData.turno} onValueChange={(value) => handleInputChange("turno", value)}>
-                        <SelectTrigger id="turno">
-                          <SelectValue placeholder="Selecione o turno" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {turnosDisponiveis.map((turno) => (
-                            <SelectItem key={turno.value} value={turno.value}>
-                              {turno.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
                       <Label htmlFor="versao">Versão</Label>
                       <Input id="versao" value={formData.versao} onChange={(e) => handleInputChange("versao", e.target.value)} />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="dataEmissao">Data de Emissão</Label>
+                      <Label htmlFor="dataRevisao">Revisado em *</Label>
                       <Input
-                        id="dataEmissao"
+                        id="dataRevisao"
                         type="date"
-                        value={formData.dataEmissao}
-                        onChange={(e) => handleInputChange("dataEmissao", e.target.value)}
+                        value={formData.dataRevisao}
+                        onChange={(e) => handleInputChange("dataRevisao", e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="dataApresentacao">Data de Apresentação *</Label>
+                      <Input
+                        id="dataApresentacao"
+                        type="date"
+                        value={formData.dataApresentacao}
+                        onChange={(e) => handleInputChange("dataApresentacao", e.target.value)}
                       />
                     </div>
 
@@ -273,11 +259,12 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="aprovadoPor">Aprovado Por *</Label>
+                      <Label htmlFor="nomeColaborador">Nome do Colaborador *</Label>
                       <Input
-                        id="aprovadoPor"
-                        value={formData.aprovadoPor}
-                        onChange={(e) => handleInputChange("aprovadoPor", e.target.value)}
+                        id="nomeColaborador"
+                        value={formData.nomeColaborador}
+                        onChange={(e) => handleInputChange("nomeColaborador", e.target.value)}
+                        placeholder="Nome completo do colaborador"
                       />
                     </div>
                   </div>

@@ -81,18 +81,6 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
           <Badge variant="secondary" className="shrink-0">v{pop.versao}</Badge>
         </div>
 
-        {pop.turno && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Clock className="w-3 h-3" />
-            <span>
-              {pop.turno === "24h" ? "24 horas" :
-               pop.turno === "12h-diurno" ? "12h diurno" :
-               pop.turno === "12h-noturno" ? "12h noturno" :
-               pop.turno === "8h-comercial" ? "8h comercial" : "Não aplicável"}
-            </span>
-          </div>
-        )}
-
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><span className="font-medium">Código:</span> {pop.codigoPOP}</p>
           <p><span className="font-medium">Criado em:</span> {new Date(pop.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</p>

@@ -3,16 +3,16 @@ import { ProcedureStep } from "./schema";
 export interface POP {
   id: string;
   condominioNome: string;
-  functionId: string;        // NOVO: ID da função
-  activityId: string;        // NOVO: ID da atividade
+  functionId: string;
+  activityId: string;
   codigoPOP: string;
   versao: string;
-  dataEmissao: string;
+  dataRevisao: string;
   responsavelElaboracao: string;
-  aprovadoPor: string;
-  turno?: string;
+  nomeColaborador: string;
+  dataApresentacao: string;
   observacoes?: string;
-  customSteps?: ProcedureStep[];  // NOVO: Steps personalizados
+  customSteps?: ProcedureStep[];
   createdAt: string;
   
   // Manter compatibilidade temporária
