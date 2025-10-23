@@ -6,6 +6,7 @@ import { POP, tiposPOP } from "@/types/pop";
 import { downloadPDF } from "@/utils/pdfGenerator";
 import { deletePOP } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
+import { catalog } from "@/data/catalog";
 
 const iconMap: Record<string, any> = {
   ShieldCheck,
@@ -30,7 +31,19 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
   const IconComponent = tipoInfo?.icon ? iconMap[tipoInfo.icon] : FileDown;
 
   const handleDownload = () => {
-    downloadPDF(pop);
+    // Find activity from catalog
+    const func = catalog.functions.find(f => f.id === pop.functionId);
+    const activity = func?.activities.find(a => a.id === pop.activityId);
+    
+    if (activity) {
+      downloadPDF(pop, activity);
+    } else {
+      toast({
+        title: "Erro ao gerar PDF",
+        description: "Atividade não encontrada no catálogo.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleDelete = () => {

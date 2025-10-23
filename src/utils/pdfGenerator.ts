@@ -3,9 +3,8 @@ import autoTable from "jspdf-autotable";
 import { POP } from "@/types/pop";
 import { Activity } from "@/types/schema";
 
-export const generatePDF = (pop: POP) => {
+export const generatePDF = (pop: POP, activity: Activity) => {
   const doc = new jsPDF();
-  const template = popTemplates[pop.tipoPOP];
   
   // Cores Singular
   const primaryGreen = [0, 122, 100]; // #007A64
@@ -84,7 +83,7 @@ export const generatePDF = (pop: POP) => {
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(26, 53, 92);
-  const objetivoLines = doc.splitTextToSize(template.objetivo, 180);
+  const objetivoLines = doc.splitTextToSize(activity.objective, 180);
   doc.text(objetivoLines, 14, yPosition);
   yPosition += objetivoLines.length * 5 + 8;
   
@@ -103,160 +102,42 @@ export const generatePDF = (pop: POP) => {
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(26, 53, 92);
-  const aplicacaoLines = doc.splitTextToSize(template.aplicacao, 180);
+  const scopeText = activity.scope || "Aplicável a todas as situações relacionadas a esta atividade.";
+  const aplicacaoLines = doc.splitTextToSize(scopeText, 180);
   doc.text(aplicacaoLines, 14, yPosition);
   yPosition += aplicacaoLines.length * 5 + 8;
   
-  // 3. Responsabilidades
-  if (yPosition > 250) {
-    doc.addPage();
-    yPosition = 20;
-  }
-  
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-  doc.text("3. RESPONSABILIDADES", 14, yPosition);
-  yPosition += 7;
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(26, 53, 92);
-  
-  if (Array.isArray(template.responsabilidades)) {
-    template.responsabilidades.forEach((resp) => {
-      if (yPosition > 275) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      const respLines = doc.splitTextToSize(`• ${resp}`, 180);
-      doc.text(respLines, 14, yPosition);
-      yPosition += respLines.length * 5 + 2;
-    });
-  } else {
-    const respLines = doc.splitTextToSize(template.responsabilidades, 180);
-    doc.text(respLines, 14, yPosition);
-    yPosition += respLines.length * 5;
-  }
-  
-  yPosition += 8;
-  
-  // 4. Procedimentos
-  if (yPosition > 240) {
-    doc.addPage();
-    yPosition = 20;
-  }
-  
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-  doc.text("4. PROCEDIMENTOS", 14, yPosition);
-  yPosition += 7;
-  
-  doc.setFontSize(10);
-  doc.setTextColor(26, 53, 92);
-  
-  // Verificar se procedimentos está estruturado por fases
-  if (typeof template.procedimentos === 'object' && !Array.isArray(template.procedimentos)) {
-    let subIndex = 1;
-    Object.entries(template.procedimentos).forEach(([fase, procedimentos]) => {
-      if (yPosition > 260) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      // Título da fase
-      doc.setFont("helvetica", "bold");
-      doc.text(`4.${subIndex}. ${fase}`, 14, yPosition);
-      yPosition += 6;
-      
-      // Procedimentos da fase
-      doc.setFont("helvetica", "normal");
-      (procedimentos as string[]).forEach((proc) => {
-        if (yPosition > 275) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        const procLines = doc.splitTextToSize(`• ${proc}`, 175);
-        doc.text(procLines, 18, yPosition);
-        yPosition += procLines.length * 5 + 2;
-      });
-      
-      yPosition += 4;
-      subIndex++;
-    });
-  } else {
-    // Formato antigo (array)
+  // 3. Pré-requisitos
+  if (activity.prerequisites && activity.prerequisites.length > 0) {
+    if (yPosition > 250) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
+    doc.text("3. PRÉ-REQUISITOS", 14, yPosition);
+    yPosition += 7;
+    
+    doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    (template.procedimentos as unknown as string[]).forEach((proc, index) => {
-      if (yPosition > 270) {
+    doc.setTextColor(26, 53, 92);
+    
+    activity.prerequisites.forEach((prereq) => {
+      if (yPosition > 275) {
         doc.addPage();
         yPosition = 20;
       }
-      const procText = `${index + 1}. ${proc}`;
-      const procLines = doc.splitTextToSize(procText, 175);
-      doc.text(procLines, 18, yPosition);
-      yPosition += procLines.length * 5 + 3;
+      const prereqLines = doc.splitTextToSize(`• ${prereq}`, 180);
+      doc.text(prereqLines, 14, yPosition);
+      yPosition += prereqLines.length * 5 + 2;
     });
+    
+    yPosition += 8;
   }
   
-  yPosition += 5;
-  
-  // 5. Equipamentos e Materiais
-  if (yPosition > 240) {
-    doc.addPage();
-    yPosition = 20;
-  }
-  
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-  doc.text("5. EQUIPAMENTOS E MATERIAIS NECESSÁRIOS", 14, yPosition);
-  yPosition += 7;
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(26, 53, 92);
-  
-  template.equipamentos.forEach((equip) => {
-    if (yPosition > 275) {
-      doc.addPage();
-      yPosition = 20;
-    }
-    doc.text(`• ${equip}`, 18, yPosition);
-    yPosition += 5;
-  });
-  
-  yPosition += 5;
-  
-  // 6. Registros
-  if (yPosition > 240) {
-    doc.addPage();
-    yPosition = 20;
-  }
-  
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-  doc.text("6. REGISTROS", 14, yPosition);
-  yPosition += 7;
-  
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.setTextColor(26, 53, 92);
-  
-  template.registros.forEach((reg) => {
-    if (yPosition > 275) {
-      doc.addPage();
-      yPosition = 20;
-    }
-    doc.text(`• ${reg}`, 18, yPosition);
-    yPosition += 5;
-  });
-  
-  yPosition += 5;
-  
-  // 7. Treinamento Específico
+  // 4. Responsabilidades
   if (yPosition > 250) {
     doc.addPage();
     yPosition = 20;
@@ -265,32 +146,228 @@ export const generatePDF = (pop: POP) => {
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-  doc.text("7. TREINAMENTO ESPECÍFICO", 14, yPosition);
+  doc.text(`${activity.prerequisites ? '4' : '3'}. RESPONSABILIDADES`, 14, yPosition);
   yPosition += 7;
   
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(26, 53, 92);
   
-  if (template.treinamento && template.treinamento.length > 0) {
-    template.treinamento.forEach((treino) => {
-      if (yPosition > 275) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      doc.text(`• ${treino}`, 18, yPosition);
-      yPosition += 5;
-    });
-  } else {
-    const treinamentoText = "Todos os funcionários envolvidos devem ser treinados neste procedimento antes de iniciar suas atividades. O treinamento deve ser registrado e atualizado sempre que houver mudanças no procedimento.";
-    const treinamentoLines = doc.splitTextToSize(treinamentoText, 180);
-    doc.text(treinamentoLines, 14, yPosition);
-    yPosition += treinamentoLines.length * 5;
-  }
+  activity.responsibilities.forEach((resp) => {
+    if (yPosition > 275) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    const respLines = doc.splitTextToSize(`• ${resp}`, 180);
+    doc.text(respLines, 14, yPosition);
+    yPosition += respLines.length * 5 + 2;
+  });
   
   yPosition += 8;
   
-  // 8. Indicadores de Desempenho
+  // 5. Procedimentos Detalhados
+  const sectionNum = activity.prerequisites ? 5 : 4;
+  if (yPosition > 240) {
+    doc.addPage();
+    yPosition = 20;
+  }
+  
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
+  doc.text(`${sectionNum}. PROCEDIMENTOS`, 14, yPosition);
+  yPosition += 7;
+  
+  const steps = pop.customSteps || activity.procedure.steps;
+  
+  steps.forEach((step, index) => {
+    if (yPosition > 230) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    // Título do step
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
+    doc.text(`${sectionNum}.${index + 1}. ${step.title}`, 14, yPosition);
+    yPosition += 6;
+    
+    doc.setFontSize(9);
+    doc.setTextColor(26, 53, 92);
+    
+    // Instrução
+    doc.setFont("helvetica", "bold");
+    doc.text("O que fazer:", 18, yPosition);
+    doc.setFont("helvetica", "normal");
+    const instrLines = doc.splitTextToSize(step.instruction, 175);
+    doc.text(instrLines, 18, yPosition + 4);
+    yPosition += instrLines.length * 4 + 6;
+    
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    // Por quê
+    doc.setFont("helvetica", "bold");
+    doc.text("Por quê:", 18, yPosition);
+    doc.setFont("helvetica", "normal");
+    const whyLines = doc.splitTextToSize(step.why, 175);
+    doc.text(whyLines, 18, yPosition + 4);
+    yPosition += whyLines.length * 4 + 6;
+    
+    // Info compacta (who, time)
+    doc.setFont("helvetica", "normal");
+    doc.text(`Responsável: ${step.who} | Tempo: ${step.time_estimate_min} min`, 18, yPosition);
+    yPosition += 5;
+    
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    // Segurança
+    if (step.safety) {
+      doc.setFont("helvetica", "bold");
+      doc.text("⚠ Segurança:", 18, yPosition);
+      doc.setFont("helvetica", "normal");
+      const safetyLines = doc.splitTextToSize(step.safety, 175);
+      doc.text(safetyLines, 18, yPosition + 4);
+      yPosition += safetyLines.length * 4 + 6;
+    }
+    
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    // Controle de Qualidade
+    if (step.quality_check) {
+      doc.setFont("helvetica", "bold");
+      doc.text("✓ Controle:", 18, yPosition);
+      doc.setFont("helvetica", "normal");
+      const qcLines = doc.splitTextToSize(step.quality_check, 175);
+      doc.text(qcLines, 18, yPosition + 4);
+      yPosition += qcLines.length * 4 + 6;
+    }
+    
+    // Evidência
+    if (step.evidence) {
+      doc.setFont("helvetica", "bold");
+      doc.text("📋 Evidência:", 18, yPosition);
+      doc.setFont("helvetica", "normal");
+      const evidLines = doc.splitTextToSize(step.evidence, 175);
+      doc.text(evidLines, 18, yPosition + 4);
+      yPosition += evidLines.length * 4 + 6;
+    }
+    
+    yPosition += 3;
+  });
+  
+  yPosition += 5;
+  
+  // 6. Equipamentos e Materiais
+  const equipSectionNum = activity.prerequisites ? 6 : 5;
+  if (yPosition > 240) {
+    doc.addPage();
+    yPosition = 20;
+  }
+  
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
+  doc.text(`${equipSectionNum}. EQUIPAMENTOS E MATERIAIS`, 14, yPosition);
+  yPosition += 7;
+  
+  doc.setFontSize(10);
+  doc.setTextColor(26, 53, 92);
+  
+  // EPC
+  if (activity.equipment.epc.length > 0) {
+    doc.setFont("helvetica", "bold");
+    doc.text("EPC (Equipamento de Proteção Coletiva):", 14, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "normal");
+    activity.equipment.epc.forEach((item) => {
+      if (yPosition > 275) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`• ${item}`, 18, yPosition);
+      yPosition += 5;
+    });
+    yPosition += 3;
+  }
+  
+  // EPI
+  if (activity.equipment.epi.length > 0) {
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.text("EPI (Equipamento de Proteção Individual):", 14, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "normal");
+    activity.equipment.epi.forEach((item) => {
+      if (yPosition > 275) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`• ${item}`, 18, yPosition);
+      yPosition += 5;
+    });
+    yPosition += 3;
+  }
+  
+  // Ferramentas
+  if (activity.equipment.tools.length > 0) {
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.text("Ferramentas:", 14, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "normal");
+    activity.equipment.tools.forEach((item) => {
+      if (yPosition > 275) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`• ${item}`, 18, yPosition);
+      yPosition += 5;
+    });
+    yPosition += 3;
+  }
+  
+  // Consumíveis
+  if (activity.equipment.consumables.length > 0) {
+    if (yPosition > 270) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.text("Consumíveis:", 14, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "normal");
+    activity.equipment.consumables.forEach((item) => {
+      if (yPosition > 275) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`• ${item}`, 18, yPosition);
+      yPosition += 5;
+    });
+    yPosition += 3;
+  }
+  
+  yPosition += 5;
+  
+  
+  // 7. Treinamento Obrigatório
+  const trainSectionNum = activity.prerequisites ? 7 : 6;
   if (yPosition > 250) {
     doc.addPage();
     yPosition = 20;
@@ -299,27 +376,72 @@ export const generatePDF = (pop: POP) => {
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-  doc.text("8. INDICADORES DE DESEMPENHO", 14, yPosition);
+  doc.text(`${trainSectionNum}. TREINAMENTO OBRIGATÓRIO`, 14, yPosition);
   yPosition += 7;
   
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(26, 53, 92);
   
-  if (template.indicadores && template.indicadores.length > 0) {
-    template.indicadores.forEach((indicador) => {
-      if (yPosition > 275) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      doc.text(`• ${indicador}`, 18, yPosition);
-      yPosition += 5;
-    });
+  doc.setFont("helvetica", "bold");
+  doc.text("Módulos de treinamento:", 14, yPosition);
+  yPosition += 5;
+  
+  doc.setFont("helvetica", "normal");
+  activity.training.modules.forEach((module) => {
+    if (yPosition > 275) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.text(`• ${module}`, 18, yPosition);
+    yPosition += 5;
+  });
+  
+  yPosition += 3;
+  doc.setFont("helvetica", "bold");
+  doc.text(`Reciclagem: a cada ${activity.training.refresh_cadence_days} dias`, 14, yPosition);
+  yPosition += 8;
+  
+  // 8. Indicadores de Desempenho e Auditoria
+  const kpiSectionNum = activity.prerequisites ? 8 : 7;
+  if (yPosition > 250) {
+    doc.addPage();
+    yPosition = 20;
   }
   
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
+  doc.text(`${kpiSectionNum}. INDICADORES DE DESEMPENHO`, 14, yPosition);
+  yPosition += 7;
+  
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(26, 53, 92);
+  
+  doc.setFont("helvetica", "bold");
+  doc.text("KPIs de controle:", 14, yPosition);
+  yPosition += 5;
+  
+  doc.setFont("helvetica", "normal");
+  activity.review.kpis.forEach((kpi) => {
+    if (yPosition > 275) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    doc.text(`• ${kpi}`, 18, yPosition);
+    yPosition += 5;
+  });
+  
+  yPosition += 3;
+  doc.setFont("helvetica", "bold");
+  doc.text(`Auditoria: a cada ${activity.review.audit_frequency_days} dias`, 14, yPosition);
+  yPosition += 5;
+  doc.text(`Auditor responsável: ${activity.review.auditor_role}`, 14, yPosition);
   yPosition += 8;
   
   // 9. Observações Específicas do Condomínio
+  const obsSectionNum = activity.prerequisites ? 9 : 8;
   if (pop.observacoes && pop.observacoes.trim()) {
     if (yPosition > 240) {
       doc.addPage();
@@ -329,7 +451,7 @@ export const generatePDF = (pop: POP) => {
     doc.setFontSize(12);
     doc.setFont("helvetica", "bold");
     doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-    doc.text("9. OBSERVAÇÕES ESPECÍFICAS DO CONDOMÍNIO", 14, yPosition);
+    doc.text(`${obsSectionNum}. OBSERVAÇÕES ESPECÍFICAS DO CONDOMÍNIO`, 14, yPosition);
     yPosition += 7;
     
     doc.setFontSize(10);
@@ -340,7 +462,8 @@ export const generatePDF = (pop: POP) => {
     yPosition += obsLines.length * 5 + 8;
   }
   
-  // 10. Revisão
+  // 10. Controle de Versão
+  const versionSectionNum = pop.observacoes ? obsSectionNum + 1 : obsSectionNum;
   if (yPosition > 260) {
     doc.addPage();
     yPosition = 20;
@@ -349,15 +472,31 @@ export const generatePDF = (pop: POP) => {
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(primaryGreen[0], primaryGreen[1], primaryGreen[2]);
-  doc.text(pop.observacoes ? "10. REVISÃO" : "9. REVISÃO", 14, yPosition);
+  doc.text(`${versionSectionNum}. CONTROLE DE VERSÃO`, 14, yPosition);
   yPosition += 7;
   
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
   doc.setTextColor(26, 53, 92);
-  const revisaoText = "Este procedimento deve ser revisado anualmente ou sempre que houver mudanças significativas nas operações, equipamentos ou legislação aplicável.";
-  const revisaoLines = doc.splitTextToSize(revisaoText, 180);
-  doc.text(revisaoLines, 14, yPosition);
+  
+  doc.setFont("helvetica", "bold");
+  doc.text(`Versão atual: ${activity.versioning.current_version}`, 14, yPosition);
+  yPosition += 5;
+  doc.text(`Última revisão: ${new Date(activity.versioning.last_review_date).toLocaleDateString('pt-BR')}`, 14, yPosition);
+  yPosition += 7;
+  
+  if (activity.versioning.changelog.length > 0) {
+    doc.text("Histórico de alterações:", 14, yPosition);
+    yPosition += 5;
+    doc.setFont("helvetica", "normal");
+    activity.versioning.changelog.forEach((change) => {
+      if (yPosition > 275) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      doc.text(`• ${change}`, 18, yPosition);
+      yPosition += 5;
+    });
+  }
   
   // Rodapé em todas as páginas
   const pageCount = doc.getNumberOfPages();
@@ -382,8 +521,8 @@ export const generatePDF = (pop: POP) => {
   return doc;
 };
 
-export const downloadPDF = (pop: POP) => {
-  const doc = generatePDF(pop);
+export const downloadPDF = (pop: POP, activity: Activity) => {
+  const doc = generatePDF(pop, activity);
   const fileName = `POP_${pop.codigoPOP}_${pop.condominioNome.replace(/\s+/g, "_")}.pdf`;
   doc.save(fileName);
 };

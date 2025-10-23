@@ -149,7 +149,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     };
 
     savePOP(pop);
-    downloadPDF(pop, selectedActivity);
+    downloadPDF(pop, selectedActivity!);
     
     localStorage.removeItem("pop_draft");
     
