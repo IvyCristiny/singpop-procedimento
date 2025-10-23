@@ -24,12 +24,27 @@ const getImageAsBase64 = async (imageUrl: string): Promise<string> => {
 export const generatePDF = async (pop: POP, activity: Activity) => {
   const doc = new jsPDF();
   
-  // Cores Singular v2
+  // Cores Singular v2 - Apenas verde, branco e preto
   const singularGreen: [number, number, number] = [0, 154, 103]; // #009A67
-  const singularBlue: [number, number, number] = [0, 76, 151]; // #004C97
+  const singularGreenDark: [number, number, number] = [0, 120, 80]; // #007850
   const singularGray: [number, number, number] = [242, 242, 242]; // #F2F2F2
   const darkText: [number, number, number] = [51, 51, 51]; // #333333
   const lightText: [number, number, number] = [102, 102, 102]; // #666666
+  
+  // Símbolos ASCII para substituir emojis (compatíveis com jsPDF)
+  const icons = {
+    objetivo: "[>]",
+    aplicacao: "[#]",
+    responsabilidades: "[=]",
+    procedimento: "[@]",
+    recursos: "[*]",
+    treinamento: "[+]",
+    indicadores: "[%]",
+    observacoes: "[!]",
+    tempo: "[T]",
+    seguranca: "[!]",
+    ok: "OK"
+  };
   
   // Carregar logo em base64
   const logoBase64 = await getImageAsBase64(logoSingular);
@@ -43,19 +58,19 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
     width: number = 182
   ) => {
     doc.setFillColor(singularGray[0], singularGray[1], singularGray[2]);
-    doc.roundedRect(14, yPos - 5, width, 8, 1, 1, "F");
+    doc.roundedRect(14, yPos - 6, width, 10, 1, 1, "F");
     
     doc.setTextColor(color[0], color[1], color[2]);
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text(`${icon} ${title}`, 16, yPos);
     
-    return yPos + 8;
+    return yPos + 10;
   };
   
   // ==================== CABEÇALHO ====================
-  // Faixa superior azul
-  doc.setFillColor(singularBlue[0], singularBlue[1], singularBlue[2]);
+  // Faixa superior verde
+  doc.setFillColor(singularGreen[0], singularGreen[1], singularGreen[2]);
   doc.rect(0, 0, 210, 35, "F");
   
   // Logo Singular (lado esquerdo)
@@ -109,11 +124,11 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   
   // Coluna 1 - Objetivo
   doc.setFillColor(singularGray[0], singularGray[1], singularGray[2]);
-  doc.roundedRect(col1X, yPosition, colWidth, 25, 2, 2, "F");
+  doc.roundedRect(col1X, yPosition, colWidth, 28, 2, 2, "F");
   doc.setTextColor(singularGreen[0], singularGreen[1], singularGreen[2]);
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text("🎯 OBJETIVO", col1X + 3, yPosition + 5);
+  doc.text(`${icons.objetivo} OBJETIVO`, col1X + 3, yPosition + 5);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
@@ -122,11 +137,11 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   
   // Coluna 2 - Campo de Aplicação
   doc.setFillColor(singularGray[0], singularGray[1], singularGray[2]);
-  doc.roundedRect(col2X, yPosition, colWidth, 25, 2, 2, "F");
-  doc.setTextColor(singularBlue[0], singularBlue[1], singularBlue[2]);
+  doc.roundedRect(col2X, yPosition, colWidth, 28, 2, 2, "F");
+  doc.setTextColor(singularGreenDark[0], singularGreenDark[1], singularGreenDark[2]);
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text("🏢 CAMPO DE APLICAÇÃO", col2X + 3, yPosition + 5);
+  doc.text(`${icons.aplicacao} CAMPO DE APLICACAO`, col2X + 3, yPosition + 5);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
@@ -134,22 +149,22 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   const scopeLines = doc.splitTextToSize(scopeText, colWidth - 6);
   doc.text(scopeLines, col2X + 3, yPosition + 10);
   
-  yPosition += 30;
+  yPosition += 33;
   
   // ==================== BLOCO 2: RESPONSABILIDADES ====================
-  yPosition = drawSectionBlock(yPosition, "👥", "RESPONSABILIDADES", singularBlue);
+  yPosition = drawSectionBlock(yPosition, icons.responsabilidades, "RESPONSABILIDADES", singularGreenDark);
   
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
   
   activity.responsibilities.forEach((resp) => {
-    let icon = "👤";
-    if (resp.toLowerCase().includes("asg")) icon = "🧹";
-    if (resp.toLowerCase().includes("zelador")) icon = "👷";
-    if (resp.toLowerCase().includes("gestão") || resp.toLowerCase().includes("gestor")) icon = "👔";
+    let prefix = "";
+    if (resp.toLowerCase().includes("asg")) prefix = "[ASG] ";
+    if (resp.toLowerCase().includes("zelador")) prefix = "[ZEL] ";
+    if (resp.toLowerCase().includes("gestão") || resp.toLowerCase().includes("gestor")) prefix = "[GES] ";
     
-    doc.text(`${icon} ${resp}`, 16, yPosition);
+    doc.text(`${prefix}${resp}`, 16, yPosition);
     yPosition += 5;
   });
   
@@ -161,7 +176,7 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
     yPosition = 20;
   }
   
-  yPosition = drawSectionBlock(yPosition, "📋", "PROCEDIMENTO OPERACIONAL", singularGreen);
+  yPosition = drawSectionBlock(yPosition, icons.procedimento, "PROCEDIMENTO OPERACIONAL", singularGreen);
   
   const steps = pop.customSteps || activity.procedure.steps;
   
@@ -172,8 +187,8 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
     step.instruction.substring(0, 45) + (step.instruction.length > 45 ? "..." : ""),
     step.why.substring(0, 35) + (step.why.length > 35 ? "..." : ""),
     `${step.time_estimate_min}min`,
-    step.safety ? "⚠️" : "✓",
-    step.quality_check ? "✓" : "-"
+    step.safety ? icons.seguranca : icons.ok,
+    step.quality_check ? icons.ok : "-"
   ]);
   
   autoTable(doc, {
@@ -194,13 +209,13 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
       textColor: darkText
     },
     columnStyles: {
-      0: { cellWidth: 8, halign: "center", fillColor: singularGray },
-      1: { cellWidth: 28, fontStyle: "bold" },
-      2: { cellWidth: 48 },
-      3: { cellWidth: 40 },
+      0: { cellWidth: 10, halign: "center", fillColor: singularGray },
+      1: { cellWidth: 35, fontStyle: "bold" },
+      2: { cellWidth: 45 },
+      3: { cellWidth: 38 },
       4: { cellWidth: 15, halign: "center" },
-      5: { cellWidth: 10, halign: "center" },
-      6: { cellWidth: 10, halign: "center" }
+      5: { cellWidth: 12, halign: "center" },
+      6: { cellWidth: 12, halign: "center" }
     },
     alternateRowStyles: {
       fillColor: [250, 250, 250]
@@ -214,7 +229,7 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   doc.setFont("helvetica", "bold");
   doc.setTextColor(singularGreen[0], singularGreen[1], singularGreen[2]);
   const totalTime = steps.reduce((sum, step) => sum + step.time_estimate_min, 0);
-  doc.text(`⏱️ Tempo total estimado: ${totalTime} minutos`, 14, yPosition);
+  doc.text(`${icons.tempo} Tempo total estimado: ${totalTime} minutos`, 14, yPosition);
   yPosition += 10;
   
   // ==================== BLOCO 4: RECURSOS NECESSÁRIOS ====================
@@ -223,13 +238,13 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
     yPosition = 20;
   }
   
-  yPosition = drawSectionBlock(yPosition, "⚙️", "RECURSOS NECESSÁRIOS", singularBlue);
+  yPosition = drawSectionBlock(yPosition, icons.recursos, "RECURSOS NECESSARIOS", singularGreenDark);
   
   const equipData = [
-    ["🚧 EPC", activity.equipment.epc.join(", ") || "N/A"],
-    ["🧤 EPI", activity.equipment.epi.join(", ") || "N/A"],
-    ["🔧 Ferramentas", activity.equipment.tools.join(", ") || "N/A"],
-    ["🧴 Consumíveis", activity.equipment.consumables.join(", ") || "N/A"]
+    ["[EPC]", activity.equipment.epc.join(", ") || "N/A"],
+    ["[EPI]", activity.equipment.epi.join(", ") || "N/A"],
+    ["[FER]", activity.equipment.tools.join(", ") || "N/A"],
+    ["[CON]", activity.equipment.consumables.join(", ") || "N/A"]
   ];
   
   autoTable(doc, {
@@ -241,7 +256,7 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
       cellPadding: 3
     },
     columnStyles: {
-      0: { fontStyle: "bold", cellWidth: 35, textColor: singularBlue },
+      0: { fontStyle: "bold", cellWidth: 35, textColor: singularGreenDark },
       1: { cellWidth: 147 }
     }
   });
@@ -257,10 +272,10 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   // Coluna 1 - Treinamento
   doc.setFillColor(singularGray[0], singularGray[1], singularGray[2]);
   doc.roundedRect(col1X, yPosition, colWidth, 35, 2, 2, "F");
-  doc.setTextColor(singularBlue[0], singularBlue[1], singularBlue[2]);
+  doc.setTextColor(singularGreenDark[0], singularGreenDark[1], singularGreenDark[2]);
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text("📘 TREINAMENTO", col1X + 3, yPosition + 5);
+  doc.text(`${icons.treinamento} TREINAMENTO`, col1X + 3, yPosition + 5);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
@@ -279,7 +294,7 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
   doc.setTextColor(singularGreen[0], singularGreen[1], singularGreen[2]);
   doc.setFontSize(10);
   doc.setFont("helvetica", "bold");
-  doc.text("🧩 INDICADORES", col2X + 3, yPosition + 5);
+  doc.text(`${icons.indicadores} INDICADORES`, col2X + 3, yPosition + 5);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
@@ -302,7 +317,7 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
       yPosition = 20;
     }
     
-    yPosition = drawSectionBlock(yPosition, "📝", "OBSERVAÇÕES DO CONDOMÍNIO", singularBlue);
+    yPosition = drawSectionBlock(yPosition, icons.observacoes, "OBSERVACOES DO CONDOMINIO", singularGreenDark);
     
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
@@ -331,15 +346,15 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
     doc.text(`${pop.codigoPOP} • v${pop.versao}`, 14, 285);
     
     // Centro: Documento controlado
-    doc.text("📄 Documento controlado – Singular Serviços", 105, 285, { align: "center" });
+    doc.text("[DOC] Documento controlado - Singular Servicos", 105, 285, { align: "center" });
     
     // Direita: Paginação
-    doc.text(`Página ${i}/${pageCount}`, 196, 285, { align: "right" });
+    doc.text(`Pagina ${i}/${pageCount}`, 196, 285, { align: "right" });
     
     // Segunda linha: Data de emissão
     doc.setFontSize(6);
-    doc.text(`Emissão: ${new Date(pop.dataEmissao).toLocaleDateString("pt-BR")}`, 14, 289);
-    doc.text("👁️ Revisão anual ou a cada alteração de processo", 105, 289, { align: "center" });
+    doc.text(`Emissao: ${new Date(pop.dataEmissao).toLocaleDateString("pt-BR")}`, 14, 289);
+    doc.text("[REV] Revisao anual ou a cada alteracao de processo", 105, 289, { align: "center" });
     doc.text(`${pop.responsavelElaboracao} / ${pop.aprovadoPor}`, 196, 289, { align: "right" });
   }
   
