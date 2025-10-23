@@ -171,6 +171,79 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Dados do Condomínio</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="condominioNome">Nome do Condomínio *</Label>
+                  <Input
+                    id="condominioNome"
+                    value={formData.condominioNome}
+                    onChange={(e) => handleInputChange("condominioNome", e.target.value)}
+                    placeholder="Ex: Condomínio Residencial Singular"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="versao">Versão</Label>
+                  <Input id="versao" value={formData.versao} onChange={(e) => handleInputChange("versao", e.target.value)} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dataRevisao">Revisado em *</Label>
+                  <Input
+                    id="dataRevisao"
+                    type="date"
+                    value={formData.dataRevisao}
+                    onChange={(e) => handleInputChange("dataRevisao", e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="dataApresentacao">Data de Apresentação *</Label>
+                  <Input
+                    id="dataApresentacao"
+                    type="date"
+                    value={formData.dataApresentacao}
+                    onChange={(e) => handleInputChange("dataApresentacao", e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
+                  <Input
+                    id="responsavelElaboracao"
+                    value={formData.responsavelElaboracao}
+                    onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="nomeColaborador">Nome do Colaborador *</Label>
+                  <Input
+                    id="nomeColaborador"
+                    value={formData.nomeColaborador}
+                    onChange={(e) => handleInputChange("nomeColaborador", e.target.value)}
+                    placeholder="Nome completo do colaborador"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="observacoes">Observações Personalizadas</Label>
+                <Textarea
+                  id="observacoes"
+                  value={formData.observacoes}
+                  onChange={(e) => handleInputChange("observacoes", e.target.value)}
+                  placeholder="Adicione instruções específicas do condomínio (opcional)"
+                  rows={4}
+                />
+              </div>
+            </div>
+
+            <Separator />
+
             <FunctionSelector
               functions={catalog.functions}
               selectedFunctionId={selectedFunctionId}
@@ -208,78 +281,6 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
                 {useCustomSteps && <StepEditor steps={customSteps} onStepsChange={setCustomSteps} />}
-                
-                <Separator />
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Dados do Condomínio</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="condominioNome">Nome do Condomínio *</Label>
-                      <Input
-                        id="condominioNome"
-                        value={formData.condominioNome}
-                        onChange={(e) => handleInputChange("condominioNome", e.target.value)}
-                        placeholder="Ex: Condomínio Residencial Singular"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="versao">Versão</Label>
-                      <Input id="versao" value={formData.versao} onChange={(e) => handleInputChange("versao", e.target.value)} />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="dataRevisao">Revisado em *</Label>
-                      <Input
-                        id="dataRevisao"
-                        type="date"
-                        value={formData.dataRevisao}
-                        onChange={(e) => handleInputChange("dataRevisao", e.target.value)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="dataApresentacao">Data de Apresentação *</Label>
-                      <Input
-                        id="dataApresentacao"
-                        type="date"
-                        value={formData.dataApresentacao}
-                        onChange={(e) => handleInputChange("dataApresentacao", e.target.value)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
-                      <Input
-                        id="responsavelElaboracao"
-                        value={formData.responsavelElaboracao}
-                        onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="nomeColaborador">Nome do Colaborador *</Label>
-                      <Input
-                        id="nomeColaborador"
-                        value={formData.nomeColaborador}
-                        onChange={(e) => handleInputChange("nomeColaborador", e.target.value)}
-                        placeholder="Nome completo do colaborador"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="observacoes">Observações Personalizadas</Label>
-                    <Textarea
-                      id="observacoes"
-                      value={formData.observacoes}
-                      onChange={(e) => handleInputChange("observacoes", e.target.value)}
-                      placeholder="Adicione instruções específicas do condomínio (opcional)"
-                      rows={4}
-                    />
-                  </div>
-                </div>
                 
                 <Separator />
                 <Button onClick={handleGeneratePDF} className="w-full gap-2" size="lg">
