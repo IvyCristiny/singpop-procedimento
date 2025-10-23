@@ -99,7 +99,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     }
   };
 
-  const handleGeneratePDF = () => {
+  const handleGeneratePDF = async () => {
     if (!selectedFunctionId || !selectedActivityId) {
       toast({
         title: "Seleção incompleta",
@@ -149,7 +149,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     };
 
     savePOP(pop);
-    downloadPDF(pop, selectedActivity!);
+    await downloadPDF(pop, selectedActivity!);
     
     localStorage.removeItem("pop_draft");
     

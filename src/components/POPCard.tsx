@@ -39,13 +39,13 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
   // Usar ícone da função
   const IconComponent = func?.icon ? iconMap[func.icon] : FileText;
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     // Find activity from catalog
     const func = catalog.functions.find(f => f.id === pop.functionId);
     const activity = func?.activities.find(a => a.id === pop.activityId);
     
     if (activity) {
-      downloadPDF(pop, activity);
+      await downloadPDF(pop, activity);
     } else {
       toast({
         title: "Erro ao gerar PDF",

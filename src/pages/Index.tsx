@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, FileText, Search, Filter } from "lucide-react";
+import { Plus, Search, Filter, FileText } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { getAllPOPs } from "@/utils/storage";
 import { POP, turnosDisponiveis } from "@/types/pop";
 import { catalog } from "@/data/catalog";
+import logoSingular from "@/assets/logo_singular_colorida.png";
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
@@ -51,12 +52,17 @@ const Index = () => {
       {/* Header */}
       <div className="bg-gradient-primary text-white p-6 shadow-card">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <FileText className="w-8 h-8" />
+          <div className="flex items-center gap-4 mb-2">
+            <img 
+              src={logoSingular} 
+              alt="Singular Serviços" 
+              className="h-12 w-auto"
+            />
+            <div className="h-12 w-px bg-white/30"></div>
             <h1 className="text-3xl font-bold">SingPOP</h1>
           </div>
           <p className="text-white/90">
-            Gerador de Procedimentos Operacionais Padrão - Singular Serviços
+            Gerador de Procedimentos Operacionais Padrão
           </p>
         </div>
       </div>
