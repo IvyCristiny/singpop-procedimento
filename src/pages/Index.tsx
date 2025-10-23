@@ -6,13 +6,14 @@ import { Plus, FileText, Search, Filter } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { getAllPOPs } from "@/utils/storage";
-import { POP, tiposPOP, turnosDisponiveis } from "@/types/pop";
+import { POP, turnosDisponiveis } from "@/types/pop";
+import { catalog } from "@/data/catalog";
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
   const [pops, setPops] = useState<POP[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterTipo, setFilterTipo] = useState<string>("todos");
+  const [filterFuncao, setFilterFuncao] = useState<string>("todos");
   const [filterTurno, setFilterTurno] = useState<string>("todos");
 
   const loadPOPs = () => {
@@ -28,9 +29,9 @@ const Index = () => {
     const matchSearch = pop.condominioNome
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-    const matchTipo = filterTipo === "todos" || pop.tipoPOP === filterTipo;
+    const matchFuncao = filterFuncao === "todos" || pop.functionId === filterFuncao;
     const matchTurno = filterTurno === "todos" || pop.turno === filterTurno;
-    return matchSearch && matchTipo && matchTurno;
+    return matchSearch && matchFuncao && matchTurno;
   });
 
   if (showForm) {
@@ -85,16 +86,16 @@ const Index = () => {
                 />
               </div>
               
-              <Select value={filterTipo} onValueChange={setFilterTipo}>
+              <Select value={filterFuncao} onValueChange={setFilterFuncao}>
                 <SelectTrigger className="w-full sm:w-[200px]">
                   <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Tipo de POP" />
+                  <SelectValue placeholder="Função" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover z-50">
-                  <SelectItem value="todos">Todos os tipos</SelectItem>
-                  {tiposPOP.map((tipo) => (
-                    <SelectItem key={tipo.value} value={tipo.value}>
-                      {tipo.label}
+                  <SelectItem value="todos">Todas as funções</SelectItem>
+                  {catalog.functions.map((func) => (
+                    <SelectItem key={func.id} value={func.id}>
+                      {func.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -140,7 +141,7 @@ const Index = () => {
             <Button
               onClick={() => {
                 setSearchTerm("");
-                setFilterTipo("todos");
+                setFilterFuncao("todos");
                 setFilterTurno("todos");
               }}
               variant="outline"

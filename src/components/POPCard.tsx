@@ -1,8 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileDown, Trash2, ShieldCheck, Eye, Sparkles, Shield, Trees, Waves, Wrench, UserCheck, Briefcase, Clock } from "lucide-react";
-import { POP, tiposPOP } from "@/types/pop";
+import { FileDown, Trash2, ShieldCheck, Eye, Sparkles, Shield, Trees, Waves, Wrench, UserCheck, Briefcase, Clock, FileText } from "lucide-react";
+import { POP } from "@/types/pop";
 import { downloadPDF } from "@/utils/pdfGenerator";
 import { deletePOP } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
@@ -27,8 +27,17 @@ interface POPCardProps {
 
 export const POPCard = ({ pop, onDelete }: POPCardProps) => {
   const { toast } = useToast();
-  const tipoInfo = tiposPOP.find((t) => t.value === pop.tipoPOP);
-  const IconComponent = tipoInfo?.icon ? iconMap[tipoInfo.icon] : FileDown;
+  
+  // Buscar função e atividade do catálogo
+  const func = catalog.functions.find(f => f.id === pop.functionId);
+  const activity = func?.activities.find(a => a.id === pop.activityId);
+  
+  // Fallback para POPs migrados sem match
+  const displayName = activity ? activity.name : "Atividade não encontrada";
+  const functionName = func?.name || "Função desconhecida";
+  
+  // Usar ícone da função
+  const IconComponent = func?.icon ? iconMap[func.icon] : FileText;
 
   const handleDownload = () => {
     // Find activity from catalog
@@ -66,7 +75,7 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
               <h3 className="font-semibold text-foreground text-lg mb-1">
                 {pop.condominioNome}
               </h3>
-              <p className="text-sm text-muted-foreground">{tipoInfo?.label || pop.tipoPOP}</p>
+              <p className="text-sm text-muted-foreground">{functionName} - {displayName}</p>
             </div>
           </div>
           <Badge variant="secondary" className="shrink-0">v{pop.versao}</Badge>
