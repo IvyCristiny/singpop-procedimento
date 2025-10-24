@@ -5,6 +5,7 @@ export interface POP {
   condominioNome: string;
   functionId: string;
   activityId: string;
+  activityIds?: string[]; // Para múltiplas atividades
   codigoPOP: string;
   versao: string;
   dataRevisao: string;
@@ -13,6 +14,7 @@ export interface POP {
   dataApresentacao: string;
   observacoes?: string;
   customSteps?: ProcedureStep[];
+  attachedImages?: string[]; // Imagens em base64
   createdAt: string;
   
   // Manter compatibilidade temporária

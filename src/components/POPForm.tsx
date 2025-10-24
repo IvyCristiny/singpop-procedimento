@@ -9,15 +9,15 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { POP } from "@/types/pop";
-import { ProcedureStep } from "@/types/schema";
+import { Activity, ProcedureStep } from "@/types/schema";
 import { savePOP, generatePOPCode } from "@/utils/storage";
-import { downloadPDF } from "@/utils/pdfGenerator";
+import { downloadPDF, downloadMultipleActivitiesPDF } from "@/utils/pdfGenerator";
 import { getCustomCatalog } from "@/utils/catalogStorage";
 import { FunctionSelector } from "./FunctionSelector";
 import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
-import { ArrowLeft, FileDown, Info } from "lucide-react";
+import { ArrowLeft, FileDown, Info, X, Image as ImageIcon } from "lucide-react";
 import { useZonas } from "@/hooks/useZonas";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -38,6 +38,14 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const [customSteps, setCustomSteps] = useState<ProcedureStep[]>([]);
   const [zonaId, setZonaId] = useState<string>("");
   
+  // Estados para múltiplas atividades
+  const [useMultipleActivities, setUseMultipleActivities] = useState(false);
+  const [selectedActivityIds, setSelectedActivityIds] = useState<string[]>([]);
+  
+  // Estados para imagens anexas
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  
   const [formData, setFormData] = useState({
     condominioNome: "",
     versao: "01",
@@ -48,10 +56,16 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher apenas a zona operativa do usuário logado
+  // Autopreencher zona e responsável pela elaboração do usuário logado
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
+    }
+    if (profile?.full_name) {
+      setFormData(prev => ({
+        ...prev,
+        responsavelElaboracao: profile.full_name
+      }));
     }
   }, [profile]);
 
@@ -124,17 +138,91 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     }
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImage(true);
+    const newImages: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Arquivo inválido",
+          description: `${file.name} não é uma imagem válida.`,
+          variant: "destructive"
+        });
+        continue;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Arquivo muito grande",
+          description: `${file.name} excede 5MB.`,
+          variant: "destructive"
+        });
+        continue;
+      }
+
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+
+      const base64 = await base64Promise;
+      newImages.push(base64);
+    }
+
+    setAttachedImages(prev => [...prev, ...newImages]);
+    setIsUploadingImage(false);
+    
+    if (newImages.length > 0) {
+      toast({
+        title: "Imagens adicionadas",
+        description: `${newImages.length} imagem(ns) anexada(s) com sucesso.`
+      });
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setAttachedImages(prev => prev.filter((_, i) => i !== index));
+    toast({
+      title: "Imagem removida",
+      description: "A imagem foi removida dos anexos."
+    });
+  };
+
   const handleGeneratePDF = async () => {
-    if (!selectedFunctionId || !selectedActivityId) {
+    if (!selectedFunctionId) {
       toast({
         title: "Seleção incompleta",
-        description: "Selecione uma função e uma atividade antes de gerar o PDF.",
+        description: "Selecione uma função antes de gerar o PDF.",
         variant: "destructive"
       });
       return;
     }
 
-    // Validar campos obrigatórios
+    if (useMultipleActivities && selectedActivityIds.length === 0) {
+      toast({
+        title: "Seleção incompleta",
+        description: "Selecione pelo menos uma atividade.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!useMultipleActivities && !selectedActivityId) {
+      toast({
+        title: "Seleção incompleta",
+        description: "Selecione uma atividade antes de gerar o PDF.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!formData.condominioNome || !formData.nomeColaborador || !formData.responsavelElaboracao) {
       toast({
         title: "Campos obrigatórios",
@@ -145,46 +233,104 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     }
 
     const selectedFunction = catalog.functions.find(f => f.id === selectedFunctionId);
-    const selectedActivity = selectedFunction?.activities.find(a => a.id === selectedActivityId);
-
-    if (!selectedActivity) {
+    
+    if (!selectedFunction) {
       toast({
         title: "Erro",
-        description: "Atividade não encontrada.",
+        description: "Função não encontrada.",
         variant: "destructive"
       });
       return;
     }
 
-    const codigoPOP = generatePOPCode(selectedActivityId);
+    if (useMultipleActivities) {
+      // Gerar PDF com múltiplas atividades
+      const activities = selectedActivityIds
+        .map(id => selectedFunction.activities.find(a => a.id === id))
+        .filter(Boolean) as Activity[];
 
-    const pop: POP = {
-      id: Date.now().toString(),
-      condominioNome: formData.condominioNome,
-      functionId: selectedFunctionId,
-      activityId: selectedActivityId,
-      codigoPOP,
-      versao: formData.versao,
-      dataRevisao: formData.dataRevisao,
-      responsavelElaboracao: formData.responsavelElaboracao,
-      nomeColaborador: formData.nomeColaborador,
-      dataApresentacao: formData.dataApresentacao,
-      observacoes: formData.observacoes,
-      customSteps: useCustomSteps ? customSteps : undefined,
-      createdAt: new Date().toISOString()
-    };
+      if (activities.length === 0) {
+        toast({
+          title: "Erro",
+          description: "Nenhuma atividade válida selecionada.",
+          variant: "destructive"
+        });
+        return;
+      }
 
-    savePOP(pop);
-    await downloadPDF(pop, selectedActivity!);
-    
-    localStorage.removeItem("pop_draft");
-    
-    toast({
-      title: "POP gerado com sucesso!",
-      description: `Código: ${codigoPOP}`,
-    });
-    
-    onSave();
+      const codigoPOP = generatePOPCode(selectedActivityIds[0]);
+      
+      const pop: POP = {
+        id: Date.now().toString(),
+        condominioNome: formData.condominioNome,
+        functionId: selectedFunctionId,
+        activityId: selectedActivityIds[0],
+        activityIds: selectedActivityIds,
+        codigoPOP,
+        versao: formData.versao,
+        dataRevisao: formData.dataRevisao,
+        responsavelElaboracao: formData.responsavelElaboracao,
+        nomeColaborador: formData.nomeColaborador,
+        dataApresentacao: formData.dataApresentacao,
+        observacoes: formData.observacoes,
+        createdAt: new Date().toISOString()
+      };
+
+      savePOP(pop);
+      await downloadMultipleActivitiesPDF(pop, activities);
+      
+      localStorage.removeItem("pop_draft");
+      
+      toast({
+        title: "POP gerado com sucesso!",
+        description: `${activities.length} atividades incluídas. Código: ${codigoPOP}`,
+      });
+      
+      onSave();
+    } else {
+      // Gerar PDF com uma atividade (modo original)
+      const selectedActivity = selectedFunction.activities.find(a => a.id === selectedActivityId);
+      
+      if (!selectedActivity) {
+        toast({
+          title: "Erro",
+          description: "Atividade não encontrada.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const codigoPOP = generatePOPCode(selectedActivityId);
+
+      const pop: POP = {
+        id: Date.now().toString(),
+        condominioNome: formData.condominioNome,
+        functionId: selectedFunctionId,
+        activityId: selectedActivityId,
+        codigoPOP,
+        versao: formData.versao,
+        dataRevisao: formData.dataRevisao,
+        responsavelElaboracao: formData.responsavelElaboracao,
+        nomeColaborador: formData.nomeColaborador,
+        dataApresentacao: formData.dataApresentacao,
+        observacoes: formData.observacoes,
+        customSteps: useCustomSteps ? customSteps : undefined,
+        attachedImages: attachedImages.length > 0 ? attachedImages : undefined,
+        createdAt: new Date().toISOString()
+      };
+
+      savePOP(pop);
+      await downloadPDF(pop, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
+      
+      localStorage.removeItem("pop_draft");
+      
+      toast({
+        title: "POP gerado com sucesso!",
+        description: `Código: ${codigoPOP}`,
+      });
+      
+      onSave();
+    }
   };
 
   const selectedFunction = catalog.functions.find(f => f.id === selectedFunctionId);
@@ -258,13 +404,17 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
             <div className="space-y-2">
-              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
+              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração</Label>
               <Input
                 id="responsavelElaboracao"
                 value={formData.responsavelElaboracao}
-                onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
-                placeholder="Nome completo do responsável"
+                disabled
+                className="bg-muted cursor-not-allowed"
+                placeholder="Nome será preenchido automaticamente"
               />
+              <p className="text-xs text-muted-foreground">
+                Nome do usuário logado: {profile?.full_name || "Carregando..."}
+              </p>
             </div>
 
                 <div className="space-y-2">
@@ -298,22 +448,123 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
               onSelectFunction={handleFunctionSelect}
             />
 
-            {selectedFunctionId && selectedFunction && (
-              <>
-                <Separator />
-                <ActivitySelector
-                  activities={selectedFunction.activities}
-                  selectedActivityId={selectedActivityId}
-                  onSelectActivity={handleActivitySelect}
+          {selectedFunctionId && selectedFunction && (
+            <>
+              <Separator />
+              
+              {/* Toggle para modo múltiplas atividades */}
+              <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border">
+                <div className="flex items-center gap-3">
+                  <Info className="w-5 h-5 text-muted-foreground" />
+                  <div>
+                    <p className="font-semibold text-sm">Gerar POP com múltiplas atividades?</p>
+                    <p className="text-xs text-muted-foreground">
+                      Cada atividade será uma página no mesmo PDF. Imagens não disponíveis neste modo.
+                    </p>
+                  </div>
+                </div>
+                <Switch 
+                  checked={useMultipleActivities} 
+                  onCheckedChange={(checked) => {
+                    setUseMultipleActivities(checked);
+                    if (checked) {
+                      setAttachedImages([]);
+                      if (selectedActivityId) {
+                        setSelectedActivityIds([selectedActivityId]);
+                      }
+                    } else {
+                      if (selectedActivityIds.length > 0) {
+                        setSelectedActivityId(selectedActivityIds[0]);
+                      }
+                      setSelectedActivityIds([]);
+                    }
+                  }}
                 />
-              </>
-            )}
+              </div>
+              
+              <Separator />
+              
+              <ActivitySelector
+                activities={selectedFunction.activities}
+                selectedActivityId={useMultipleActivities ? undefined : selectedActivityId}
+                selectedActivityIds={useMultipleActivities ? selectedActivityIds : undefined}
+                onSelectActivity={useMultipleActivities ? undefined : handleActivitySelect}
+                onSelectMultipleActivities={useMultipleActivities ? setSelectedActivityIds : undefined}
+                multiple={useMultipleActivities}
+              />
+            </>
+          )}
 
-            {selectedActivity && (
+            {selectedActivityId && selectedActivity && !useMultipleActivities && (
               <>
                 <Separator />
                 <POPPreviewEnhanced activity={selectedActivity} />
-                
+              </>
+            )}
+            
+            {/* Seção de Imagens Anexas - apenas para atividade única */}
+            {selectedActivityId && !useMultipleActivities && (
+              <>
+                <Separator />
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-base font-semibold flex items-center gap-2">
+                        <ImageIcon className="w-5 h-5" />
+                        Anexar Imagens ao POP
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        As imagens serão adicionadas em páginas separadas ao final do PDF
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="image-upload">
+                      Adicionar imagens (máx. 5MB cada)
+                    </Label>
+                    <Input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      disabled={isUploadingImage}
+                      className="cursor-pointer"
+                    />
+                  </div>
+
+                  {attachedImages.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {attachedImages.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img 
+                            src={img} 
+                            alt={`Anexo ${idx + 1}`}
+                            className="w-full h-32 object-cover rounded border"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleRemoveImage(idx)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                          <p className="text-xs text-center mt-1 text-muted-foreground">
+                            Anexo {idx + 1}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {selectedActivityId && selectedActivity && !useMultipleActivities && (
+              <>
                 <Separator />
                 <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
                   <div className="flex items-center gap-3">
@@ -329,11 +580,22 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
                 {useCustomSteps && <StepEditor steps={customSteps} onStepsChange={setCustomSteps} />}
-                
+              </>
+            )}
+            
+            {(selectedActivityId || selectedActivityIds.length > 0) && (
+              <>
                 <Separator />
-                <Button onClick={handleGeneratePDF} className="w-full gap-2" size="lg">
+                <Button 
+                  onClick={handleGeneratePDF} 
+                  className="w-full gap-2" 
+                  size="lg"
+                  disabled={useMultipleActivities ? selectedActivityIds.length === 0 : !selectedActivityId}
+                >
                   <FileDown className="w-5 h-5" />
-                  Gerar PDF do POP
+                  {useMultipleActivities && selectedActivityIds.length > 0
+                    ? `Gerar PDF com ${selectedActivityIds.length} Atividade${selectedActivityIds.length > 1 ? 's' : ''}`
+                    : 'Gerar PDF do POP'}
                 </Button>
               </>
             )}
