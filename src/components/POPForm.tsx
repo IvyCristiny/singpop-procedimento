@@ -48,10 +48,16 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher zona do usuário logado
+  // Autopreencher zona e responsável pela elaboração do usuário logado
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
+    }
+    if (profile?.full_name) {
+      setFormData(prev => ({
+        ...prev,
+        responsavelElaboracao: profile.full_name
+      }));
     }
   }, [profile]);
 
@@ -60,12 +66,15 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        setFormData(parsed.formData || formData);
+        const draftData = parsed.formData || formData;
+        // Remover responsavelElaboracao do draft para sempre usar o do profile
+        const { responsavelElaboracao, ...restFormData } = draftData;
+        setFormData({ ...formData, ...restFormData });
         setSelectedFunctionId(parsed.selectedFunctionId || "");
         setSelectedActivityId(parsed.selectedActivityId || "");
         setUseCustomSteps(parsed.useCustomSteps || false);
         setCustomSteps(parsed.customSteps || []);
-        // Não carregar zonaId do draft, sempre usar do profile
+        // Não carregar zonaId e responsavelElaboracao do draft, sempre usar do profile
       } catch (error) {
         console.error("Error loading draft:", error);
       }
@@ -255,14 +264,19 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                   </p>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
-                  <Input
-                    id="responsavelElaboracao"
-                    value={formData.responsavelElaboracao}
-                    onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
-                  />
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
+              <Input
+                id="responsavelElaboracao"
+                value={formData.responsavelElaboracao}
+                disabled
+                className="bg-muted cursor-not-allowed"
+                placeholder="Nome será preenchido automaticamente"
+              />
+              <p className="text-xs text-muted-foreground">
+                Nome do usuário logado: {profile?.full_name || "Carregando..."}
+              </p>
+            </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="nomeColaborador">Nome do Colaborador *</Label>
