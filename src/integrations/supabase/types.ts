@@ -55,7 +55,7 @@ export type Database = {
           updated_at: string
           user_id: string
           versao: string
-          zona: string | null
+          zona_id: string | null
         }
         Insert: {
           activity_id: string
@@ -73,7 +73,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           versao: string
-          zona?: string | null
+          zona_id?: string | null
         }
         Update: {
           activity_id?: string
@@ -91,9 +91,17 @@ export type Database = {
           updated_at?: string
           user_id?: string
           versao?: string
-          zona?: string | null
+          zona_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "pops_zona_id_fkey"
+            columns: ["zona_id"]
+            isOneToOne: false
+            referencedRelation: "zonas_operativas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -101,23 +109,31 @@ export type Database = {
           email: string
           full_name: string
           id: string
-          zona: string | null
+          zona_id: string | null
         }
         Insert: {
           created_at?: string
           email: string
           full_name: string
           id: string
-          zona?: string | null
+          zona_id?: string | null
         }
         Update: {
           created_at?: string
           email?: string
           full_name?: string
           id?: string
-          zona?: string | null
+          zona_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_zona_id_fkey"
+            columns: ["zona_id"]
+            isOneToOne: false
+            referencedRelation: "zonas_operativas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -137,6 +153,30 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      zonas_operativas: {
+        Row: {
+          created_at: string
+          descricao: string | null
+          id: string
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          nome?: string
+          updated_at?: string
         }
         Relationships: []
       }

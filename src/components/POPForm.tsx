@@ -18,6 +18,7 @@ import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
 import { ArrowLeft, FileDown, Info } from "lucide-react";
+import { useZonas } from "@/hooks/useZonas";
 
 interface POPFormProps {
   onBack: () => void;
@@ -27,11 +28,13 @@ interface POPFormProps {
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const catalog = getCustomCatalog();
+  const { zonas } = useZonas();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");
   const [selectedActivityId, setSelectedActivityId] = useState<string>("");
   const [useCustomSteps, setUseCustomSteps] = useState(false);
   const [customSteps, setCustomSteps] = useState<ProcedureStep[]>([]);
+  const [zonaId, setZonaId] = useState<string>("");
   
   const [formData, setFormData] = useState({
     condominioNome: "",
@@ -53,6 +56,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         setSelectedActivityId(parsed.selectedActivityId || "");
         setUseCustomSteps(parsed.useCustomSteps || false);
         setCustomSteps(parsed.customSteps || []);
+        setZonaId(parsed.zonaId || "");
       } catch (error) {
         console.error("Error loading draft:", error);
       }
@@ -65,10 +69,11 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       selectedFunctionId,
       selectedActivityId,
       useCustomSteps,
-      customSteps
+      customSteps,
+      zonaId
     };
     localStorage.setItem("pop_draft", JSON.stringify(draft));
-  }, [formData, selectedFunctionId, selectedActivityId, useCustomSteps, customSteps]);
+  }, [formData, selectedFunctionId, selectedActivityId, useCustomSteps, customSteps, zonaId]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -102,7 +107,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
-    if (!formData.condominioNome || !formData.responsavelElaboracao || !formData.nomeColaborador) {
+    if (!formData.condominioNome || !formData.responsavelElaboracao || !formData.nomeColaborador || !zonaId) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios antes de gerar o PDF.",
@@ -228,6 +233,22 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                     onChange={(e) => handleInputChange("nomeColaborador", e.target.value)}
                     placeholder="Nome completo do colaborador"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="zona">Zona Operativa *</Label>
+                  <Select value={zonaId} onValueChange={setZonaId}>
+                    <SelectTrigger id="zona">
+                      <SelectValue placeholder="Selecione a zona" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {zonas.map((zona) => (
+                        <SelectItem key={zona.id} value={zona.id}>
+                          {zona.nome}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

@@ -2,23 +2,37 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useZonas } from "@/hooks/useZonas";
 
 export const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [zonaId, setZonaId] = useState("");
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
+  const { zonas } = useZonas();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!zonaId) {
+      toast({
+        title: "Zona obrigatória",
+        description: "Por favor, selecione uma zona operativa",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const { error } = await signUp(email, password, fullName);
+      const { error } = await signUp(email, password, fullName, zonaId);
       
       if (error) {
         toast({
@@ -80,6 +94,22 @@ export const SignUpForm = () => {
           required
           minLength={6}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="zona">Zona Operativa</Label>
+        <Select value={zonaId} onValueChange={setZonaId} required>
+          <SelectTrigger id="zona">
+            <SelectValue placeholder="Selecione sua zona" />
+          </SelectTrigger>
+          <SelectContent>
+            {zonas.map((zona) => (
+              <SelectItem key={zona.id} value={zona.id}>
+                {zona.nome}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>

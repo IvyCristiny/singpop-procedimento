@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Filter, FileText, BookOpen, LogOut } from "lucide-react";
+import { Plus, Search, Filter, FileText, BookOpen, LogOut, Settings } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
@@ -23,7 +23,7 @@ const Index = () => {
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
   const [catalog, setCatalog] = useState(getCustomCatalog());
   const { profile, signOut } = useAuth();
-  const { primaryRole } = useRole();
+  const { primaryRole, isGerenteGeral } = useRole();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -89,6 +89,17 @@ const Index = () => {
                   <RoleBadge role={primaryRole as any} />
                 </div>
               </div>
+              {isGerenteGeral && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate("/admin")}
+                  className="gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  Admin
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
