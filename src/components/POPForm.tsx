@@ -19,6 +19,7 @@ import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
 import { ArrowLeft, FileDown, Info } from "lucide-react";
 import { useZonas } from "@/hooks/useZonas";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface POPFormProps {
   onBack: () => void;
@@ -29,6 +30,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const catalog = getCustomCatalog();
   const { zonas } = useZonas();
+  const { profile } = useAuth();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");
   const [selectedActivityId, setSelectedActivityId] = useState<string>("");
@@ -46,6 +48,13 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
+  // Autopreencher zona do usuário logado
+  useEffect(() => {
+    if (profile?.zona_id) {
+      setZonaId(profile.zona_id);
+    }
+  }, [profile]);
+
   useEffect(() => {
     const draft = localStorage.getItem("pop_draft");
     if (draft) {
@@ -56,7 +65,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         setSelectedActivityId(parsed.selectedActivityId || "");
         setUseCustomSteps(parsed.useCustomSteps || false);
         setCustomSteps(parsed.customSteps || []);
-        setZonaId(parsed.zonaId || "");
+        // Não carregar zonaId do draft, sempre usar do profile
       } catch (error) {
         console.error("Error loading draft:", error);
       }
@@ -77,6 +86,23 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleDataApresentacaoChange = (value: string) => {
+    const dataRevisao = new Date(formData.dataRevisao);
+    const dataApresentacao = new Date(value);
+    const diffDays = Math.ceil((dataApresentacao.getTime() - dataRevisao.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 7) {
+      toast({
+        title: "Data inválida",
+        description: "A data de apresentação não pode ser mais de 7 dias após a data de revisão.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    handleInputChange("dataApresentacao", value);
   };
 
   const handleFunctionSelect = (functionId: string) => {
@@ -202,8 +228,12 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                     id="dataRevisao"
                     type="date"
                     value={formData.dataRevisao}
-                    onChange={(e) => handleInputChange("dataRevisao", e.target.value)}
+                    disabled
+                    className="bg-muted cursor-not-allowed"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Data de revisão é automaticamente definida como hoje
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -212,8 +242,17 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                     id="dataApresentacao"
                     type="date"
                     value={formData.dataApresentacao}
-                    onChange={(e) => handleInputChange("dataApresentacao", e.target.value)}
+                    onChange={(e) => handleDataApresentacaoChange(e.target.value)}
+                    min={formData.dataRevisao}
+                    max={(() => {
+                      const maxDate = new Date(formData.dataRevisao);
+                      maxDate.setDate(maxDate.getDate() + 7);
+                      return maxDate.toISOString().split("T")[0];
+                    })()}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Máximo: 7 dias após a data de revisão
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -237,9 +276,9 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
                 <div className="space-y-2">
                   <Label htmlFor="zona">Zona Operativa *</Label>
-                  <Select value={zonaId} onValueChange={setZonaId}>
-                    <SelectTrigger id="zona">
-                      <SelectValue placeholder="Selecione a zona" />
+                  <Select value={zonaId} onValueChange={setZonaId} disabled>
+                    <SelectTrigger id="zona" className="bg-muted cursor-not-allowed">
+                      <SelectValue placeholder="Zona será preenchida automaticamente" />
                     </SelectTrigger>
                     <SelectContent>
                       {zonas.map((zona) => (
@@ -249,6 +288,9 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                       ))}
                     </SelectContent>
                   </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Zona atribuída ao seu perfil: {zonas.find(z => z.id === zonaId)?.nome || "Carregando..."}
+                  </p>
                 </div>
               </div>
 
