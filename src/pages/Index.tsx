@@ -48,20 +48,22 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-light">
       {/* Header */}
-      <div className="bg-gradient-primary text-white p-6 shadow-card">
-        <div className="max-w-6xl mx-auto">
+      <div className="bg-white border-b border-border shadow-sm">
+        <div className="max-w-6xl mx-auto p-6">
           <div className="flex items-center gap-4 mb-2">
             <img 
               src={logoSingular} 
               alt="Singular Serviços" 
               className="h-12 w-auto"
             />
-            <div className="h-12 w-px bg-white/30"></div>
-            <h1 className="text-3xl font-bold">SingPOP</h1>
+            <div className="h-12 w-px bg-border"></div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">SingPOP</h1>
+              <p className="text-sm text-muted-foreground">
+                Gerador de Procedimentos Operacionais Padrão
+              </p>
+            </div>
           </div>
-          <p className="text-white/90">
-            Gerador de Procedimentos Operacionais Padrão
-          </p>
         </div>
       </div>
 

@@ -205,6 +205,7 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
     startY: 25,
     body: tableData,
     theme: "grid",
+    margin: { left: 14, right: 14 },
     styles: {
       lineColor: [0, 0, 0],
       lineWidth: 0.5,
@@ -214,8 +215,8 @@ export const generatePDF = async (pop: POP, activity: Activity) => {
       valign: "top"
     },
     columnStyles: {
-      0: { cellWidth: 130 },
-      1: { cellWidth: 66 }
+      0: { cellWidth: 120 },
+      1: { cellWidth: 62 }
     }
   });
   
