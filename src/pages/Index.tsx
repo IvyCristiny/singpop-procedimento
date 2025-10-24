@@ -10,7 +10,7 @@ import { BibliotecaPOP } from "./BibliotecaPOP";
 import { getAllPOPs } from "@/utils/storage";
 import { POP } from "@/types/pop";
 import { getCustomCatalog } from "@/utils/catalogStorage";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { RoleBadge } from "@/components/RoleBadge";
 import { useNavigate } from "react-router-dom";
