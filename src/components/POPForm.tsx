@@ -48,16 +48,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher zona e responsável pela elaboração do usuário logado
+  // Autopreencher apenas a zona operativa do usuário logado
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
-    }
-    if (profile?.full_name) {
-      setFormData(prev => ({
-        ...prev,
-        responsavelElaboracao: profile.full_name
-      }));
     }
   }, [profile]);
 
@@ -67,9 +61,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       try {
         const parsed = JSON.parse(draft);
         const draftData = parsed.formData || formData;
-        // Remover responsavelElaboracao do draft para sempre usar o do profile
-        const { responsavelElaboracao, ...restFormData } = draftData;
-        setFormData({ ...formData, ...restFormData });
+        setFormData({ ...formData, ...draftData });
         setSelectedFunctionId(parsed.selectedFunctionId || "");
         setSelectedActivityId(parsed.selectedActivityId || "");
         setUseCustomSteps(parsed.useCustomSteps || false);
@@ -142,22 +134,12 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
-    // Validar apenas campos que o usuário realmente precisa preencher
-    if (!formData.condominioNome || !formData.nomeColaborador) {
+    // Validar campos obrigatórios
+    if (!formData.condominioNome || !formData.nomeColaborador || !formData.responsavelElaboracao) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios antes de gerar o PDF.",
         variant: "destructive"
-      });
-      return;
-    }
-
-    // Verificar se os campos autopreenchidos estão presentes (caso profile não tenha carregado)
-    if (!formData.responsavelElaboracao || !zonaId) {
-      toast({
-        title: "Aguarde",
-        description: "Carregando informações do seu perfil...",
-        variant: "default"
       });
       return;
     }
@@ -276,17 +258,13 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
             <div className="space-y-2">
-              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração</Label>
+              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
               <Input
                 id="responsavelElaboracao"
                 value={formData.responsavelElaboracao}
-                disabled
-                className="bg-muted cursor-not-allowed"
-                placeholder="Nome será preenchido automaticamente"
+                onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
+                placeholder="Nome completo do responsável"
               />
-              <p className="text-xs text-muted-foreground">
-                Nome do usuário logado: {profile?.full_name || "Carregando..."}
-              </p>
             </div>
 
                 <div className="space-y-2">
@@ -297,25 +275,6 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                     onChange={(e) => handleInputChange("nomeColaborador", e.target.value)}
                     placeholder="Nome completo do colaborador"
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="zona">Zona Operativa</Label>
-                  <Select value={zonaId} onValueChange={setZonaId} disabled>
-                    <SelectTrigger id="zona" className="bg-muted cursor-not-allowed">
-                      <SelectValue placeholder="Zona será preenchida automaticamente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {zonas.map((zona) => (
-                        <SelectItem key={zona.id} value={zona.id}>
-                          {zona.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    Zona atribuída ao seu perfil: {zonas.find(z => z.id === zonaId)?.nome || "Carregando..."}
-                  </p>
                 </div>
               </div>
 
