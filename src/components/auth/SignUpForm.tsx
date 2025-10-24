@@ -14,16 +14,16 @@ export const SignUpForm = () => {
   const [zonaId, setZonaId] = useState("");
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
-  const { zonas } = useZonas();
+  const { zonas, loading: zonasLoading } = useZonas();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!zonaId) {
+    if (!zonaId || zonaId === "loading" || zonaId === "empty") {
       toast({
         title: "Zona obrigatória",
-        description: "Por favor, selecione uma zona operativa",
+        description: "Por favor, selecione uma zona operativa válida",
         variant: "destructive",
       });
       return;
@@ -98,16 +98,28 @@ export const SignUpForm = () => {
 
       <div className="space-y-2">
         <Label htmlFor="zona">Zona Operativa</Label>
-        <Select value={zonaId} onValueChange={setZonaId} required>
-          <SelectTrigger id="zona">
-            <SelectValue placeholder="Selecione sua zona" />
+        <Select value={zonaId} onValueChange={setZonaId} disabled={zonasLoading}>
+          <SelectTrigger id="zona" className={zonasLoading ? "opacity-50" : ""}>
+            <SelectValue 
+              placeholder={zonasLoading ? "Carregando zonas..." : "Selecione sua zona"} 
+            />
           </SelectTrigger>
           <SelectContent>
-            {zonas.map((zona) => (
-              <SelectItem key={zona.id} value={zona.id}>
-                {zona.nome}
+            {zonasLoading ? (
+              <SelectItem value="loading" disabled>
+                Carregando...
               </SelectItem>
-            ))}
+            ) : zonas.length === 0 ? (
+              <SelectItem value="empty" disabled>
+                Nenhuma zona disponível
+              </SelectItem>
+            ) : (
+              zonas.map((zona) => (
+                <SelectItem key={zona.id} value={zona.id}>
+                  {zona.nome}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
