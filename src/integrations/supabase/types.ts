@@ -14,16 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      catalog: {
+        Row: {
+          catalog_data: Json
+          id: string
+          last_modified_at: string
+          last_modified_by: string | null
+          version: string | null
+        }
+        Insert: {
+          catalog_data?: Json
+          id?: string
+          last_modified_at?: string
+          last_modified_by?: string | null
+          version?: string | null
+        }
+        Update: {
+          catalog_data?: Json
+          id?: string
+          last_modified_at?: string
+          last_modified_by?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
+      pops: {
+        Row: {
+          activity_id: string
+          codigo_pop: string
+          condominio_nome: string
+          created_at: string
+          custom_steps: Json | null
+          data_apresentacao: string | null
+          data_revisao: string | null
+          function_id: string
+          id: string
+          nome_colaborador: string | null
+          observacoes: string | null
+          responsavel_elaboracao: string | null
+          updated_at: string
+          user_id: string
+          versao: string
+          zona: string | null
+        }
+        Insert: {
+          activity_id: string
+          codigo_pop: string
+          condominio_nome: string
+          created_at?: string
+          custom_steps?: Json | null
+          data_apresentacao?: string | null
+          data_revisao?: string | null
+          function_id: string
+          id?: string
+          nome_colaborador?: string | null
+          observacoes?: string | null
+          responsavel_elaboracao?: string | null
+          updated_at?: string
+          user_id: string
+          versao: string
+          zona?: string | null
+        }
+        Update: {
+          activity_id?: string
+          codigo_pop?: string
+          condominio_nome?: string
+          created_at?: string
+          custom_steps?: Json | null
+          data_apresentacao?: string | null
+          data_revisao?: string | null
+          function_id?: string
+          id?: string
+          nome_colaborador?: string | null
+          observacoes?: string | null
+          responsavel_elaboracao?: string | null
+          updated_at?: string
+          user_id?: string
+          versao?: string
+          zona?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          zona: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id: string
+          zona?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          zona?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "supervisor" | "gerente_zona" | "gerente_geral"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +281,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["supervisor", "gerente_zona", "gerente_geral"],
+    },
   },
 } as const
