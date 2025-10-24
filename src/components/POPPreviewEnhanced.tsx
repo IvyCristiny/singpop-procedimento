@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Clock, AlertTriangle, CheckCircle2, Camera, Target, Shield, Award } from "lucide-react";
+import { Clock, AlertTriangle, CheckCircle2, Camera, Target, Shield } from "lucide-react";
 
 interface POPPreviewEnhancedProps {
   activity: Activity;
@@ -22,12 +22,11 @@ export const POPPreviewEnhanced = ({ activity }: POPPreviewEnhancedProps) => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
-            <TabsTrigger value="procedures">Procedimentos</TabsTrigger>
-            <TabsTrigger value="equipment">Equipamentos</TabsTrigger>
-            <TabsTrigger value="training">Treinamento</TabsTrigger>
-            <TabsTrigger value="review">Indicadores</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">Visão Geral</TabsTrigger>
+            <TabsTrigger value="procedures" className="text-xs sm:text-sm">Procedimentos</TabsTrigger>
+            <TabsTrigger value="equipment" className="text-xs sm:text-sm">Equipamentos</TabsTrigger>
+            <TabsTrigger value="training" className="text-xs sm:text-sm">Treinamento</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
@@ -64,15 +63,15 @@ export const POPPreviewEnhanced = ({ activity }: POPPreviewEnhancedProps) => {
             </div>
 
             <div className="flex flex-wrap gap-2 pt-2">
-              <Badge variant="outline" className="flex items-center gap-1">
+              <Badge variant="outline" className="flex items-center gap-1 text-xs">
                 <Clock className="w-3 h-3" />
-                Tempo total: ~{totalTime} min
+                ~{totalTime} min
               </Badge>
-              <Badge variant="outline">
+              <Badge variant="outline" className="text-xs">
                 {activity.procedure.steps.length} etapas
               </Badge>
-              <Badge variant="outline">
-                Versão {activity.versioning.current_version}
+              <Badge variant="outline" className="text-xs">
+                v{activity.versioning.current_version}
               </Badge>
             </div>
           </TabsContent>
@@ -82,12 +81,12 @@ export const POPPreviewEnhanced = ({ activity }: POPPreviewEnhancedProps) => {
               {activity.procedure.steps.map((step, idx) => (
                 <AccordionItem key={step.id} value={step.id}>
                   <AccordionTrigger className="text-sm">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Badge variant="secondary" className="text-xs">
                         {idx + 1}
                       </Badge>
-                      {step.title}
-                      <Badge variant="outline" className="text-xs ml-auto mr-2">
+                      <span className="flex-1 text-left">{step.title}</span>
+                      <Badge variant="outline" className="text-xs shrink-0">
                         {step.time_estimate_min} min
                       </Badge>
                     </div>
@@ -208,31 +207,6 @@ export const POPPreviewEnhanced = ({ activity }: POPPreviewEnhancedProps) => {
             </div>
           </TabsContent>
 
-          <TabsContent value="review" className="space-y-4">
-            <div>
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                <Award className="w-4 h-4" />
-                Indicadores de Desempenho (KPIs)
-              </h4>
-              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                {activity.review.kpis.map((kpi, idx) => (
-                  <li key={idx}>{kpi}</li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-sm mb-2">Auditoria</h4>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold">Frequência:</span> A cada {activity.review.audit_frequency_days} dias
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  <span className="font-semibold">Responsável:</span> {activity.review.auditor_role}
-                </p>
-              </div>
-            </div>
-          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>
