@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Set up listener only after initialization
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!isMounted || initializing) return;
+        if (!isMounted) return;
         
         setSession(session);
         setUser(session?.user ?? null);

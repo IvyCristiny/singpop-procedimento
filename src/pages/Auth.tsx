@@ -35,7 +35,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <img src={logo} alt="Singular Logo" className="h-16" />
+            <img src={logo} alt="Logo Singular" className="h-20 w-auto object-contain" />
           </div>
           <CardTitle className="text-2xl">SingPOP</CardTitle>
           <CardDescription>
