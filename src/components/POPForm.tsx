@@ -232,7 +232,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="dataRevisao">Revisado em *</Label>
+                  <Label htmlFor="dataRevisao">Revisado em</Label>
                   <Input
                     id="dataRevisao"
                     type="date"
@@ -265,7 +265,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
             <div className="space-y-2">
-              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
+              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração</Label>
               <Input
                 id="responsavelElaboracao"
                 value={formData.responsavelElaboracao}
@@ -289,7 +289,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="zona">Zona Operativa *</Label>
+                  <Label htmlFor="zona">Zona Operativa</Label>
                   <Select value={zonaId} onValueChange={setZonaId} disabled>
                     <SelectTrigger id="zona" className="bg-muted cursor-not-allowed">
                       <SelectValue placeholder="Zona será preenchida automaticamente" />
