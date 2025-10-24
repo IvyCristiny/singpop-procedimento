@@ -75,12 +75,15 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       try {
         const parsed = JSON.parse(draft);
         const draftData = parsed.formData || formData;
-        setFormData({ ...formData, ...draftData });
+        
+        // Excluir responsavelElaboracao do draft para não sobrescrever o autopreenchimento
+        const { responsavelElaboracao, ...restDraftData } = draftData;
+        
+        setFormData({ ...formData, ...restDraftData });
         setSelectedFunctionId(parsed.selectedFunctionId || "");
         setSelectedActivityId(parsed.selectedActivityId || "");
         setUseCustomSteps(parsed.useCustomSteps || false);
         setCustomSteps(parsed.customSteps || []);
-        // Não carregar zonaId e responsavelElaboracao do draft, sempre usar do profile
       } catch (error) {
         console.error("Error loading draft:", error);
       }
