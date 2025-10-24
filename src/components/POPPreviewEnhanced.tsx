@@ -22,11 +22,31 @@ export const POPPreviewEnhanced = ({ activity }: POPPreviewEnhancedProps) => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Visão Geral</TabsTrigger>
-            <TabsTrigger value="procedures" className="text-xs sm:text-sm">Procedimentos</TabsTrigger>
-            <TabsTrigger value="equipment" className="text-xs sm:text-sm">Equipamentos</TabsTrigger>
-            <TabsTrigger value="training" className="text-xs sm:text-sm">Treinamento</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-2 h-auto min-h-[80px] sm:h-10 p-2">
+            <TabsTrigger 
+              value="overview" 
+              className="text-xs sm:text-sm whitespace-normal h-auto min-h-[32px] py-2 px-3"
+            >
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger 
+              value="procedures" 
+              className="text-xs sm:text-sm whitespace-normal h-auto min-h-[32px] py-2 px-3"
+            >
+              Procedimentos
+            </TabsTrigger>
+            <TabsTrigger 
+              value="equipment" 
+              className="text-xs sm:text-sm whitespace-normal h-auto min-h-[32px] py-2 px-3"
+            >
+              Equipamentos
+            </TabsTrigger>
+            <TabsTrigger 
+              value="training" 
+              className="text-xs sm:text-sm whitespace-normal h-auto min-h-[32px] py-2 px-3"
+            >
+              Treinamento
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
