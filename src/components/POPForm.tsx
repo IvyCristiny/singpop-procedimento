@@ -142,11 +142,22 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
-    if (!formData.condominioNome || !formData.responsavelElaboracao || !formData.nomeColaborador || !zonaId) {
+    // Validar apenas campos que o usuário realmente precisa preencher
+    if (!formData.condominioNome || !formData.nomeColaborador) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios antes de gerar o PDF.",
         variant: "destructive"
+      });
+      return;
+    }
+
+    // Verificar se os campos autopreenchidos estão presentes (caso profile não tenha carregado)
+    if (!formData.responsavelElaboracao || !zonaId) {
+      toast({
+        title: "Aguarde",
+        description: "Carregando informações do seu perfil...",
+        variant: "default"
       });
       return;
     }

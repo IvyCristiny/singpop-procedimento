@@ -1,14 +1,28 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, MapPin, BarChart3 } from "lucide-react";
+import { Users, MapPin, BarChart3, ArrowLeft } from "lucide-react";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { ZonaManagement } from "@/components/admin/ZonaManagement";
 import { Statistics } from "@/components/admin/Statistics";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 export default function Admin() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-light p-6">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Painel de Administração</h1>
+        <div className="flex items-center gap-4 mb-6">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/")}
+            className="rounded-full"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-3xl font-bold">Painel de Administração</h1>
+        </div>
         
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="grid w-full grid-cols-3">

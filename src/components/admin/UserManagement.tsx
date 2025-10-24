@@ -8,13 +8,22 @@ import { Edit, Save, X } from "lucide-react";
 import { useState } from "react";
 import { AppRole } from "@/types/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRole } from "@/hooks/useRole";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const UserManagement = () => {
   const { users, loading, updateUserRole, updateUserZona } = useUsers();
   const { zonas } = useZonas();
+  const { isGerenteGeral, isGerenteZona } = useRole();
+  const { profile } = useAuth();
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<AppRole>("supervisor");
   const [selectedZona, setSelectedZona] = useState<string | null>(null);
+
+  // Filtrar usuários baseado na role
+  const filteredUsers = isGerenteZona && profile?.zona_id
+    ? users.filter(u => u.profile.zona_id === profile.zona_id && u.roles.includes("supervisor"))
+    : users;
 
   const handleEdit = (userId: string, currentRole: AppRole, currentZonaId: string | null | undefined) => {
     setEditingUser(userId);
@@ -52,7 +61,11 @@ export const UserManagement = () => {
     <Card>
       <CardHeader>
         <CardTitle>Gestão de Usuários</CardTitle>
-        <CardDescription>Gerencie roles e zonas dos usuários do sistema</CardDescription>
+        <CardDescription>
+          {isGerenteZona 
+            ? "Gerencie os supervisores da sua zona operativa" 
+            : "Gerencie roles e zonas dos usuários do sistema"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="rounded-md border">
@@ -67,7 +80,7 @@ export const UserManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => {
+              {filteredUsers.map((user) => {
                 const isEditing = editingUser === user.id;
                 const primaryRole = user.roles[0] || "supervisor";
 
@@ -96,14 +109,18 @@ export const UserManagement = () => {
                     </TableCell>
                     <TableCell>
                       {isEditing ? (
-                        <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as AppRole)}>
+                        <Select 
+                          value={selectedRole} 
+                          onValueChange={(value) => setSelectedRole(value as AppRole)}
+                          disabled={isGerenteZona}
+                        >
                           <SelectTrigger className="w-[180px]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="supervisor">Supervisor</SelectItem>
-                            <SelectItem value="gerente_zona">Gerente de Zona</SelectItem>
-                            <SelectItem value="gerente_geral">Gerente Geral</SelectItem>
+                            {isGerenteGeral && <SelectItem value="gerente_zona">Gerente de Zona</SelectItem>}
+                            {isGerenteGeral && <SelectItem value="gerente_geral">Gerente Geral</SelectItem>}
                           </SelectContent>
                         </Select>
                       ) : (

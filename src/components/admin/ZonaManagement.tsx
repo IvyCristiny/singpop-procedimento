@@ -15,9 +15,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useRole } from "@/hooks/useRole";
 
 export const ZonaManagement = () => {
   const { zonas, loading, createZona, updateZona, deleteZona } = useZonas();
+  const { isGerenteGeral } = useRole();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -77,12 +79,18 @@ export const ZonaManagement = () => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Gestão de Zonas Operativas</CardTitle>
-              <CardDescription>Adicione, edite ou remova zonas operativas</CardDescription>
+              <CardDescription>
+                {isGerenteGeral 
+                  ? "Adicione, edite ou remova zonas operativas" 
+                  : "Visualize as zonas operativas do sistema"}
+              </CardDescription>
             </div>
-            <Button onClick={handleAdd} disabled={isAdding || editingId !== null}>
-              <Plus className="w-4 h-4 mr-2" />
-              Nova Zona
-            </Button>
+            {isGerenteGeral && (
+              <Button onClick={handleAdd} disabled={isAdding || editingId !== null}>
+                <Plus className="w-4 h-4 mr-2" />
+                Nova Zona
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -162,22 +170,24 @@ export const ZonaManagement = () => {
                           <p className="text-sm text-muted-foreground mt-1">{zona.descricao}</p>
                         )}
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleEdit(zona.id, zona.nome, zona.descricao)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDeleteClick(zona.id, zona.nome)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                      {isGerenteGeral && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEdit(zona.id, zona.nome, zona.descricao)}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteClick(zona.id, zona.nome)}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
