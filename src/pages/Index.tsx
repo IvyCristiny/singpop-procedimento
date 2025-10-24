@@ -3,13 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Filter, FileText, BookOpen } from "lucide-react";
+import { Plus, Search, Filter, FileText, BookOpen, LogOut } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
 import { getAllPOPs } from "@/utils/storage";
 import { POP } from "@/types/pop";
 import { getCustomCatalog } from "@/utils/catalogStorage";
+import { useAuth } from "@/hooks/useAuth";
+import { useRole } from "@/hooks/useRole";
+import { RoleBadge } from "@/components/RoleBadge";
+import { useNavigate } from "react-router-dom";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
 const Index = () => {
@@ -18,6 +22,14 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
   const [catalog, setCatalog] = useState(getCustomCatalog());
+  const { profile, signOut } = useAuth();
+  const { primaryRole } = useRole();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth");
+  };
 
   const loadPOPs = () => {
     setPops(getAllPOPs());
@@ -54,18 +66,38 @@ const Index = () => {
       {/* Header */}
       <div className="bg-white border-b border-border shadow-sm">
         <div className="max-w-6xl mx-auto p-6">
-          <div className="flex items-center gap-4 mb-2">
-            <img 
-              src={logoSingular} 
-              alt="Singular Serviços" 
-              className="h-12 w-auto"
-            />
-            <div className="h-12 w-px bg-border"></div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">SingPOP</h1>
-              <p className="text-sm text-muted-foreground">
-                Gerador de Procedimentos Operacionais Padrão
-              </p>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-4">
+              <img 
+                src={logoSingular} 
+                alt="Singular Serviços" 
+                className="h-12 w-auto"
+              />
+              <div className="h-12 w-px bg-border"></div>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">SingPOP</h1>
+                <p className="text-sm text-muted-foreground">
+                  Gerador de Procedimentos Operacionais Padrão
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm font-medium text-foreground">{profile?.full_name}</p>
+                <div className="flex justify-end mt-1">
+                  <RoleBadge role={primaryRole as any} />
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Sair
+              </Button>
             </div>
           </div>
         </div>
