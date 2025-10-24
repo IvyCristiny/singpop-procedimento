@@ -56,16 +56,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher zona e responsável pela elaboração do usuário logado
+  // Autopreencher apenas a zona do usuário logado
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
-    }
-    if (profile?.full_name) {
-      setFormData(prev => ({
-        ...prev,
-        responsavelElaboracao: profile.full_name
-      }));
     }
   }, [profile]);
 
@@ -76,10 +70,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         const parsed = JSON.parse(draft);
         const draftData = parsed.formData || formData;
         
-        // Excluir responsavelElaboracao do draft para não sobrescrever o autopreenchimento
-        const { responsavelElaboracao, ...restDraftData } = draftData;
-        
-        setFormData({ ...formData, ...restDraftData });
+        setFormData({ ...formData, ...draftData });
         setSelectedFunctionId(parsed.selectedFunctionId || "");
         setSelectedActivityId(parsed.selectedActivityId || "");
         setUseCustomSteps(parsed.useCustomSteps || false);
@@ -407,17 +398,13 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
             <div className="space-y-2">
-              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração</Label>
+              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
               <Input
                 id="responsavelElaboracao"
                 value={formData.responsavelElaboracao}
-                disabled
-                className="bg-muted cursor-not-allowed"
-                placeholder="Nome será preenchido automaticamente"
+                onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
+                placeholder="Nome completo do responsável"
               />
-              <p className="text-xs text-muted-foreground">
-                Nome do usuário logado: {profile?.full_name || "Carregando..."}
-              </p>
             </div>
 
                 <div className="space-y-2">
