@@ -12,7 +12,7 @@ import { POP } from "@/types/pop";
 import { ProcedureStep } from "@/types/schema";
 import { savePOP, generatePOPCode } from "@/utils/storage";
 import { downloadPDF } from "@/utils/pdfGenerator";
-import { catalog } from "@/data/catalog";
+import { getCustomCatalog } from "@/utils/catalogStorage";
 import { FunctionSelector } from "./FunctionSelector";
 import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
@@ -26,6 +26,7 @@ interface POPFormProps {
 
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
+  const catalog = getCustomCatalog();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");
   const [selectedActivityId, setSelectedActivityId] = useState<string>("");

@@ -6,7 +6,7 @@ import { POP } from "@/types/pop";
 import { downloadPDF } from "@/utils/pdfGenerator";
 import { deletePOP } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
-import { catalog } from "@/data/catalog";
+import { getCustomCatalog } from "@/utils/catalogStorage";
 
 const iconMap: Record<string, any> = {
   ShieldCheck,
@@ -27,6 +27,7 @@ interface POPCardProps {
 
 export const POPCard = ({ pop, onDelete }: POPCardProps) => {
   const { toast } = useToast();
+  const catalog = getCustomCatalog();
   
   // Buscar função e atividade do catálogo
   const func = catalog.functions.find(f => f.id === pop.functionId);
