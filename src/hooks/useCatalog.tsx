@@ -31,11 +31,13 @@ export const useCatalog = () => {
         const catalogData = data.catalog_data as any;
         // Validate that the catalog has the expected structure
         if (catalogData && Array.isArray(catalogData.functions)) {
-          setCatalog(catalogData as Catalog);
+          // Normalize and validate the catalog data
+          const normalizedCatalog = normalizeCatalog(catalogData);
+          setCatalog(normalizedCatalog);
         } else {
           console.error("Invalid catalog structure:", catalogData);
-          // Use default catalog if structure is invalid
-          setCatalog(defaultCatalog);
+          // Reinitialize with default catalog if structure is invalid
+          await initializeCatalog();
         }
       } else {
         // Initialize with default catalog if empty
@@ -53,6 +55,78 @@ export const useCatalog = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Normalize catalog data to ensure compatibility with TypeScript schema
+  const normalizeCatalog = (catalogData: any): Catalog => {
+    return {
+      functions: catalogData.functions.map((fn: any) => ({
+        ...fn,
+        activities: (fn.activities || []).map((activity: any) => ({
+          ...activity,
+          // Ensure responsibilities is always an array
+          responsibilities: Array.isArray(activity.responsibilities) 
+            ? activity.responsibilities 
+            : typeof activity.responsibilities === 'string' 
+            ? [activity.responsibilities] 
+            : [],
+          // Ensure prerequisites is always an array
+          prerequisites: Array.isArray(activity.prerequisites) 
+            ? activity.prerequisites 
+            : [],
+          // Ensure scope is a string
+          scope: activity.scope || '',
+          // Ensure procedure has proper structure
+          procedure: {
+            steps: (activity.procedure?.steps || []).map((step: any) => ({
+              id: step.id || `S${Date.now()}`,
+              title: step.title || step.instruction || 'Sem título',
+              instruction: step.instruction || '',
+              why: step.why || '',
+              who: step.who || '',
+              time_estimate_min: typeof step.time_estimate_min === 'number' 
+                ? step.time_estimate_min 
+                : parseFloat(step.time || step.tempo || '0') || 0,
+              safety: step.safety || step.seguranca || '',
+              quality_check: step.quality_check || step.controle_qualidade || '',
+              evidence: step.evidence || step.evidencia || ''
+            }))
+          },
+          // Ensure equipment has proper structure
+          equipment: {
+            epc: Array.isArray(activity.equipment?.epc) ? activity.equipment.epc : [],
+            epi: Array.isArray(activity.equipment?.epi) ? activity.equipment.epi : [],
+            tools: Array.isArray(activity.equipment?.tools) ? activity.equipment.tools : [],
+            consumables: Array.isArray(activity.equipment?.consumables) ? activity.equipment.consumables : []
+          },
+          // Ensure training has proper structure
+          training: {
+            modules: Array.isArray(activity.training?.modules) ? activity.training.modules : [],
+            refresh_cadence_days: typeof activity.training?.refresh_cadence_days === 'number'
+              ? activity.training.refresh_cadence_days
+              : typeof activity.training?.cadencia === 'number'
+              ? activity.training.cadencia
+              : 365
+          },
+          // Ensure review has proper structure
+          review: {
+            kpis: Array.isArray(activity.review?.kpis) ? activity.review.kpis : [],
+            audit_frequency_days: typeof activity.review?.audit_frequency_days === 'number'
+              ? activity.review.audit_frequency_days
+              : typeof activity.review?.frequencia === 'number'
+              ? activity.review.frequencia
+              : 30,
+            auditor_role: activity.review?.auditor_role || activity.review?.auditor || 'Supervisor'
+          },
+          // Ensure versioning has proper structure
+          versioning: {
+            current_version: activity.versioning?.current_version || '1.0',
+            last_review_date: activity.versioning?.last_review_date || new Date().toISOString().split('T')[0],
+            changelog: Array.isArray(activity.versioning?.changelog) ? activity.versioning.changelog : []
+          }
+        }))
+      }))
+    };
   };
 
   const initializeCatalog = async () => {
