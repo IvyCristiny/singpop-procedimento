@@ -109,11 +109,39 @@ export const useUsers = () => {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // PROTEÇÃO 1: Impedir auto-exclusão
+      if (user?.id === userId) {
+        toast.error("Você não pode excluir seu próprio usuário");
+        return { error: new Error("Cannot delete own user") };
+      }
+      
+      // Usar função SQL segura
+      const { error } = await supabase.rpc('delete_user_safe', {
+        p_user_id: userId
+      });
+
+      if (error) throw error;
+      
+      toast.success("Usuário excluído com sucesso");
+      await fetchUsers();
+      return { error: null };
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      toast.error(error.message || "Erro ao excluir usuário");
+      return { error };
+    }
+  };
+
   return {
     users,
     loading,
     updateUserRole,
     updateUserZona,
+    deleteUser,
     refetch: fetchUsers
   };
 };

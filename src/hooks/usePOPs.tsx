@@ -86,8 +86,18 @@ export const usePOPs = () => {
 
   const savePOP = async (pop: Omit<POP, "id" | "createdAt">) => {
     if (!user) {
-      throw new Error("User not authenticated");
+      throw new Error("Usuário não autenticado. Faça login novamente.");
     }
+
+    // Verificar sessão ativa
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      console.error("❌ Sessão inválida ou expirada:", sessionError);
+      throw new Error("Sessão expirada. Faça login novamente.");
+    }
+
+    console.log("✅ Salvando POP com user_id:", user.id);
 
     const popData: any = {
       user_id: user.id,
@@ -109,8 +119,18 @@ export const usePOPs = () => {
 
     const { error } = await supabase.from("pops").insert([popData]);
 
-    if (error) throw error;
+    if (error) {
+      console.error("❌ Erro ao salvar POP:", error);
+      
+      // Mensagens de erro específicas
+      if (error.code === '42501') {
+        throw new Error("Erro de permissão. Faça logout e login novamente.");
+      }
+      
+      throw error;
+    }
 
+    console.log("✅ POP salvo com sucesso");
     await fetchPOPs();
   };
 

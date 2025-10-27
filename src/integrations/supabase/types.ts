@@ -342,6 +342,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_user_safe: { Args: { p_user_id: string }; Returns: undefined }
+      get_current_user_id: { Args: never; Returns: string }
       get_user_zona_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
