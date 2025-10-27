@@ -3,22 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { POP } from "@/types/pop";
 import { Activity, ProcedureStep } from "@/types/schema";
-import { savePOP, generatePOPCode } from "@/utils/storage";
+import { generatePOPCode } from "@/utils/storage";
 import { downloadPDF, downloadMultipleActivitiesPDF } from "@/utils/pdfGenerator";
 import { useCatalog } from "@/hooks/useCatalog";
+import { usePOPs } from "@/hooks/usePOPs";
 import { FunctionSelector } from "./FunctionSelector";
 import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
-import { ArrowLeft, FileDown, Info, X, Image as ImageIcon } from "lucide-react";
-import { useZonas } from "@/hooks/useZonas";
+import { ArrowLeft, Info, X, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface POPFormProps {
@@ -29,7 +27,7 @@ interface POPFormProps {
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const { catalog, loading } = useCatalog();
-  const { zonas } = useZonas();
+  const { savePOP } = usePOPs();
   const { profile } = useAuth();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");

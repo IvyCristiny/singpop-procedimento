@@ -4,9 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { FileDown, Trash2, ShieldCheck, Eye, Sparkles, Shield, Trees, Waves, Wrench, UserCheck, Briefcase, Clock, FileText } from "lucide-react";
 import { POP } from "@/types/pop";
 import { downloadPDF } from "@/utils/pdfGenerator";
-import { deletePOP } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
 import { getCustomCatalog } from "@/utils/catalogStorage";
+import { usePOPs } from "@/hooks/usePOPs";
 
 const iconMap: Record<string, any> = {
   ShieldCheck,
@@ -27,6 +27,7 @@ interface POPCardProps {
 
 export const POPCard = ({ pop, onDelete }: POPCardProps) => {
   const { toast } = useToast();
+  const { deletePOP } = usePOPs();
   const catalog = getCustomCatalog();
   
   // Buscar função e atividade do catálogo
@@ -56,11 +57,19 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm("Tem certeza que deseja excluir este POP?")) {
-      deletePOP(pop.id);
-      toast({ title: "POP excluído com sucesso!" });
-      onDelete();
+      try {
+        await deletePOP(pop.id);
+        toast({ title: "POP excluído com sucesso!" });
+        onDelete();
+      } catch (error) {
+        toast({ 
+          title: "Erro ao excluir POP", 
+          description: "Tente novamente mais tarde.",
+          variant: "destructive" 
+        });
+      }
     }
   };
 

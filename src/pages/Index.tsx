@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,21 +7,20 @@ import { Plus, Search, Filter, FileText, BookOpen, LogOut, Settings } from "luci
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
-import { getAllPOPs } from "@/utils/storage";
-import { POP } from "@/types/pop";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
 import { useCatalog } from "@/hooks/useCatalog";
+import { usePOPs } from "@/hooks/usePOPs";
 import { RoleBadge } from "@/components/RoleBadge";
 import { useNavigate } from "react-router-dom";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
-  const [pops, setPops] = useState<POP[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
-  const { catalog, loading } = useCatalog();
+  const { catalog, loading: catalogLoading } = useCatalog();
+  const { pops, loading: popsLoading, refetch } = usePOPs();
   const { profile, signOut } = useAuth();
   const { primaryRole, isGerenteGeral } = useRole();
   const navigate = useNavigate();
@@ -31,16 +30,8 @@ const Index = () => {
     navigate("/auth");
   };
 
-  const loadPOPs = () => {
-    setPops(getAllPOPs());
-  };
-
-  useEffect(() => {
-    loadPOPs();
-  }, []);
-
-  // Mostrar loading enquanto carrega o catálogo
-  if (loading) {
+  // Mostrar loading enquanto carrega
+  if (catalogLoading || popsLoading) {
     return (
       <div className="min-h-screen bg-gradient-light flex items-center justify-center">
         <p className="text-lg text-muted-foreground">Carregando...</p>
@@ -63,7 +54,7 @@ const Index = () => {
         onBack={() => setShowForm(false)}
         onSave={() => {
           setShowForm(false);
-          loadPOPs();
+          refetch();
         }}
       />
     );
@@ -214,7 +205,7 @@ const Index = () => {
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredPOPs.map((pop) => (
-                    <POPCard key={pop.id} pop={pop} onDelete={loadPOPs} />
+                    <POPCard key={pop.id} pop={pop} onDelete={refetch} />
                   ))}
                 </div>
               </div>
