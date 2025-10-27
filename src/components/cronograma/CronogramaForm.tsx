@@ -42,6 +42,8 @@ export const CronogramaForm = ({ onBack, onSave }: CronogramaFormProps) => {
     responsavel: "",
     supervisao: "",
     versao: "1.0",
+    responsavel_revisao: "",
+    data_revisao: "",
     pop_ids: [] as string[],
     rotina_diaria: [] as RotinaHorario[],
     rotina_semanal: [] as RotinaSemanal[],

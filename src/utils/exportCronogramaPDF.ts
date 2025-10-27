@@ -1,66 +1,98 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Cronograma, diasSemana } from "@/types/cronograma";
+import { POP } from "@/types/pop";
 
-export const exportCronogramaPDF = (cronograma: Cronograma) => {
+export const exportCronogramaPDF = (cronograma: Cronograma, pops: POP[] = []) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   
-  // Colors
-  const headerColor: [number, number, number] = [76, 175, 80]; // Green #4CAF50
-  const lightGreen: [number, number, number] = [200, 230, 201];
+  // Colors (cinza para seguir o modelo)
+  const headerColor: [number, number, number] = [217, 217, 217]; // Cinza claro
   
-  let yPos = 20;
+  let yPos = 15;
 
-  // Title
-  doc.setFillColor(...headerColor);
-  doc.rect(0, 0, pageWidth, 25, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(18);
+  // Título
+  doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text(cronograma.titulo, pageWidth / 2, 15, { align: "center" });
-
-  yPos = 35;
-
-  // Info Section
-  doc.setFillColor(...lightGreen);
-  doc.rect(10, yPos, pageWidth - 20, 45, 'F');
   doc.setTextColor(0, 0, 0);
+  doc.text(`Cronograma de Limpeza – Condomínio ${cronograma.condominio_nome}`, 10, yPos);
+
+  yPos += 10;
+
+  // Buscar códigos dos POPs associados
+  const popCodigos = cronograma.pop_ids
+    .map((id) => {
+      const pop = pops.find((p) => p.id === id);
+      return pop?.codigoPOP || id;
+    })
+    .join(", ");
+
+  // Dados gerais (formato simples)
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   
-  doc.text(`Condomínio: ${cronograma.condominio_nome}`, 15, yPos + 8);
-  doc.text(`Código: ${cronograma.codigo}`, 15, yPos + 15);
-  doc.text(`Versão: ${cronograma.versao}`, 15, yPos + 22);
-  doc.text(`Turno: ${cronograma.turno}`, 15, yPos + 29);
-  doc.text(`Periodicidade: ${cronograma.periodicidade}`, 15, yPos + 36);
-  doc.text(`Responsável: ${cronograma.responsavel}`, 15, yPos + 43);
+  const infoFields: [string, string][] = [
+    ["Condomínio:", cronograma.condominio_nome],
+    ["Código:", cronograma.codigo],
+    ["Versão:", cronograma.versao],
+    ["Turno:", cronograma.turno],
+    ["Periodicidade:", cronograma.periodicidade],
+    ["Responsável:", cronograma.responsavel],
+    ["Supervisão:", cronograma.supervisao || "-"],
+    ["", ""], // Linha vazia
+    ["POPs Associados:", popCodigos || "Nenhum"],
+  ];
 
-  yPos += 55;
+  infoFields.forEach(([label, value]) => {
+    if (!label) {
+      yPos += 3;
+      return;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.text(label, 10, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(value, 55, yPos);
+    yPos += 6;
+  });
+
+  yPos += 5;
 
   // Rotina Diária
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.setTextColor(...headerColor);
-  doc.text("ROTINA DIÁRIA", 10, yPos);
-  yPos += 2;
+  doc.text("Rotina Diária", 10, yPos);
+  yPos += 5;
 
-  const dailyTableData = cronograma.rotina_diaria.map((rotina) => [
-    `${rotina.horario_inicio}-${rotina.horario_fim}`,
-    rotina.ambiente_atividade,
-    rotina.detalhamento,
-    rotina.responsavel,
-  ]);
+  const dailyTableData = cronograma.rotina_diaria
+    .sort((a, b) => a.ordem - b.ordem)
+    .map((rotina) => [
+      `${rotina.horario_inicio} – ${rotina.horario_fim}`,
+      rotina.ambiente_atividade,
+      rotina.detalhamento,
+      rotina.responsavel,
+    ]);
 
   autoTable(doc, {
     startY: yPos,
-    head: [["Horário", "Ambiente/Atividade", "Detalhamento", "Responsável"]],
+    head: [["Horário", "Ambiente / Atividade", "Detalhamento das tarefas", "Responsável"]],
     body: dailyTableData,
     theme: "grid",
     headStyles: {
       fillColor: headerColor,
-      textColor: [255, 255, 255],
+      textColor: [0, 0, 0],
       fontStyle: "bold",
+      halign: "center",
+    },
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+    },
+    columnStyles: {
+      0: { cellWidth: 30 },
+      1: { cellWidth: 45 },
+      2: { cellWidth: 70 },
+      3: { cellWidth: 30 },
     },
     alternateRowStyles: {
       fillColor: [245, 245, 245],
@@ -70,40 +102,40 @@ export const exportCronogramaPDF = (cronograma: Cronograma) => {
 
   yPos = (doc as any).lastAutoTable.finalY + 10;
 
-  // Check if we need a new page
+  // Verificar se precisa de nova página
   if (yPos > 250) {
     doc.addPage();
     yPos = 20;
   }
 
   // Rotina Semanal
-  doc.setFontSize(12);
-  doc.setFont("helvetica", "bold");
-  doc.setTextColor(...headerColor);
-  doc.text("ROTINA SEMANAL", 10, yPos);
-  yPos += 2;
+  if (cronograma.rotina_semanal && cronograma.rotina_semanal.length > 0) {
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "bold");
+    doc.text("Rotina Semanal", 10, yPos);
+    yPos += 5;
 
-  const weeklyTableData = cronograma.rotina_semanal
-    .sort((a, b) => a.ordem - b.ordem)
-    .map((rotina) => {
-      const dia = diasSemana.find((d) => d.value === rotina.dia_semana);
-      return [
-        dia?.label || rotina.dia_semana,
-        rotina.atividade,
-        rotina.observacoes || "-",
-      ];
-    });
+    const weeklyTableData = cronograma.rotina_semanal
+      .sort((a, b) => a.ordem - b.ordem)
+      .map((rotina) => {
+        const dia = diasSemana.find((d) => d.value === rotina.dia_semana);
+        return [dia?.label || rotina.dia_semana, rotina.atividade, rotina.observacoes || ""];
+      });
 
-  if (weeklyTableData.length > 0) {
     autoTable(doc, {
       startY: yPos,
-      head: [["Dia da Semana", "Atividade", "Observações"]],
+      head: [["Dia da Semana", "Atividade Semanal", "Observações"]],
       body: weeklyTableData,
       theme: "grid",
       headStyles: {
         fillColor: headerColor,
-        textColor: [255, 255, 255],
+        textColor: [0, 0, 0],
         fontStyle: "bold",
+        halign: "center",
+      },
+      styles: {
+        fontSize: 9,
+        cellPadding: 3,
       },
       alternateRowStyles: {
         fillColor: [245, 245, 245],
@@ -111,32 +143,31 @@ export const exportCronogramaPDF = (cronograma: Cronograma) => {
       margin: { left: 10, right: 10 },
     });
 
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 15;
   }
 
-  // Footer - Revisão
+  // Footer com dados de revisão
   if (yPos > 260) {
     doc.addPage();
     yPos = 20;
   }
 
-  if (cronograma.responsavel_revisao || cronograma.data_revisao) {
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    doc.text(
-      `Responsável pela Revisão: ${cronograma.responsavel_revisao || "-"}`,
-      10,
-      yPos
-    );
-    doc.text(
-      `Data de Revisão: ${cronograma.data_revisao || "-"}`,
-      10,
-      yPos + 5
-    );
-  }
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(0, 0, 0);
+  doc.text(
+    `Responsável pela Revisão: ${cronograma.responsavel_revisao || "_".repeat(40)}`,
+    10,
+    yPos
+  );
+  yPos += 6;
+  doc.text(
+    `Data da Revisão: ${cronograma.data_revisao || "____ / ____ / ________"}`,
+    10,
+    yPos
+  );
 
-  // Save
+  // Salvar arquivo
   const filename = `${cronograma.codigo}_${cronograma.condominio_nome.replace(
     /\s+/g,
     "_"

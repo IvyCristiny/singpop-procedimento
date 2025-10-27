@@ -15,6 +15,8 @@ interface InformacoesGeraisProps {
     responsavel: string;
     supervisao: string;
     versao: string;
+    responsavel_revisao?: string;
+    data_revisao?: string;
   };
   onChange: (field: string, value: string) => void;
   autoFilled?: boolean;
@@ -143,6 +145,36 @@ export const InformacoesGerais = ({ data, onChange, autoFilled = false }: Inform
             placeholder="Ex: 1.0"
             required
           />
+        </div>
+
+        {/* Seção de Revisão */}
+        <div className="space-y-4 pt-4 border-t">
+          <h3 className="font-semibold">Dados de Revisão</h3>
+          <p className="text-sm text-muted-foreground">
+            Estes campos serão pré-preenchidos automaticamente, mas você pode editá-los se necessário.
+          </p>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="responsavel_revisao">Responsável pela Revisão</Label>
+              <Input
+                id="responsavel_revisao"
+                value={data.responsavel_revisao || ""}
+                onChange={(e) => onChange("responsavel_revisao", e.target.value)}
+                placeholder="Será preenchido com o responsável"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="data_revisao">Data de Revisão</Label>
+              <Input
+                id="data_revisao"
+                value={data.data_revisao || ""}
+                onChange={(e) => onChange("data_revisao", e.target.value)}
+                placeholder="Será preenchida com a data atual"
+              />
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

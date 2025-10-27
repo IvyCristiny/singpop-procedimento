@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { usePOPs } from "@/hooks/usePOPs";
 
 interface CronogramaCardProps {
   cronograma: Cronograma;
@@ -30,6 +31,15 @@ export const CronogramaCard = ({
   onExportPDF,
   onExportExcel,
 }: CronogramaCardProps) => {
+  const { pops } = usePOPs();
+
+  const handleExportPDF = () => {
+    onExportPDF(cronograma);
+  };
+
+  const handleExportExcel = () => {
+    onExportExcel(cronograma);
+  };
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -66,11 +76,11 @@ export const CronogramaCard = ({
             <Edit className="w-4 h-4 mr-1" />
             Editar
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onExportPDF(cronograma)}>
+          <Button size="sm" variant="outline" onClick={handleExportPDF}>
             <Download className="w-4 h-4 mr-1" />
             PDF
           </Button>
-          <Button size="sm" variant="outline" onClick={() => onExportExcel(cronograma)}>
+          <Button size="sm" variant="outline" onClick={handleExportExcel}>
             <Download className="w-4 h-4 mr-1" />
             Excel
           </Button>

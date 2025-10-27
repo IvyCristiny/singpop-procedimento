@@ -111,6 +111,9 @@ export const useCronogramas = () => {
 
       const codigo = generateCodigo(data.condominio_nome!);
       
+      // Pré-preencher campos de revisão se não fornecidos
+      const hoje = new Date().toLocaleDateString("pt-BR");
+      
       const cronogramaData: any = {
         titulo: data.titulo,
         condominio_nome: data.condominio_nome,
@@ -123,8 +126,8 @@ export const useCronogramas = () => {
         pop_ids: data.pop_ids || [],
         rotina_diaria: data.rotina_diaria || [],
         rotina_semanal: data.rotina_semanal || [],
-        responsavel_revisao: data.responsavel_revisao || null,
-        data_revisao: data.data_revisao || null,
+        responsavel_revisao: data.responsavel_revisao || data.responsavel || null,
+        data_revisao: data.data_revisao || hoje,
         observacoes: data.observacoes || null,
         user_id: user!.id,
         zona_id: profile?.zona_id || null,

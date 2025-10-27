@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCronogramas } from "@/hooks/useCronogramas";
+import { usePOPs } from "@/hooks/usePOPs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CronogramaCard } from "@/components/cronograma/CronogramaCard";
@@ -14,6 +15,7 @@ import { exportCronogramaExcel } from "@/utils/exportCronogramaExcel";
 export default function Cronogramas() {
   const navigate = useNavigate();
   const { cronogramas, loading, deleteCronograma } = useCronogramas();
+  const { pops } = usePOPs();
   const [showForm, setShowForm] = useState(false);
 
   if (showForm) {
@@ -26,11 +28,11 @@ export default function Cronogramas() {
   }
 
   const handleExportPDF = (cronograma: Cronograma) => {
-    exportCronogramaPDF(cronograma);
+    exportCronogramaPDF(cronograma, pops);
   };
 
   const handleExportExcel = (cronograma: Cronograma) => {
-    exportCronogramaExcel(cronograma);
+    exportCronogramaExcel(cronograma, pops);
   };
 
   const handleEdit = (cronograma: Cronograma) => {
