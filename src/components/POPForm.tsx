@@ -125,7 +125,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     setSelectedActivityId(activityId);
     setUseCustomSteps(false);
     
-    const selectedFunction = catalog.functions.find(f => f.id === selectedFunctionId);
+    const selectedFunction = catalog?.functions?.find(f => f.id === selectedFunctionId);
     const selectedActivity = selectedFunction?.activities.find(a => a.id === activityId);
     if (selectedActivity) {
       setCustomSteps([...selectedActivity.procedure.steps]);
@@ -226,7 +226,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
-    const selectedFunction = catalog.functions.find(f => f.id === selectedFunctionId);
+    const selectedFunction = catalog?.functions?.find(f => f.id === selectedFunctionId);
     
     if (!selectedFunction) {
       toast({
@@ -327,7 +327,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     }
   };
 
-  const selectedFunction = catalog.functions.find(f => f.id === selectedFunctionId);
+  const selectedFunction = catalog?.functions?.find(f => f.id === selectedFunctionId);
   const selectedActivity = selectedFunction?.activities.find(a => a.id === selectedActivityId);
 
   if (loading) {
@@ -441,7 +441,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
             <Separator />
 
             <FunctionSelector
-              functions={catalog.functions}
+              functions={catalog?.functions || []}
               selectedFunctionId={selectedFunctionId}
               onSelectFunction={handleFunctionSelect}
             />

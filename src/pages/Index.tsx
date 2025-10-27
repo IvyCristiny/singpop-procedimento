@@ -167,7 +167,7 @@ const Index = () => {
                     </SelectTrigger>
                     <SelectContent className="bg-popover z-50">
                       <SelectItem value="todos">Todas as funções</SelectItem>
-                      {catalog.functions.map((func) => (
+                      {catalog?.functions?.map((func) => (
                         <SelectItem key={func.id} value={func.id}>
                           {func.name}
                         </SelectItem>

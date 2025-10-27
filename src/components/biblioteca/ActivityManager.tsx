@@ -24,7 +24,7 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
   const { isGerenteGeral, isGerenteZona } = useRole();
 
   const canEdit = isGerenteGeral || isGerenteZona;
-  const currentFunction = catalog.functions.find(f => f.id === functionId);
+  const currentFunction = catalog?.functions?.find(f => f.id === functionId);
   const activities = currentFunction?.activities || [];
 
   const handleEdit = (activityId: string) => {

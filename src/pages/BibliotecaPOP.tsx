@@ -64,7 +64,7 @@ export const BibliotecaPOP = () => {
         <TabsList className={`grid w-full ${isGerenteGeral ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="functions">Funções</TabsTrigger>
           <TabsTrigger value="activities" disabled={!selectedFunction}>
-            Atividades {selectedFunction && `(${catalog.functions.find(f => f.id === selectedFunction)?.name})`}
+            Atividades {selectedFunction && `(${catalog?.functions?.find(f => f.id === selectedFunction)?.name})`}
           </TabsTrigger>
           {isGerenteGeral && (
             <TabsTrigger value="history">Histórico</TabsTrigger>

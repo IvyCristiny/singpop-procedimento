@@ -84,7 +84,7 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
         });
       }
     } else if (editingId) {
-      const oldFunction = catalog.functions.find(f => f.id === editingId);
+      const oldFunction = catalog?.functions?.find(f => f.id === editingId);
       const updatedFunction: FunctionType = {
         id: editingId,
         name: formData.name!,
@@ -232,7 +232,7 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {catalog.functions.map((func) => (
+        {catalog?.functions?.map((func) => (
           <Card
             key={func.id}
             className={`cursor-pointer transition-all ${

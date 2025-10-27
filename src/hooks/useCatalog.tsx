@@ -28,7 +28,15 @@ export const useCatalog = () => {
       if (error) throw error;
 
       if (data && data.catalog_data) {
-        setCatalog(data.catalog_data as unknown as Catalog);
+        const catalogData = data.catalog_data as any;
+        // Validate that the catalog has the expected structure
+        if (catalogData && Array.isArray(catalogData.functions)) {
+          setCatalog(catalogData as Catalog);
+        } else {
+          console.error("Invalid catalog structure:", catalogData);
+          // Use default catalog if structure is invalid
+          setCatalog(defaultCatalog);
+        }
       } else {
         // Initialize with default catalog if empty
         await initializeCatalog();
@@ -40,6 +48,8 @@ export const useCatalog = () => {
         description: "Não foi possível carregar o catálogo",
         variant: "destructive",
       });
+      // Fallback to default catalog on error
+      setCatalog(defaultCatalog);
     } finally {
       setLoading(false);
     }
@@ -126,6 +136,7 @@ export const useCatalog = () => {
   };
 
   const updateFunction = async (functionId: string, updatedFunction: Function, oldFunction?: Function) => {
+    if (!catalog) return false;
     const newCatalog = {
       ...catalog,
       functions: catalog.functions.map((f) =>
@@ -143,6 +154,7 @@ export const useCatalog = () => {
   };
 
   const addFunction = async (newFunction: Function) => {
+    if (!catalog) return false;
     const newCatalog = {
       ...catalog,
       functions: [...catalog.functions, newFunction],
@@ -152,6 +164,7 @@ export const useCatalog = () => {
   };
 
   const deleteFunction = async (functionId: string) => {
+    if (!catalog) return false;
     const functionToDelete = catalog.functions.find((f) => f.id === functionId);
     if (!functionToDelete) return false;
 
@@ -169,6 +182,7 @@ export const useCatalog = () => {
     updatedActivity: Activity,
     oldActivity?: Activity
   ) => {
+    if (!catalog) return false;
     const newCatalog = {
       ...catalog,
       functions: catalog.functions.map((f) =>
@@ -193,6 +207,7 @@ export const useCatalog = () => {
   };
 
   const addActivity = async (functionId: string, newActivity: Activity) => {
+    if (!catalog) return false;
     const newCatalog = {
       ...catalog,
       functions: catalog.functions.map((f) =>
@@ -206,6 +221,7 @@ export const useCatalog = () => {
   };
 
   const deleteActivity = async (functionId: string, activityId: string) => {
+    if (!catalog) return false;
     const functionObj = catalog.functions.find((f) => f.id === functionId);
     const activityToDelete = functionObj?.activities.find((a) => a.id === activityId);
     if (!activityToDelete) return false;

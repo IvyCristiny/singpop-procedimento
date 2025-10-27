@@ -30,7 +30,7 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
   const catalog = getCustomCatalog();
   
   // Buscar função e atividade do catálogo
-  const func = catalog.functions.find(f => f.id === pop.functionId);
+  const func = catalog?.functions?.find(f => f.id === pop.functionId);
   const activity = func?.activities.find(a => a.id === pop.activityId);
   
   // Fallback para POPs migrados sem match
@@ -42,7 +42,7 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
 
   const handleDownload = async () => {
     // Find activity from catalog
-    const func = catalog.functions.find(f => f.id === pop.functionId);
+    const func = catalog?.functions?.find(f => f.id === pop.functionId);
     const activity = func?.activities.find(a => a.id === pop.activityId);
     
     if (activity) {

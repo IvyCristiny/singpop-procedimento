@@ -49,8 +49,8 @@ export const ActivityEditor = ({ functionId, activity, onSave, onCancel }: Activ
     let success = false;
 
     if (activity) {
-      const oldActivity = catalog.functions
-        .find(f => f.id === functionId)
+      const oldActivity = catalog?.functions
+        ?.find(f => f.id === functionId)
         ?.activities.find(a => a.id === activity.id);
       success = await updateActivity(functionId, activity.id, formData, oldActivity);
       if (success) {
