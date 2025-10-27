@@ -33,9 +33,12 @@ export const LoginForm = () => {
           description: "Bem-vindo de volta.",
         });
         
-        // Redirecionar para a página inicial após login bem-sucedido
+        // Redirecionar e recarregar a página após login bem-sucedido
         setTimeout(() => {
           navigate("/");
+          setTimeout(() => {
+            window.location.reload();
+          }, 2000);
         }, 500);
       }
     } catch (error) {
