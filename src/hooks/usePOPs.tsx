@@ -35,12 +35,12 @@ export const usePOPs = () => {
       if (error) throw error;
 
       // Transformar dados do Supabase para o formato POP
-      const transformedPOPs: POP[] = (data || []).map((item) => ({
+      const transformedPOPs: POP[] = (data || []).map((item: any) => ({
         id: item.id,
         condominioNome: item.condominio_nome,
         functionId: item.function_id,
         activityId: item.activity_id,
-        activityIds: item.activity_ids as string[] | undefined,
+        activityIds: item.activity_ids ? (item.activity_ids as string[]) : undefined,
         codigoPOP: item.codigo_pop,
         versao: item.versao,
         dataRevisao: item.data_revisao,
@@ -49,7 +49,7 @@ export const usePOPs = () => {
         dataApresentacao: item.data_apresentacao,
         observacoes: item.observacoes || "",
         customSteps: item.custom_steps as any,
-        attachedImages: item.attached_images as string[] | undefined,
+        attachedImages: item.attached_images ? (item.attached_images as string[]) : undefined,
         createdAt: item.created_at,
       }));
 
@@ -70,7 +70,7 @@ export const usePOPs = () => {
       throw new Error("User not authenticated");
     }
 
-    const popData = {
+    const popData: any = {
       user_id: user.id,
       zona_id: profile?.zona_id || null,
       condominio_nome: pop.condominioNome,
@@ -84,7 +84,7 @@ export const usePOPs = () => {
       nome_colaborador: pop.nomeColaborador,
       data_apresentacao: pop.dataApresentacao,
       observacoes: pop.observacoes,
-      custom_steps: pop.customSteps || [],
+      custom_steps: pop.customSteps || null,
       attached_images: pop.attachedImages || null,
     };
 

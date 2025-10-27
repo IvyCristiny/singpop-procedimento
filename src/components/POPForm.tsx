@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { POP } from "@/types/pop";
 import { Activity, ProcedureStep } from "@/types/schema";
 import { generatePOPCode } from "@/utils/storage";
 import { downloadPDF, downloadMultipleActivitiesPDF } from "@/utils/pdfGenerator";
@@ -16,7 +17,7 @@ import { FunctionSelector } from "./FunctionSelector";
 import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
-import { ArrowLeft, Info, X, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, FileDown, Info, X, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface POPFormProps {
@@ -252,8 +253,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityIds[0]);
       
-      const pop: POP = {
-        id: Date.now().toString(),
+      const pop = {
         condominioNome: formData.condominioNome,
         functionId: selectedFunctionId,
         activityId: selectedActivityIds[0],
@@ -265,11 +265,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         nomeColaborador: formData.nomeColaborador,
         dataApresentacao: formData.dataApresentacao,
         observacoes: formData.observacoes,
-        createdAt: new Date().toISOString()
       };
 
-      savePOP(pop);
-      await downloadMultipleActivitiesPDF(pop, activities);
+      await savePOP(pop);
+      await downloadMultipleActivitiesPDF(pop as POP, activities);
       
       localStorage.removeItem("pop_draft");
       
@@ -294,8 +293,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityId);
 
-      const pop: POP = {
-        id: Date.now().toString(),
+      const pop = {
         condominioNome: formData.condominioNome,
         functionId: selectedFunctionId,
         activityId: selectedActivityId,
@@ -308,11 +306,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         observacoes: formData.observacoes,
         customSteps: useCustomSteps ? customSteps : undefined,
         attachedImages: attachedImages.length > 0 ? attachedImages : undefined,
-        createdAt: new Date().toISOString()
       };
 
-      savePOP(pop);
-      await downloadPDF(pop, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
+      await savePOP(pop);
+      await downloadPDF(pop as POP, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
       
       localStorage.removeItem("pop_draft");
       

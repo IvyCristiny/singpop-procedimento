@@ -88,6 +88,8 @@ export type Database = {
       pops: {
         Row: {
           activity_id: string
+          activity_ids: Json | null
+          attached_images: Json | null
           codigo_pop: string
           condominio_nome: string
           created_at: string
@@ -106,6 +108,8 @@ export type Database = {
         }
         Insert: {
           activity_id: string
+          activity_ids?: Json | null
+          attached_images?: Json | null
           codigo_pop: string
           condominio_nome: string
           created_at?: string
@@ -124,6 +128,8 @@ export type Database = {
         }
         Update: {
           activity_id?: string
+          activity_ids?: Json | null
+          attached_images?: Json | null
           codigo_pop?: string
           condominio_nome?: string
           created_at?: string

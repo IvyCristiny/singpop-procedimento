@@ -14,6 +14,7 @@ interface Stats {
   usersByRole: { role: string; count: number }[];
   popsByZona: { zona: string; count: number }[];
   popsBySupervisor: { supervisor: string; zona: string; count: number }[];
+  popsByFunction: { function: string; count: number }[];
 }
 
 export const Statistics = () => {
@@ -26,7 +27,8 @@ export const Statistics = () => {
     totalZonas: 0,
     usersByRole: [],
     popsByZona: [],
-    popsBySupervisor: []
+    popsBySupervisor: [],
+    popsByFunction: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -166,13 +168,41 @@ export const Statistics = () => {
 
       const popsBySupervisor = Object.values(supervisorCounts || {});
 
+      // POPs by Function (filtrar baseado na role)
+      let popsByFunctionQuery = supabase.from("pops").select("function_id");
+      if (userFilter) {
+        popsByFunctionQuery = popsByFunctionQuery.eq("user_id", userFilter);
+      } else if (zonaFilter) {
+        popsByFunctionQuery = popsByFunctionQuery.eq("zona_id", zonaFilter);
+      }
+      const { data: popsByFunctionData } = await popsByFunctionQuery;
+
+      // Buscar nomes das funções do catálogo
+      const { data: catalogData } = await supabase.from("catalog").select("catalog_data").single();
+      const catalogFunctions = (catalogData?.catalog_data as any)?.functions || [];
+
+      const functionCounts = popsByFunctionData?.reduce((acc: any, pop: any) => {
+        const functionId = pop.function_id;
+        acc[functionId] = (acc[functionId] || 0) + 1;
+        return acc;
+      }, {});
+
+      const popsByFunction = Object.entries(functionCounts || {}).map(([functionId, count]) => {
+        const func = catalogFunctions.find((f: any) => f.id === functionId);
+        return {
+          function: func?.name || functionId,
+          count: count as number
+        };
+      });
+
       setStats({
         totalUsers: userCount || 0,
         totalPOPs: popCount || 0,
         totalZonas: zonaCount || 0,
         usersByRole,
         popsByZona,
-        popsBySupervisor: popsBySupervisor as any
+        popsBySupervisor: popsBySupervisor as any,
+        popsByFunction
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -296,6 +326,25 @@ export const Statistics = () => {
               <Tooltip />
               <Legend />
               <Bar dataKey="count" fill="hsl(var(--chart-2))" name="POPs" />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>POPs por Função</CardTitle>
+          <CardDescription>Distribuição de POPs por tipo de função</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={stats.popsByFunction}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="function" angle={-45} textAnchor="end" height={100} />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="count" fill="hsl(var(--chart-3))" name="POPs" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
