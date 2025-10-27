@@ -85,6 +85,80 @@ export type Database = {
           },
         ]
       }
+      cronogramas: {
+        Row: {
+          codigo: string
+          condominio_nome: string
+          created_at: string
+          data_revisao: string | null
+          id: string
+          observacoes: string | null
+          periodicidade: string
+          pop_ids: Json
+          responsavel: string
+          responsavel_revisao: string | null
+          rotina_diaria: Json
+          rotina_semanal: Json
+          supervisao: string | null
+          titulo: string
+          turno: string
+          updated_at: string
+          user_id: string
+          versao: string
+          zona_id: string | null
+        }
+        Insert: {
+          codigo: string
+          condominio_nome: string
+          created_at?: string
+          data_revisao?: string | null
+          id?: string
+          observacoes?: string | null
+          periodicidade: string
+          pop_ids?: Json
+          responsavel: string
+          responsavel_revisao?: string | null
+          rotina_diaria?: Json
+          rotina_semanal?: Json
+          supervisao?: string | null
+          titulo: string
+          turno: string
+          updated_at?: string
+          user_id: string
+          versao?: string
+          zona_id?: string | null
+        }
+        Update: {
+          codigo?: string
+          condominio_nome?: string
+          created_at?: string
+          data_revisao?: string | null
+          id?: string
+          observacoes?: string | null
+          periodicidade?: string
+          pop_ids?: Json
+          responsavel?: string
+          responsavel_revisao?: string | null
+          rotina_diaria?: Json
+          rotina_semanal?: Json
+          supervisao?: string | null
+          titulo?: string
+          turno?: string
+          updated_at?: string
+          user_id?: string
+          versao?: string
+          zona_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cronogramas_zona_id_fkey"
+            columns: ["zona_id"]
+            isOneToOne: false
+            referencedRelation: "zonas_operativas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pops: {
         Row: {
           activity_id: string

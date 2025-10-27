@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Filter, FileText, BookOpen, LogOut, Settings } from "lucide-react";
+import { Plus, Search, Filter, FileText, BookOpen, LogOut, Settings, Calendar } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
@@ -125,10 +125,14 @@ const Index = () => {
       {/* Content */}
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
         <Tabs defaultValue="pops" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="pops" className="gap-2">
               <FileText className="w-4 h-4" />
               POPs Gerados
+            </TabsTrigger>
+            <TabsTrigger value="cronogramas" className="gap-2">
+              <Calendar className="w-4 h-4" />
+              Cronogramas
             </TabsTrigger>
             <TabsTrigger value="biblioteca" className="gap-2">
               <BookOpen className="w-4 h-4" />
@@ -219,6 +223,15 @@ const Index = () => {
                 </div>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="cronogramas">
+            <div className="text-center py-8">
+              <Button onClick={() => navigate("/cronogramas")} size="lg">
+                <Calendar className="w-5 h-5 mr-2" />
+                Acessar Cronogramas
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="biblioteca">
