@@ -17,8 +17,8 @@ interface Stats {
 }
 
 export const Statistics = () => {
-  const { isGerenteGeral, isGerenteZona } = useRole();
-  const { profile } = useAuth();
+  const { isGerenteGeral, isGerenteZona, isSupervisor } = useRole();
+  const { profile, user } = useAuth();
   const { zonas } = useZonas();
   const [stats, setStats] = useState<Stats>({
     totalUsers: 0,
@@ -36,43 +36,62 @@ export const Statistics = () => {
 
   const fetchStats = async () => {
     try {
-      // Determinar filtro de zona baseado na role
+      // Determinar filtros baseados na role
       let zonaFilter = null;
-      if (isGerenteZona && profile?.zona_id) {
+      let userFilter = null;
+      
+      if (isSupervisor) {
+        // Supervisor vê apenas seus próprios POPs
+        userFilter = user?.id;
+      } else if (isGerenteZona && profile?.zona_id) {
+        // Gerente de Zona vê POPs da sua zona
         zonaFilter = profile.zona_id;
       }
+      // Gerente Geral não tem filtros (vê tudo)
 
-      // Total users (filtrar por zona se for gerente de zona)
+      // Total users (filtrar baseado na role)
       let usersQuery = supabase.from("profiles").select("*", { count: "exact", head: true });
-      if (zonaFilter) {
+      if (userFilter) {
+        // Supervisor vê apenas ele mesmo
+        usersQuery = usersQuery.eq("id", userFilter);
+      } else if (zonaFilter) {
         usersQuery = usersQuery.eq("zona_id", zonaFilter);
       }
       const { count: userCount } = await usersQuery;
 
-      // Total POPs (filtrar por zona se for gerente de zona)
+      // Total POPs (filtrar baseado na role)
       let popsQuery = supabase.from("pops").select("*", { count: "exact", head: true });
-      if (zonaFilter) {
+      if (userFilter) {
+        popsQuery = popsQuery.eq("user_id", userFilter);
+      } else if (zonaFilter) {
         popsQuery = popsQuery.eq("zona_id", zonaFilter);
       }
       const { count: popCount } = await popsQuery;
 
-      // Total zonas (sempre 1 se for gerente de zona, total se for gerente geral)
+      // Total zonas
       let zonasQuery = supabase.from("zonas_operativas").select("*", { count: "exact", head: true });
-      if (zonaFilter) {
+      if (userFilter && profile?.zona_id) {
+        // Supervisor vê apenas sua zona
+        zonasQuery = zonasQuery.eq("id", profile.zona_id);
+      } else if (zonaFilter) {
         zonasQuery = zonasQuery.eq("id", zonaFilter);
       }
       const { count: zonaCount } = await zonasQuery;
 
-      // Users by role (filtrar por zona se necessário)
+      // Users by role (filtrar baseado na role)
       let rolesQuery = supabase
         .from("user_roles")
         .select("role, user_id");
       
       const { data: rolesData } = await rolesQuery;
 
-      // Se for gerente de zona, filtrar apenas usuários da sua zona
+      // Filtrar usuários baseado na role
       let filteredRolesData = rolesData;
-      if (zonaFilter && rolesData) {
+      if (userFilter && rolesData) {
+        // Supervisor vê apenas sua própria role
+        filteredRolesData = rolesData.filter(r => r.user_id === userFilter);
+      } else if (zonaFilter && rolesData) {
+        // Gerente de zona vê apenas usuários da sua zona
         const { data: profilesData } = await supabase
           .from("profiles")
           .select("id")
@@ -92,12 +111,14 @@ export const Statistics = () => {
         count: count as number
       }));
 
-      // POPs by zona (filtrar se necessário)
+      // POPs by zona (filtrar baseado na role)
       let popsByZonaQuery = supabase.from("pops").select(`
         zona_id,
         zona:zonas_operativas(nome)
       `);
-      if (zonaFilter) {
+      if (userFilter) {
+        popsByZonaQuery = popsByZonaQuery.eq("user_id", userFilter);
+      } else if (zonaFilter) {
         popsByZonaQuery = popsByZonaQuery.eq("zona_id", zonaFilter);
       }
       const { data: popsData } = await popsByZonaQuery;
@@ -113,14 +134,16 @@ export const Statistics = () => {
         count: count as number
       }));
 
-      // POPs by Supervisor (filtrar se necessário)
+      // POPs by Supervisor (filtrar baseado na role)
       let popsBySupervisorQuery = supabase.from("pops").select(`
         user_id,
         zona_id,
         profiles!inner(full_name, zona_id),
         zona:zonas_operativas(nome)
       `);
-      if (zonaFilter) {
+      if (userFilter) {
+        popsBySupervisorQuery = popsBySupervisorQuery.eq("user_id", userFilter);
+      } else if (zonaFilter) {
         popsBySupervisorQuery = popsBySupervisorQuery.eq("zona_id", zonaFilter);
       }
       const { data: popsBySupervisorData } = await popsBySupervisorQuery;
@@ -164,6 +187,14 @@ export const Statistics = () => {
 
   return (
     <div className="space-y-6">
+      {isSupervisor && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-sm text-green-800">
+            📊 Você está visualizando estatísticas apenas dos POPs que você criou
+          </p>
+        </div>
+      )}
+      
       {isGerenteZona && profile?.zona_id && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-sm text-blue-800">
