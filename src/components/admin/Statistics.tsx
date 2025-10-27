@@ -6,6 +6,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { useRole } from "@/hooks/useRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useZonas } from "@/hooks/useZonas";
+import { ExportActions } from "./ExportActions";
+import { subDays } from "date-fns";
 
 interface Stats {
   totalUsers: number;
@@ -31,10 +33,14 @@ export const Statistics = () => {
     popsByFunction: []
   });
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: subDays(new Date(), 30),
+    to: new Date()
+  });
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [dateRange]);
 
   const fetchStats = async () => {
     try {
@@ -61,13 +67,16 @@ export const Statistics = () => {
       }
       const { count: userCount } = await usersQuery;
 
-      // Total POPs (filtrar baseado na role)
+      // Total POPs (filtrar baseado na role e período)
       let popsQuery = supabase.from("pops").select("*", { count: "exact", head: true });
       if (userFilter) {
         popsQuery = popsQuery.eq("user_id", userFilter);
       } else if (zonaFilter) {
         popsQuery = popsQuery.eq("zona_id", zonaFilter);
       }
+      popsQuery = popsQuery
+        .gte("created_at", dateRange.from.toISOString())
+        .lte("created_at", dateRange.to.toISOString());
       const { count: popCount } = await popsQuery;
 
       // Total zonas
@@ -113,7 +122,7 @@ export const Statistics = () => {
         count: count as number
       }));
 
-      // POPs by zona (filtrar baseado na role)
+      // POPs by zona (filtrar baseado na role e período)
       let popsByZonaQuery = supabase.from("pops").select(`
         zona_id,
         zona:zonas_operativas(nome)
@@ -123,6 +132,9 @@ export const Statistics = () => {
       } else if (zonaFilter) {
         popsByZonaQuery = popsByZonaQuery.eq("zona_id", zonaFilter);
       }
+      popsByZonaQuery = popsByZonaQuery
+        .gte("created_at", dateRange.from.toISOString())
+        .lte("created_at", dateRange.to.toISOString());
       const { data: popsData } = await popsByZonaQuery;
 
       const zonaCounts = popsData?.reduce((acc: any, pop: any) => {
@@ -136,7 +148,7 @@ export const Statistics = () => {
         count: count as number
       }));
 
-      // POPs by Supervisor (filtrar baseado na role)
+      // POPs by Supervisor (filtrar baseado na role e período)
       let popsBySupervisorQuery = supabase.from("pops").select(`
         user_id,
         zona_id,
@@ -148,6 +160,9 @@ export const Statistics = () => {
       } else if (zonaFilter) {
         popsBySupervisorQuery = popsBySupervisorQuery.eq("zona_id", zonaFilter);
       }
+      popsBySupervisorQuery = popsBySupervisorQuery
+        .gte("created_at", dateRange.from.toISOString())
+        .lte("created_at", dateRange.to.toISOString());
       const { data: popsBySupervisorData } = await popsBySupervisorQuery;
 
       const supervisorCounts = popsBySupervisorData?.reduce((acc: any, pop: any) => {
@@ -168,13 +183,16 @@ export const Statistics = () => {
 
       const popsBySupervisor = Object.values(supervisorCounts || {});
 
-      // POPs by Function (filtrar baseado na role)
+      // POPs by Function (filtrar baseado na role e período)
       let popsByFunctionQuery = supabase.from("pops").select("function_id");
       if (userFilter) {
         popsByFunctionQuery = popsByFunctionQuery.eq("user_id", userFilter);
       } else if (zonaFilter) {
         popsByFunctionQuery = popsByFunctionQuery.eq("zona_id", zonaFilter);
       }
+      popsByFunctionQuery = popsByFunctionQuery
+        .gte("created_at", dateRange.from.toISOString())
+        .lte("created_at", dateRange.to.toISOString());
       const { data: popsByFunctionData } = await popsByFunctionQuery;
 
       // Buscar nomes das funções do catálogo
@@ -217,6 +235,12 @@ export const Statistics = () => {
 
   return (
     <div className="space-y-6">
+      <ExportActions 
+        stats={stats} 
+        dateRange={dateRange} 
+        setDateRange={setDateRange}
+      />
+      
       {isSupervisor && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <p className="text-sm text-green-800">
