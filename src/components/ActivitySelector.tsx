@@ -96,7 +96,7 @@ export const ActivitySelector = ({
                     ~{totalTime} min
                   </Badge>
                   <Badge variant="outline" className="text-xs">
-                    v{activity.versioning.current_version}
+                    v{activity.versioning?.current_version || '1.0'}
                   </Badge>
                 </div>
               </CardContent>
