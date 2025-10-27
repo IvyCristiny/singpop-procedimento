@@ -1,16 +1,22 @@
 import { RotinaHorario } from "@/types/cronograma";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Clock } from "lucide-react";
+import { Plus, Trash2, Clock, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { usePOPs } from "@/hooks/usePOPs";
+import { useCatalog } from "@/hooks/useCatalog";
 
 interface RotinaDiariaEditorProps {
   rotinas: RotinaHorario[];
   onChange: (rotinas: RotinaHorario[]) => void;
+  selectedPOPIds?: string[];
 }
 
-export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProps) => {
+export const RotinaDiariaEditor = ({ rotinas, onChange, selectedPOPIds = [] }: RotinaDiariaEditorProps) => {
+  const { pops } = usePOPs();
+  const { catalog } = useCatalog();
+  
   const validateTime = (horarioInicio: string, horarioFim: string): boolean => {
     const [hI, mI] = horarioInicio.split(':').map(Number);
     const [hF, mF] = horarioFim.split(':').map(Number);
@@ -54,6 +60,59 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
     onChange([...rotinas, newRotina]);
   };
 
+  const generateSuggestionFromPOPs = () => {
+    if (!selectedPOPIds || selectedPOPIds.length === 0) {
+      toast.error("Selecione POPs primeiro na etapa anterior");
+      return;
+    }
+
+    const selectedPOPs = pops.filter(p => selectedPOPIds.includes(p.id!));
+    
+    if (selectedPOPs.length === 0) {
+      toast.error("Nenhum POP válido encontrado");
+      return;
+    }
+
+    // Buscar atividades dos POPs
+    const activities: string[] = [];
+    selectedPOPs.forEach(pop => {
+      const func = catalog?.functions?.find(f => f.id === pop.functionId);
+      if (func) {
+        const activity = func.activities.find(a => a.id === pop.activityId);
+        if (activity) {
+          activities.push(activity.name);
+        }
+      }
+    });
+
+    if (activities.length === 0) {
+      toast.error("Não foi possível extrair atividades dos POPs");
+      return;
+    }
+
+    // Distribuir atividades ao longo do dia (ex: 07:00-17:00)
+    const suggestedRotinas: RotinaHorario[] = activities.map((activity, idx) => {
+      const startHour = 7 + (idx * 2); // 2h por atividade
+      const endHour = startHour + 1;
+      
+      return {
+        id: crypto.randomUUID(),
+        horario_inicio: `${startHour.toString().padStart(2, '0')}:00`,
+        horario_fim: `${endHour.toString().padStart(2, '0')}:00`,
+        ambiente_atividade: activity,
+        detalhamento: `Conforme POP ${selectedPOPs[idx]?.codigoPOP || ''}`,
+        responsavel: selectedPOPs[idx]?.responsavelElaboracao || "",
+        ordem: idx + 1,
+      };
+    });
+
+    onChange(suggestedRotinas);
+    
+    toast.success("Rotina sugerida gerada!", {
+      description: `${suggestedRotinas.length} atividades adicionadas. Você pode editar conforme necessário.`,
+    });
+  };
+
   const handleRemove = (index: number) => {
     const updated = rotinas.filter((_, i) => i !== index);
     onChange(updated.map((r, i) => ({ ...r, ordem: i + 1 })));
@@ -83,10 +142,18 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Rotina Diária</CardTitle>
-          <Button size="sm" onClick={handleAdd}>
-            <Plus className="w-4 h-4 mr-1" />
-            Adicionar Horário
-          </Button>
+          <div className="flex gap-2">
+            {selectedPOPIds && selectedPOPIds.length > 0 && (
+              <Button onClick={generateSuggestionFromPOPs} size="sm" variant="outline">
+                <Sparkles className="w-4 h-4 mr-2" />
+                Gerar sugestão dos POPs
+              </Button>
+            )}
+            <Button size="sm" onClick={handleAdd}>
+              <Plus className="w-4 h-4 mr-1" />
+              Adicionar Horário
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

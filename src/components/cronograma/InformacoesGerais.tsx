@@ -2,7 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { turnosDisponiveis } from "@/types/cronograma";
+import { Info } from "lucide-react";
 
 interface InformacoesGeraisProps {
   data: {
@@ -15,9 +17,10 @@ interface InformacoesGeraisProps {
     versao: string;
   };
   onChange: (field: string, value: string) => void;
+  autoFilled?: boolean;
 }
 
-export const InformacoesGerais = ({ data, onChange }: InformacoesGeraisProps) => {
+export const InformacoesGerais = ({ data, onChange, autoFilled = false }: InformacoesGeraisProps) => {
   return (
     <Card>
       <CardHeader>
@@ -25,8 +28,24 @@ export const InformacoesGerais = ({ data, onChange }: InformacoesGeraisProps) =>
         <CardDescription>Defina as informações básicas do cronograma</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {autoFilled && (
+          <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg">
+            <Info className="w-5 h-5 text-primary" />
+            <p className="text-sm text-foreground">
+              Alguns campos foram preenchidos automaticamente dos POPs selecionados. Você pode editá-los se necessário.
+            </p>
+          </div>
+        )}
+
         <div className="space-y-2">
-          <Label htmlFor="titulo">Título do Cronograma *</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="titulo">Título do Cronograma *</Label>
+            {autoFilled && data.titulo && (
+              <Badge variant="secondary" className="text-xs">
+                Auto-preenchido
+              </Badge>
+            )}
+          </div>
           <Input
             id="titulo"
             value={data.titulo}
@@ -37,7 +56,14 @@ export const InformacoesGerais = ({ data, onChange }: InformacoesGeraisProps) =>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="condominio">Condomínio *</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="condominio">Condomínio *</Label>
+            {autoFilled && data.condominio_nome && (
+              <Badge variant="secondary" className="text-xs">
+                Auto-preenchido
+              </Badge>
+            )}
+          </div>
           <Input
             id="condominio"
             value={data.condominio_nome}
@@ -81,7 +107,14 @@ export const InformacoesGerais = ({ data, onChange }: InformacoesGeraisProps) =>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="responsavel">Responsável *</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="responsavel">Responsável *</Label>
+            {autoFilled && data.responsavel && (
+              <Badge variant="secondary" className="text-xs">
+                Auto-preenchido
+              </Badge>
+            )}
+          </div>
           <Input
             id="responsavel"
             value={data.responsavel}

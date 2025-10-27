@@ -272,17 +272,47 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         observacoes: formData.observacoes,
       };
 
-      await savePOP(pop);
-      await downloadMultipleActivitiesPDF(pop as POP, activities);
-      
-      localStorage.removeItem("pop_draft");
-      
-      toast({
-        title: "POP gerado com sucesso!",
-        description: `${activities.length} atividades incluídas. Código: ${codigoPOP}`,
-      });
-      
-      onSave();
+      // Separar salvamento e geração de PDF
+      try {
+        await savePOP(pop);
+        console.log("POP salvo com sucesso:", codigoPOP);
+        
+        toast({
+          title: "POP salvo com sucesso!",
+          description: `Código: ${codigoPOP}. Gerando PDF...`,
+        });
+      } catch (saveError: any) {
+        console.error("Erro ao salvar POP:", saveError);
+        toast({
+          title: "Erro ao salvar POP",
+          description: saveError.message || "Erro desconhecido ao salvar",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Tentar gerar PDF
+      try {
+        await downloadMultipleActivitiesPDF(pop as POP, activities);
+        console.log("PDF gerado com sucesso");
+        
+        localStorage.removeItem("pop_draft");
+        
+        toast({
+          title: "PDF gerado com sucesso!",
+          description: `${activities.length} atividades incluídas.`,
+        });
+        
+        onSave();
+      } catch (pdfError: any) {
+        console.error("Erro ao gerar PDF:", pdfError);
+        toast({
+          title: "POP salvo, mas erro ao gerar PDF",
+          description: "O POP foi salvo no sistema. Tente exportar novamente pela lista.",
+          variant: "destructive"
+        });
+        onSave();
+      }
     } else {
       // Gerar PDF com uma atividade (modo original)
       const selectedActivity = selectedFunction.activities.find(a => a.id === selectedActivityId);
@@ -313,17 +343,47 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         attachedImages: attachedImages.length > 0 ? attachedImages : undefined,
       };
 
-      await savePOP(pop);
-      await downloadPDF(pop as POP, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
-      
-      localStorage.removeItem("pop_draft");
-      
-      toast({
-        title: "POP gerado com sucesso!",
-        description: `Código: ${codigoPOP}`,
-      });
-      
-      onSave();
+      // Separar salvamento e geração de PDF
+      try {
+        await savePOP(pop);
+        console.log("POP salvo com sucesso:", codigoPOP);
+        
+        toast({
+          title: "POP salvo com sucesso!",
+          description: `Código: ${codigoPOP}. Gerando PDF...`,
+        });
+      } catch (saveError: any) {
+        console.error("Erro ao salvar POP:", saveError);
+        toast({
+          title: "Erro ao salvar POP",
+          description: saveError.message || "Erro desconhecido ao salvar",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Tentar gerar PDF
+      try {
+        await downloadPDF(pop as POP, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
+        console.log("PDF gerado com sucesso");
+        
+        localStorage.removeItem("pop_draft");
+        
+        toast({
+          title: "PDF gerado com sucesso!",
+          description: "O download deve começar automaticamente.",
+        });
+        
+        onSave();
+      } catch (pdfError: any) {
+        console.error("Erro ao gerar PDF:", pdfError);
+        toast({
+          title: "POP salvo, mas erro ao gerar PDF",
+          description: "O POP foi salvo no sistema. Tente exportar novamente pela lista.",
+          variant: "destructive"
+        });
+        onSave();
+      }
     }
   };
 

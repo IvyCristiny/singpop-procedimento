@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCronogramas } from "@/hooks/useCronogramas";
+import { usePOPs } from "@/hooks/usePOPs";
 import { Button } from "@/components/ui/button";
 import { CronogramaStepIndicator } from "./CronogramaStepIndicator";
 import { InformacoesGerais } from "./InformacoesGerais";
@@ -18,8 +19,8 @@ interface CronogramaFormProps {
 }
 
 const steps = [
+  "Seleção de POPs",
   "Informações Gerais",
-  "POPs",
   "Rotina Diária",
   "Rotina Semanal",
   "Revisão",
@@ -28,8 +29,10 @@ const steps = [
 export const CronogramaForm = ({ onBack, onSave }: CronogramaFormProps) => {
   const { profile } = useAuth();
   const { saveCronograma } = useCronogramas();
+  const { pops } = usePOPs();
   const [currentStep, setCurrentStep] = useState(1);
   const [saving, setSaving] = useState(false);
+  const [autoFilled, setAutoFilled] = useState(false);
 
   const [formData, setFormData] = useState({
     titulo: "",
@@ -45,6 +48,33 @@ export const CronogramaForm = ({ onBack, onSave }: CronogramaFormProps) => {
     zona_id: profile?.zona_id || null,
   });
 
+  // Auto-preencher dados quando POPs são selecionados
+  useEffect(() => {
+    if (formData.pop_ids.length === 0) {
+      setAutoFilled(false);
+      return;
+    }
+    
+    const selectedPOPs = pops.filter(p => formData.pop_ids.includes(p.id!));
+    
+    if (selectedPOPs.length > 0 && !formData.condominio_nome) {
+      const firstPOP = selectedPOPs[0];
+      
+      setFormData(prev => ({
+        ...prev,
+        condominio_nome: prev.condominio_nome || firstPOP.condominioNome,
+        responsavel: prev.responsavel || firstPOP.responsavelElaboracao || "",
+        titulo: prev.titulo || `Cronograma - ${firstPOP.condominioNome}`,
+      }));
+      
+      setAutoFilled(true);
+      
+      toast.success("Dados preenchidos automaticamente", {
+        description: `Informações extraídas do${selectedPOPs.length > 1 ? 's' : ''} POP${selectedPOPs.length > 1 ? 's' : ''} selecionado${selectedPOPs.length > 1 ? 's' : ''}.`,
+      });
+    }
+  }, [formData.pop_ids, pops]);
+
   const handleFieldChange = (field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -52,15 +82,15 @@ export const CronogramaForm = ({ onBack, onSave }: CronogramaFormProps) => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        if (!formData.titulo || !formData.condominio_nome || !formData.turno || 
-            !formData.periodicidade || !formData.responsavel || !formData.versao) {
-          toast.error("Preencha todos os campos obrigatórios");
+        if (formData.pop_ids.length === 0) {
+          toast.error("Selecione pelo menos um POP");
           return false;
         }
         return true;
       case 2:
-        if (formData.pop_ids.length === 0) {
-          toast.error("Selecione pelo menos um POP");
+        if (!formData.titulo || !formData.condominio_nome || !formData.turno || 
+            !formData.periodicidade || !formData.responsavel || !formData.versao) {
+          toast.error("Preencha todos os campos obrigatórios");
           return false;
         }
         return true;
@@ -102,19 +132,20 @@ export const CronogramaForm = ({ onBack, onSave }: CronogramaFormProps) => {
   const renderStep = () => {
     switch (currentStep) {
       case 1:
-        return <InformacoesGerais data={formData} onChange={handleFieldChange} />;
-      case 2:
         return (
           <POPSelector
             selectedPOPIds={formData.pop_ids}
             onSelectionChange={(ids) => handleFieldChange("pop_ids", ids)}
           />
         );
+      case 2:
+        return <InformacoesGerais data={formData} onChange={handleFieldChange} autoFilled={autoFilled} />;
       case 3:
         return (
           <RotinaDiariaEditor
             rotinas={formData.rotina_diaria}
             onChange={(rotinas) => handleFieldChange("rotina_diaria", rotinas)}
+            selectedPOPIds={formData.pop_ids}
           />
         );
       case 4:
