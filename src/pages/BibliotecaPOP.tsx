@@ -14,7 +14,7 @@ export const BibliotecaPOP = () => {
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
   const { toast } = useToast();
   const { catalog, loading, resetToDefault, refetch } = useCatalog();
-  const { isGerenteGeral } = useRole();
+  const { isGerenteGeral, loading: roleLoading } = useRole();
 
   const handleResetToDefault = async () => {
     if (confirm("Tem certeza que deseja restaurar o catálogo padrão? Todas as suas alterações serão perdidas.")) {
@@ -30,7 +30,7 @@ export const BibliotecaPOP = () => {
     }
   };
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <p className="text-muted-foreground">Carregando catálogo...</p>

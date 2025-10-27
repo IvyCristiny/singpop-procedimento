@@ -22,7 +22,7 @@ const Index = () => {
   const { catalog, loading: catalogLoading } = useCatalog();
   const { pops, loading: popsLoading, refetch } = usePOPs();
   const { user, profile, signOut } = useAuth();
-  const { primaryRole, isGerenteGeral, isGerenteZona } = useRole();
+  const { primaryRole, isGerenteGeral, isGerenteZona, loading: roleLoading } = useRole();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -31,7 +31,7 @@ const Index = () => {
   };
 
   // Mostrar loading enquanto carrega
-  if (catalogLoading || popsLoading) {
+  if (catalogLoading || popsLoading || roleLoading) {
     return (
       <div className="min-h-screen bg-gradient-light flex items-center justify-center">
         <p className="text-lg text-muted-foreground">Carregando...</p>

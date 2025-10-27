@@ -44,11 +44,13 @@ export const useRole = () => {
 
   const hasRole = (role: AppRole) => roles.includes(role);
   
-  const primaryRole = roles.includes("gerente_geral") 
-    ? "gerente_geral" 
-    : roles.includes("gerente_zona") 
-    ? "gerente_zona" 
-    : "supervisor";
+  const primaryRole = loading 
+    ? null 
+    : roles.includes("gerente_geral") 
+      ? "gerente_geral" 
+      : roles.includes("gerente_zona") 
+      ? "gerente_zona" 
+      : "supervisor";
 
   return {
     roles,
