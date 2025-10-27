@@ -4,6 +4,7 @@ import { useCronogramas } from "@/hooks/useCronogramas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CronogramaCard } from "@/components/cronograma/CronogramaCard";
+import { CronogramaForm } from "@/components/cronograma/CronogramaForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Plus, ArrowLeft } from "lucide-react";
 import { Cronograma } from "@/types/cronograma";
@@ -14,6 +15,15 @@ export default function Cronogramas() {
   const navigate = useNavigate();
   const { cronogramas, loading, deleteCronograma } = useCronogramas();
   const [showForm, setShowForm] = useState(false);
+
+  if (showForm) {
+    return (
+      <CronogramaForm
+        onBack={() => setShowForm(false)}
+        onSave={() => setShowForm(false)}
+      />
+    );
+  }
 
   const handleExportPDF = (cronograma: Cronograma) => {
     exportCronogramaPDF(cronograma);

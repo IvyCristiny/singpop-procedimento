@@ -6,7 +6,7 @@ import { POP } from "@/types/pop";
 
 export const usePOPs = () => {
   const { user, profile } = useAuth();
-  const { isGerenteGeral, isGerenteZona, isSupervisor } = useRole();
+  const { isGerenteGeral, isGerenteZona, isSupervisor, loading: rolesLoading } = useRole();
   const [pops, setPops] = useState<POP[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,6 +14,10 @@ export const usePOPs = () => {
     if (!user) {
       setPops([]);
       setLoading(false);
+      return;
+    }
+
+    if (rolesLoading) {
       return;
     }
 
@@ -63,7 +67,7 @@ export const usePOPs = () => {
 
   useEffect(() => {
     fetchPOPs();
-  }, [user, profile, isGerenteGeral, isGerenteZona, isSupervisor]);
+  }, [user, profile, isGerenteGeral, isGerenteZona, isSupervisor, rolesLoading]);
 
   const savePOP = async (pop: Omit<POP, "id" | "createdAt">) => {
     if (!user) {
