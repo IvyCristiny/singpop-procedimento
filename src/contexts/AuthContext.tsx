@@ -11,6 +11,10 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
+  updateProfile: (data: Partial<Profile>) => Promise<{ error: any }>;
+  updatePassword: (newPassword: string) => Promise<{ error: any }>;
+  updateEmail: (newEmail: string) => Promise<{ error: any }>;
+  refetchProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,6 +132,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
+  const updateProfile = async (data: Partial<Profile>) => {
+    if (!user) return { error: new Error("No user logged in") };
+    
+    const { error } = await supabase
+      .from("profiles")
+      .update(data)
+      .eq("id", user.id);
+    
+    if (!error) {
+      await fetchProfile(user.id);
+    }
+    
+    return { error };
+  };
+
+  const updatePassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    
+    return { error };
+  };
+
+  const updateEmail = async (newEmail: string) => {
+    const { error: authError } = await supabase.auth.updateUser({
+      email: newEmail
+    });
+    
+    if (authError) return { error: authError };
+    
+    if (user) {
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ email: newEmail })
+        .eq("id", user.id);
+      
+      if (profileError) return { error: profileError };
+      await fetchProfile(user.id);
+    }
+    
+    return { error: null };
+  };
+
+  const refetchProfile = async () => {
+    if (user) {
+      await fetchProfile(user.id);
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -136,7 +189,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       loading,
       signUp,
       signIn,
-      signOut
+      signOut,
+      updateProfile,
+      updatePassword,
+      updateEmail,
+      refetchProfile
     }}>
       {children}
     </AuthContext.Provider>

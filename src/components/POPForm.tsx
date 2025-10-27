@@ -55,10 +55,15 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher apenas a zona do usuário logado
+  // Autopreencher zona e nome do colaborador
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
+    }
+    // Preencher nome do colaborador com report_name ou full_name
+    if (profile && !formData.nomeColaborador) {
+      const displayName = profile.report_name || profile.full_name;
+      setFormData(prev => ({ ...prev, nomeColaborador: displayName }));
     }
   }, [profile]);
 
