@@ -136,10 +136,20 @@ export const useCatalog = () => {
         version: "1.0",
       });
 
-      if (error) throw error;
+      if (error) {
+        // Se não tiver permissão (gerente_geral), usa catálogo padrão silenciosamente
+        if (error.code === '42501') {
+          console.log("📚 Usando catálogo padrão (sem permissão para criar)");
+          setCatalog(defaultCatalog);
+          return;
+        }
+        throw error;
+      }
       setCatalog(defaultCatalog);
     } catch (error) {
       console.error("Error initializing catalog:", error);
+      // Fallback para catálogo padrão em caso de erro
+      setCatalog(defaultCatalog);
     }
   };
 
