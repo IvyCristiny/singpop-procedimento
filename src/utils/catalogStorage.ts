@@ -1,8 +1,13 @@
+// DEPRECATED: This file is kept for backward compatibility only
+// All catalog operations should now use the useCatalog hook
+// which integrates with Supabase for centralized storage and audit trail
+
 import { Catalog, Function, Activity } from "@/types/schema";
 import { catalog as defaultCatalog } from "@/data/catalog";
 
 const CATALOG_STORAGE_KEY = "singpop_custom_catalog";
 
+// Legacy localStorage functions - use useCatalog hook instead
 export const getCustomCatalog = (): Catalog => {
   const stored = localStorage.getItem(CATALOG_STORAGE_KEY);
   if (!stored) {

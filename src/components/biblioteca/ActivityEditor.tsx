@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Save, X, Plus, Trash2 } from "lucide-react";
-import { Activity, ProcedureStep, Equipment, Training, Review, Versioning } from "@/types/schema";
-import { addActivity, updateActivity } from "@/utils/catalogStorage";
+import { Activity, ProcedureStep, Equipment } from "@/types/schema";
+import { useCatalog } from "@/hooks/useCatalog";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -34,8 +34,9 @@ export const ActivityEditor = ({ functionId, activity, onSave, onCancel }: Activ
     }
   );
   const { toast } = useToast();
+  const { addActivity, updateActivity, catalog } = useCatalog();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.objective) {
       toast({
         title: "Erro",
@@ -45,14 +46,26 @@ export const ActivityEditor = ({ functionId, activity, onSave, onCancel }: Activ
       return;
     }
 
+    let success = false;
+
     if (activity) {
-      updateActivity(functionId, activity.id, formData);
-      toast({ title: "Atividade atualizada", description: `${formData.name} foi atualizada com sucesso` });
+      const oldActivity = catalog.functions
+        .find(f => f.id === functionId)
+        ?.activities.find(a => a.id === activity.id);
+      success = await updateActivity(functionId, activity.id, formData, oldActivity);
+      if (success) {
+        toast({ title: "Atividade atualizada", description: `${formData.name} foi atualizada com sucesso` });
+      }
     } else {
-      addActivity(functionId, formData);
-      toast({ title: "Atividade adicionada", description: `${formData.name} foi adicionada com sucesso` });
+      success = await addActivity(functionId, formData);
+      if (success) {
+        toast({ title: "Atividade adicionada", description: `${formData.name} foi adicionada com sucesso` });
+      }
     }
-    onSave();
+    
+    if (success) {
+      onSave();
+    }
   };
 
   const addStep = () => {

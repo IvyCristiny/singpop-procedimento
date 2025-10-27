@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Catalog, Activity } from "@/types/schema";
-import { deleteActivity } from "@/utils/catalogStorage";
 import { ActivityEditor } from "./ActivityEditor";
 import { useToast } from "@/hooks/use-toast";
+import { useCatalog } from "@/hooks/useCatalog";
+import { useRole } from "@/hooks/useRole";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 
@@ -19,7 +20,10 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const { toast } = useToast();
+  const { deleteActivity } = useCatalog();
+  const { isGerenteGeral, isGerenteZona } = useRole();
 
+  const canEdit = isGerenteGeral || isGerenteZona;
   const currentFunction = catalog.functions.find(f => f.id === functionId);
   const activities = currentFunction?.activities || [];
 
@@ -33,15 +37,17 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
     setEditingId(null);
   };
 
-  const handleDelete = (activityId: string) => {
+  const handleDelete = async (activityId: string) => {
     const activity = activities.find(a => a.id === activityId);
     if (activity && confirm(`Tem certeza que deseja deletar a atividade "${activity.name}"?`)) {
-      deleteActivity(functionId, activityId);
-      toast({
-        title: "Atividade deletada",
-        description: `${activity.name} foi deletada com sucesso`,
-      });
-      onUpdate();
+      const success = await deleteActivity(functionId, activityId);
+      if (success) {
+        toast({
+          title: "Atividade deletada",
+          description: `${activity.name} foi deletada com sucesso`,
+        });
+        onUpdate();
+      }
     }
   };
 
@@ -72,10 +78,12 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
         <h3 className="text-lg font-semibold">
           Atividades de {currentFunction?.name}
         </h3>
-        <Button onClick={handleAdd}>
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Atividade
-        </Button>
+        {canEdit && (
+          <Button onClick={handleAdd}>
+            <Plus className="w-4 h-4 mr-2" />
+            Nova Atividade
+          </Button>
+        )}
       </div>
 
       {activities.length === 0 ? (
@@ -101,22 +109,24 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEdit(activity.id)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(activity.id)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
+                  {canEdit && (
+                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEdit(activity.id)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(activity.id)}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </AccordionTrigger>
               <AccordionContent>

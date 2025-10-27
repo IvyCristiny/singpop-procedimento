@@ -38,6 +38,53 @@ export type Database = {
         }
         Relationships: []
       }
+      catalog_history: {
+        Row: {
+          action_type: string
+          catalog_id: string | null
+          changes: Json | null
+          created_at: string | null
+          entity_id: string
+          entity_name: string
+          entity_type: string
+          id: string
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          action_type: string
+          catalog_id?: string | null
+          changes?: Json | null
+          created_at?: string | null
+          entity_id: string
+          entity_name: string
+          entity_type: string
+          id?: string
+          user_id?: string | null
+          user_name: string
+        }
+        Update: {
+          action_type?: string
+          catalog_id?: string | null
+          changes?: Json | null
+          created_at?: string | null
+          entity_id?: string
+          entity_name?: string
+          entity_type?: string
+          id?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "catalog_history_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pops: {
         Row: {
           activity_id: string

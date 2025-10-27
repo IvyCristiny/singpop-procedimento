@@ -7,8 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { Catalog, Function as FunctionType } from "@/types/schema";
-import { addFunction, updateFunction, deleteFunction } from "@/utils/catalogStorage";
+import { useCatalog } from "@/hooks/useCatalog";
 import { useToast } from "@/hooks/use-toast";
+import { useRole } from "@/hooks/useRole";
 
 interface FunctionManagerProps {
   catalog: Catalog;
@@ -28,6 +29,10 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
     activities: []
   });
   const { toast } = useToast();
+  const { addFunction, updateFunction, deleteFunction } = useCatalog();
+  const { isGerenteGeral, isGerenteZona } = useRole();
+
+  const canEdit = isGerenteGeral || isGerenteZona;
 
   const handleEdit = (func: FunctionType) => {
     setEditingId(func.id);
@@ -50,7 +55,7 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
     });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.description) {
       toast({
         title: "Erro",
@@ -59,6 +64,8 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
       });
       return;
     }
+
+    let success = false;
 
     if (isAdding) {
       const newFunction: FunctionType = {
@@ -69,44 +76,53 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
         tags: formData.tags || [],
         activities: []
       };
-      addFunction(newFunction);
-      toast({
-        title: "Função adicionada",
-        description: `${newFunction.name} foi adicionada com sucesso`,
-      });
+      success = await addFunction(newFunction);
+      if (success) {
+        toast({
+          title: "Função adicionada",
+          description: `${newFunction.name} foi adicionada com sucesso`,
+        });
+      }
     } else if (editingId) {
+      const oldFunction = catalog.functions.find(f => f.id === editingId);
       const updatedFunction: FunctionType = {
         id: editingId,
         name: formData.name!,
         description: formData.description!,
         icon: formData.icon || "Briefcase",
         tags: formData.tags || [],
-        activities: catalog.functions.find(f => f.id === editingId)?.activities || []
+        activities: oldFunction?.activities || []
       };
-      updateFunction(editingId, updatedFunction);
-      toast({
-        title: "Função atualizada",
-        description: `${updatedFunction.name} foi atualizada com sucesso`,
-      });
+      success = await updateFunction(editingId, updatedFunction, oldFunction);
+      if (success) {
+        toast({
+          title: "Função atualizada",
+          description: `${updatedFunction.name} foi atualizada com sucesso`,
+        });
+      }
     }
 
-    setIsAdding(false);
-    setEditingId(null);
-    setFormData({ name: "", description: "", icon: "Briefcase", tags: [], activities: [] });
-    onUpdate();
+    if (success) {
+      setIsAdding(false);
+      setEditingId(null);
+      setFormData({ name: "", description: "", icon: "Briefcase", tags: [], activities: [] });
+      onUpdate();
+    }
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (confirm(`Tem certeza que deseja deletar a função "${name}"? Todas as atividades relacionadas serão perdidas.`)) {
-      deleteFunction(id);
-      if (selectedFunction === id) {
-        onSelectFunction(null);
+      const success = await deleteFunction(id);
+      if (success) {
+        if (selectedFunction === id) {
+          onSelectFunction(null);
+        }
+        toast({
+          title: "Função deletada",
+          description: `${name} foi deletada com sucesso`,
+        });
+        onUpdate();
       }
-      toast({
-        title: "Função deletada",
-        description: `${name} foi deletada com sucesso`,
-      });
-      onUpdate();
     }
   };
 
@@ -130,7 +146,7 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Gerenciar Funções</h3>
-        {!isAdding && !editingId && (
+        {canEdit && !isAdding && !editingId && (
           <Button onClick={handleAdd}>
             <Plus className="w-4 h-4 mr-2" />
             Nova Função
@@ -232,22 +248,24 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
                     {func.activities.length} atividades
                   </CardDescription>
                 </div>
-                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleEdit(func)}
-                  >
-                    <Edit className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDelete(func.id, func.name)}
-                  >
-                    <Trash2 className="w-4 h-4 text-destructive" />
-                  </Button>
-                </div>
+                {canEdit && (
+                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit(func)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(func.id, func.name)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
             <CardContent>
