@@ -9,9 +9,9 @@ import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
 import { getAllPOPs } from "@/utils/storage";
 import { POP } from "@/types/pop";
-import { getCustomCatalog } from "@/utils/catalogStorage";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
+import { useCatalog } from "@/hooks/useCatalog";
 import { RoleBadge } from "@/components/RoleBadge";
 import { useNavigate } from "react-router-dom";
 import logoSingular from "@/assets/logo_singular_colorida.png";
@@ -21,7 +21,7 @@ const Index = () => {
   const [pops, setPops] = useState<POP[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
-  const [catalog, setCatalog] = useState(getCustomCatalog());
+  const { catalog, loading } = useCatalog();
   const { profile, signOut } = useAuth();
   const { primaryRole, isGerenteGeral } = useRole();
   const navigate = useNavigate();
@@ -33,12 +33,20 @@ const Index = () => {
 
   const loadPOPs = () => {
     setPops(getAllPOPs());
-    setCatalog(getCustomCatalog());
   };
 
   useEffect(() => {
     loadPOPs();
   }, []);
+
+  // Mostrar loading enquanto carrega o catálogo
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-light flex items-center justify-center">
+        <p className="text-lg text-muted-foreground">Carregando...</p>
+      </div>
+    );
+  }
 
   // Filtrar POPs
   const filteredPOPs = pops.filter((pop) => {

@@ -12,7 +12,7 @@ import { POP } from "@/types/pop";
 import { Activity, ProcedureStep } from "@/types/schema";
 import { savePOP, generatePOPCode } from "@/utils/storage";
 import { downloadPDF, downloadMultipleActivitiesPDF } from "@/utils/pdfGenerator";
-import { getCustomCatalog } from "@/utils/catalogStorage";
+import { useCatalog } from "@/hooks/useCatalog";
 import { FunctionSelector } from "./FunctionSelector";
 import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
@@ -28,7 +28,7 @@ interface POPFormProps {
 
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
-  const catalog = getCustomCatalog();
+  const { catalog, loading } = useCatalog();
   const { zonas } = useZonas();
   const { profile } = useAuth();
   
@@ -329,6 +329,14 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
   const selectedFunction = catalog.functions.find(f => f.id === selectedFunctionId);
   const selectedActivity = selectedFunction?.activities.find(a => a.id === selectedActivityId);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <p className="text-lg text-muted-foreground">Carregando biblioteca...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4">
