@@ -19,7 +19,16 @@ interface ActivityEditorProps {
 
 export const ActivityEditor = ({ functionId, activity, onSave, onCancel }: ActivityEditorProps) => {
   const [formData, setFormData] = useState<Activity>(
-    activity || {
+    activity ? {
+      ...activity,
+      responsibilities: activity.responsibilities || [],
+      prerequisites: activity.prerequisites || [],
+      procedure: activity.procedure || { steps: [] },
+      equipment: activity.equipment || { epc: [], epi: [], tools: [], consumables: [] },
+      training: activity.training || { modules: [], refresh_cadence_days: 180 },
+      review: activity.review || { kpis: [], audit_frequency_days: 90, auditor_role: "Supervisor" },
+      versioning: activity.versioning || { current_version: "1.0", last_review_date: new Date().toISOString().split('T')[0], changelog: [] }
+    } : {
       id: `activity_${Date.now()}`,
       name: "",
       objective: "",

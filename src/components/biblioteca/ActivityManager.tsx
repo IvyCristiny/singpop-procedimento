@@ -144,7 +144,7 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
                   <div>
                     <p className="text-sm font-medium">Responsabilidades:</p>
                     <ul className="text-sm text-muted-foreground list-disc list-inside">
-                      {activity.responsibilities.map((resp, i) => (
+                      {(activity.responsibilities || []).map((resp, i) => (
                         <li key={i}>{resp}</li>
                       ))}
                     </ul>

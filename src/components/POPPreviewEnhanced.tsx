@@ -76,7 +76,7 @@ export const POPPreviewEnhanced = ({ activity }: POPPreviewEnhancedProps) => {
             <div>
               <h4 className="font-semibold text-sm mb-2">Responsabilidades</h4>
               <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                {activity.responsibilities.map((resp, idx) => (
+                {(activity.responsibilities || []).map((resp, idx) => (
                   <li key={idx}>{resp}</li>
                 ))}
               </ul>
