@@ -110,138 +110,204 @@ export const catalog: Catalog = {
         },
         {
           id: "PORT_VEIC",
-          name: "Controle de acesso de veículos",
-          objective: "Controlar o fluxo de veículos, garantindo segurança e rastreabilidade das entradas e saídas.",
-          scope: "Garagem e portões de acesso veicular.",
+          name: "Controle de Acesso de Veículos",
+          objective: "Definir o procedimento para entrada, permanência e saída de veículos, garantindo controle, segurança e rastreabilidade de todas as movimentações.",
+          scope: "Aplica-se às portarias e áreas de controle de acesso do Residencial Praça da Luz que realizam o monitoramento de veículos.",
+          prerequisites: ["Sistema de controle de veículos ativo", "Equipamentos de controle funcionando"],
           responsibilities: [
-            "Registrar e monitorar entradas e saídas",
-            "Verificar autorizações e comunicar o morador",
-            "Orientar normas de circulação/estacionamento"
+            "Porteiro: Controlar acessos conforme cadastro e autorização prévia",
+            "Supervisor: Garantir o funcionamento dos equipamentos de controle e acompanhar o cumprimento dos registros"
           ],
           procedure: {
             steps: [
               {
                 id: "S1",
-                title: "Checagem de autorização",
-                instruction: "Verificar autorização e destino antes de abrir o portão.",
-                why: "Garantir segurança patrimonial.",
+                title: "Identificar condutor",
+                instruction: "Identificar o condutor e confirmar autorização de acesso.",
+                why: "Garantir que apenas veículos autorizados tenham acesso.",
                 who: "Porteiro",
                 time_estimate_min: 1,
-                safety: "Manter visibilidade do veículo.",
-                quality_check: "Autorização confirmada.",
-                evidence: "Registro de placa e autorização"
+                safety: "Manter visibilidade do veículo e postura segura.",
+                quality_check: "Autorização confirmada antes de prosseguir.",
+                evidence: "Registro de confirmação"
               },
               {
                 id: "S2",
-                title: "Registro",
-                instruction: "Registrar placa, condutor, horário e unidade.",
-                why: "Rastreabilidade completa.",
+                title: "Conferir placa e destino",
+                instruction: "Conferir placa, destino e horário previsto de permanência.",
+                why: "Rastreabilidade completa das movimentações.",
                 who: "Porteiro",
                 time_estimate_min: 1,
-                safety: "Posicionar-se em local seguro.",
-                quality_check: "Campos obrigatórios preenchidos.",
-                evidence: "Linha no sistema com placa e timestamp"
+                safety: "Posicionar-se em local seguro durante conferência.",
+                quality_check: "Dados de placa, destino e horário registrados.",
+                evidence: "Linha no sistema com placa, destino e timestamp"
               },
               {
                 id: "S3",
-                title: "Liberação e orientação",
-                instruction: "Abrir portão e orientar local de estacionamento.",
-                why: "Organização do espaço.",
+                title: "Registrar dados",
+                instruction: "Registrar dados no sistema ou planilha de controle.",
+                why: "Manter histórico e rastreabilidade.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "N/A",
+                quality_check: "Campos obrigatórios preenchidos corretamente.",
+                evidence: "Registro completo no sistema"
+              },
+              {
+                id: "S4",
+                title: "Abrir portão",
+                instruction: "Abrir o portão apenas após confirmação da autorização.",
+                why: "Evitar acesso não autorizado.",
                 who: "Porteiro",
                 time_estimate_min: 0.5,
-                safety: "Sinalizar abertura do portão.",
-                quality_check: "Acesso liberado.",
+                safety: "Sinalizar abertura do portão para segurança.",
+                quality_check: "Portão aberto somente após autorização confirmada.",
                 evidence: "Log de abertura do portão"
+              },
+              {
+                id: "S5",
+                title: "Fechar portão",
+                instruction: "Garantir que o portão esteja totalmente fechado antes de liberar o próximo veículo.",
+                why: "Segurança e controle de acesso.",
+                who: "Porteiro",
+                time_estimate_min: 0.5,
+                safety: "Evitar abertura simultânea de portões.",
+                quality_check: "Portão completamente fechado.",
+                evidence: "Log de fechamento do portão"
+              },
+              {
+                id: "S6",
+                title: "Comunicar supervisão em dúvida",
+                instruction: "Em caso de dúvida ou divergência, comunicar imediatamente a supervisão.",
+                why: "Resolver situações atípicas com segurança.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "Não liberar acesso em caso de dúvida.",
+                quality_check: "Supervisão comunicada e orientação recebida.",
+                evidence: "Registro de comunicação"
               }
             ]
           },
           equipment: {
-            epc: ["Cancela automática", "Câmeras"],
+            epc: ["Cancela automática", "Câmeras de segurança"],
             epi: [],
-            tools: ["Rádio", "Sistema de controle"],
-            consumables: ["Etiquetas/crachás estacionamento"]
+            tools: ["Rádio comunicador", "Sistema de controle de veículos", "Planilha de controle"],
+            consumables: ["Etiquetas/crachás de estacionamento"]
           },
           training: {
-            modules: ["Procedimentos de acesso veicular", "Comunicação e mediação"],
+            modules: ["Procedimentos de acesso veicular", "Comunicação e mediação", "Uso do sistema de controle"],
             refresh_cadence_days: 365
           },
           review: {
-            kpis: ["Registros sem falha", "Tempo de resposta"],
+            kpis: ["Registros sem falha", "Tempo de resposta", "Zero veículos não autorizados"],
             audit_frequency_days: 30,
             auditor_role: "Supervisor de Portaria"
           },
           versioning: {
-            current_version: "01",
+            current_version: "02",
             last_review_date: "2025-10-27",
-            changelog: ["Migração completa dos templates POP"]
+            changelog: ["Atualização com POP 02 - Controle de Acesso de Veículos"]
           }
         },
         {
           id: "PORT_CORRESP",
-          name: "Recebimento de correspondências e encomendas",
-          objective: "Receber, registrar e entregar itens com segurança e rastreabilidade.",
-          scope: "Portaria e área de armazenamento.",
+          name: "Recebimento de Correspondências e Encomendas",
+          objective: "Garantir o correto recebimento, conferência, registro, armazenamento e entrega de correspondências e encomendas, evitando extravios e falhas no processo.",
+          scope: "Aplica-se a todas as portarias e áreas responsáveis pelo recebimento e controle de entregas do Residencial Praça da Luz.",
+          prerequisites: ["Local de armazenamento seguro e identificado", "Sistema de registro ativo"],
           responsibilities: [
-            "Receber e registrar",
-            "Armazenar em local seguro",
-            "Entregar ao destinatário com confirmação"
+            "Porteiro: Receber, conferir e armazenar os itens com segurança",
+            "Supervisor: Verificar as condições de armazenamento e garantir o cumprimento dos registros"
           ],
           procedure: {
             steps: [
               {
                 id: "S1",
-                title: "Conferência",
-                instruction: "Conferir nome/unidade e condição do item.",
-                why: "Evitar extravios e danos.",
+                title: "Receber entregas identificadas",
+                instruction: "Receber entregas apenas de entregadores devidamente identificados.",
+                why: "Garantir segurança e evitar fraudes.",
                 who: "Porteiro",
                 time_estimate_min: 1,
-                safety: "Verificar embalagem íntegra.",
-                quality_check: "Item sem avarias.",
-                evidence: "Foto do item (opcional)"
+                safety: "Verificar identificação do entregador.",
+                quality_check: "Entregador identificado.",
+                evidence: "Registro de identificação do entregador"
               },
               {
                 id: "S2",
-                title: "Registro",
-                instruction: "Registrar data, hora, remetente e destinatário.",
-                why: "Rastreabilidade completa.",
+                title: "Conferir destinatário",
+                instruction: "Conferir o nome e unidade do destinatário antes de aceitar o recebimento.",
+                why: "Evitar recebimento de itens destinados a terceiros não identificados.",
                 who: "Porteiro",
                 time_estimate_min: 1,
-                safety: "Manter organização.",
-                quality_check: "Registro completo no sistema.",
-                evidence: "Linha no log de correspondências"
+                safety: "Verificar embalagem íntegra.",
+                quality_check: "Nome e unidade conferidos e corretos.",
+                evidence: "Dados do destinatário registrados"
               },
               {
                 id: "S3",
-                title: "Notificação e entrega",
-                instruction: "Avisar destinatário e entregar mediante identificação/assinatura.",
-                why: "Confirmação de recebimento.",
+                title: "Registrar recebimento",
+                instruction: "Registrar data, hora, nome do entregador e destinatário.",
+                why: "Rastreabilidade completa do processo.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "Manter organização dos registros.",
+                quality_check: "Registro completo no livro ou planilha.",
+                evidence: "Linha no log de correspondências com todos os dados"
+              },
+              {
+                id: "S4",
+                title: "Armazenar com segurança",
+                instruction: "Armazenar os itens em local seguro e identificado.",
+                why: "Proteção contra extravios e danos.",
                 who: "Porteiro",
                 time_estimate_min: 2,
+                safety: "Local limpo, organizado e de acesso restrito.",
+                quality_check: "Item armazenado e identificado corretamente.",
+                evidence: "Localização do item registrada"
+              },
+              {
+                id: "S5",
+                title: "Comunicar destinatário",
+                instruction: "Comunicar o destinatário sobre a chegada da correspondência/encomenda.",
+                why: "Agilizar a retirada e liberar espaço.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "N/A",
+                quality_check: "Destinatário notificado.",
+                evidence: "Registro de notificação"
+              },
+              {
+                id: "S6",
+                title: "Entregar com assinatura",
+                instruction: "Solicitar assinatura de retirada do destinatário mediante identificação.",
+                why: "Confirmação de recebimento e encerramento do processo.",
+                who: "Porteiro",
+                time_estimate_min: 1,
                 safety: "Validar identidade do recebedor.",
-                quality_check: "Assinatura/confirmação registrada.",
-                evidence: "Protocolo de entrega"
+                quality_check: "Assinatura registrada.",
+                evidence: "Protocolo de entrega assinado"
               }
             ]
           },
           equipment: {
-            epc: ["Armário identificado"],
+            epc: ["Armário/estante identificado para armazenamento"],
             epi: [],
-            tools: ["Sistema de registro"],
-            consumables: ["Formulários de retirada"]
+            tools: ["Sistema de registro", "Livro ou planilha de controle"],
+            consumables: ["Formulários de retirada/protocolo"]
           },
           training: {
-            modules: ["Recebimento seguro", "Organização e registro"],
+            modules: ["Recebimento seguro de entregas", "Organização e registro de correspondências", "Atendimento ao morador"],
             refresh_cadence_days: 365
           },
           review: {
-            kpis: ["0 divergências de entrega", "Tempo médio de notificação"],
+            kpis: ["Zero divergências de entrega", "Zero extravios", "Tempo médio de notificação (horas)"],
             audit_frequency_days: 30,
             auditor_role: "Supervisor de Portaria"
           },
           versioning: {
-            current_version: "01",
+            current_version: "02",
             last_review_date: "2025-10-27",
-            changelog: ["Migração completa dos templates POP"]
+            changelog: ["Atualização com POP 03 - Recebimento de Correspondências e Encomendas"]
           }
         },
         {
@@ -318,6 +384,225 @@ export const catalog: Catalog = {
             current_version: "01",
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
+          }
+        },
+        {
+          id: "PORT_ATEND",
+          name: "Atendimento e Postura Profissional",
+          objective: "Padronizar a conduta, apresentação pessoal e comunicação dos colaboradores da portaria, assegurando atendimento cordial, empático e imagem institucional positiva.",
+          scope: "Aplica-se a todos os colaboradores que atuam na recepção, portaria e controle de acesso do Residencial Praça da Luz.",
+          prerequisites: ["Uniforme completo e limpo", "Identificação funcional"],
+          responsibilities: [
+            "Porteiro: Cumprir as normas de conduta e apresentação",
+            "Supervisor: Avaliar periodicamente o comportamento e postura dos colaboradores"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Apresentação pessoal",
+                instruction: "Apresentar-se uniformizado, identificado e com boa higiene pessoal.",
+                why: "Transmitir profissionalismo e credibilidade.",
+                who: "Porteiro",
+                time_estimate_min: 0,
+                safety: "N/A",
+                quality_check: "Uniforme completo, limpo e crachá visível.",
+                evidence: "Inspeção visual diária"
+              },
+              {
+                id: "S2",
+                title: "Postura e linguagem",
+                instruction: "Manter postura ereta, linguagem formal e tom de voz adequado.",
+                why: "Demonstrar respeito e seriedade no atendimento.",
+                who: "Porteiro",
+                time_estimate_min: 0,
+                safety: "N/A",
+                quality_check: "Comunicação clara e respeitosa.",
+                evidence: "Avaliação comportamental"
+              },
+              {
+                id: "S3",
+                title: "Cumprimentar moradores e visitantes",
+                instruction: "Cumprimentar todos os moradores e visitantes de forma cordial.",
+                why: "Criar ambiente acolhedor e profissional.",
+                who: "Porteiro",
+                time_estimate_min: 0,
+                safety: "N/A",
+                quality_check: "Todos são cumprimentados adequadamente.",
+                evidence: "Feedback dos moradores"
+              },
+              {
+                id: "S4",
+                title: "Evitar distrações",
+                instruction: "Evitar conversas paralelas e uso de celular durante o expediente.",
+                why: "Manter foco e prontidão para atendimento.",
+                who: "Porteiro",
+                time_estimate_min: 0,
+                safety: "N/A",
+                quality_check: "Colaborador atento e disponível.",
+                evidence: "Observação da supervisão"
+              },
+              {
+                id: "S5",
+                title: "Respeito e sigilo",
+                instruction: "Tratar todos com respeito e manter sigilo sobre informações internas.",
+                why: "Preservar privacidade e confiança dos moradores.",
+                who: "Porteiro",
+                time_estimate_min: 0,
+                safety: "N/A",
+                quality_check: "Nenhuma reclamação sobre vazamento de informações.",
+                evidence: "Ausência de ocorrências"
+              },
+              {
+                id: "S6",
+                title: "Comunicar conflitos",
+                instruction: "Comunicar imediatamente à supervisão qualquer situação de conflito ou comportamento suspeito.",
+                why: "Resolver situações delicadas com respaldo da liderança.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "Não confrontar diretamente em situações de risco.",
+                quality_check: "Supervisão notificada em tempo hábil.",
+                evidence: "Registro de comunicação"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: [],
+            tools: ["Uniforme completo", "Crachá de identificação"],
+            consumables: []
+          },
+          training: {
+            modules: [
+              "Atendimento ao cliente e comunicação assertiva",
+              "Ética profissional e conduta no trabalho",
+              "Resolução de conflitos"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Zero reclamações sobre atendimento",
+              "% de conformidade com normas de apresentação",
+              "Índice de satisfação dos moradores"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Portaria"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-10-27",
+            changelog: ["Criação baseada no POP 04 - Atendimento e Postura Profissional"]
+          }
+        },
+        {
+          id: "PORT_EMERG",
+          name: "Ocorrências e Situações de Emergência",
+          objective: "Definir os procedimentos a serem adotados em casos de incidentes, emergências e situações atípicas, garantindo resposta rápida, segura e coordenada.",
+          scope: "Aplica-se a todos os postos de portaria e controle de acesso sob responsabilidade da Singular Serviços no Residencial Praça da Luz.",
+          prerequisites: ["Rotas de fuga conhecidas", "Contatos de emergência atualizados", "Pontos de encontro definidos"],
+          responsibilities: [
+            "Porteiro: Agir conforme o protocolo, manter a calma e comunicar imediatamente a supervisão",
+            "Supervisor: Coordenar o atendimento e registrar todas as providências adotadas"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Identificar tipo de ocorrência",
+                instruction: "Identificar o tipo de ocorrência (acidente, incêndio, invasão, falha elétrica etc.).",
+                why: "Definir o protocolo correto de resposta.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "Avaliar risco pessoal antes de agir.",
+                quality_check: "Tipo de ocorrência identificado corretamente.",
+                evidence: "Registro inicial da ocorrência"
+              },
+              {
+                id: "S2",
+                title: "Manter calma e segurança",
+                instruction: "Manter a calma e garantir a segurança de todos os envolvidos.",
+                why: "Evitar pânico e decisões precipitadas.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "Priorizar vidas humanas.",
+                quality_check: "Pessoas em local seguro.",
+                evidence: "Relato de ações tomadas"
+              },
+              {
+                id: "S3",
+                title: "Comunicar supervisão/síndico",
+                instruction: "Comunicar imediatamente a supervisão e/ou o síndico.",
+                why: "Acionar cadeia de comando e suporte.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "Usar meios de comunicação disponíveis (rádio, telefone).",
+                quality_check: "Supervisão/síndico comunicados.",
+                evidence: "Registro de comunicação"
+              },
+              {
+                id: "S4",
+                title: "Acionar órgãos competentes",
+                instruction: "Acionar os órgãos competentes (bombeiros, polícia, SAMU) conforme a gravidade.",
+                why: "Garantir resposta especializada.",
+                who: "Porteiro",
+                time_estimate_min: 3,
+                safety: "Informar localização exata e natureza da emergência.",
+                quality_check: "Órgãos acionados conforme necessidade.",
+                evidence: "Registro de chamados realizados"
+              },
+              {
+                id: "S5",
+                title: "Registrar o fato",
+                instruction: "Registrar o fato com data, hora, descrição e nomes dos envolvidos.",
+                why: "Documentar para análise e auditoria.",
+                who: "Porteiro",
+                time_estimate_min: 5,
+                safety: "N/A",
+                quality_check: "Registro completo e detalhado.",
+                evidence: "Relatório de incidente"
+              },
+              {
+                id: "S6",
+                title: "Acompanhar desdobramento",
+                instruction: "Acompanhar o desdobramento da ocorrência até o encerramento.",
+                why: "Garantir que todas as providências foram tomadas.",
+                who: "Porteiro",
+                time_estimate_min: 0,
+                safety: "N/A",
+                quality_check: "Ocorrência encerrada formalmente.",
+                evidence: "Relatório de encerramento"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Rotas de fuga sinalizadas", "Pontos de encontro identificados"],
+            epi: [],
+            tools: ["Rádio comunicador", "Telefone", "Lista de contatos de emergência", "Livro de ocorrências"],
+            consumables: []
+          },
+          training: {
+            modules: [
+              "Primeiros socorros básicos",
+              "Combate a princípios de incêndio",
+              "Procedimentos de evacuação",
+              "Comunicação em situações de crise"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Tempo de resposta inicial (minutos)",
+              "% de ocorrências registradas corretamente",
+              "Efetividade das ações tomadas"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Supervisor de Portaria"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-10-27",
+            changelog: ["Criação baseada no POP 05 - Ocorrências e Situações de Emergência"]
           }
         }
       ]
