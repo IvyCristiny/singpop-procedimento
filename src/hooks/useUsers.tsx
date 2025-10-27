@@ -51,18 +51,36 @@ export const useUsers = () => {
 
   const updateUserRole = async (userId: string, newRole: AppRole) => {
     try {
-      // Remove all existing roles
-      await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      // PROTEÇÃO 1: Impedir que usuário altere sua própria role
+      if (user?.id === userId) {
+        toast.error("Você não pode alterar sua própria role");
+        return { error: new Error("Cannot change own role") };
+      }
+      
+      // PROTEÇÃO 2: Verificar role do usuário alvo antes de deletar
+      const { data: currentRoles } = await supabase
         .from("user_roles")
-        .delete()
+        .select("role")
         .eq("user_id", userId);
-
-      // Add new role
-      const { error } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role: newRole });
+      
+      const hasGerenteGeral = currentRoles?.some(r => r.role === "gerente_geral");
+      
+      // PROTEÇÃO 3: Impedir downgrade de gerente_geral
+      if (hasGerenteGeral && newRole !== "gerente_geral") {
+        toast.error("Não é permitido fazer downgrade de Gerente Geral. Entre em contato com o administrador.");
+        return { error: new Error("Cannot downgrade gerente_geral") };
+      }
+      
+      // Usar função SQL atômica para garantir consistência
+      const { error } = await supabase.rpc('update_user_role_safe', {
+        p_user_id: userId,
+        p_new_role: newRole
+      });
 
       if (error) throw error;
+      
       toast.success("Role atualizada com sucesso");
       await fetchUsers();
       return { error: null };

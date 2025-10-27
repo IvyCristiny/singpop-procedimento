@@ -17,30 +17,45 @@ export const usePOPs = () => {
       return;
     }
 
+    // CRÍTICO: Aguardar roles carregarem completamente antes de buscar POPs
     if (rolesLoading) {
+      console.log("⏳ Aguardando roles carregarem...");
       return;
     }
+
+    console.log("🔍 Fetching POPs com roles:", { isGerenteGeral, isGerenteZona, isSupervisor });
 
     try {
       let query = supabase.from("pops").select("*");
 
       // Aplicar filtros baseados na role
       if (isSupervisor) {
-        // Supervisor vê apenas seus próprios POPs
+        console.log("👤 Supervisor: filtrando por user_id");
         query = query.eq("user_id", user.id);
       } else if (isGerenteZona && profile?.zona_id) {
-        // Gerente de Zona vê POPs da sua zona
+        console.log("🌍 Gerente Zona: filtrando por zona_id", profile.zona_id);
         query = query.eq("zona_id", profile.zona_id);
+      } else if (isGerenteGeral) {
+        console.log("🔓 Gerente Geral: SEM filtros (ver tudo)");
+        // SEM FILTROS - ver tudo
+      } else {
+        console.warn("⚠️ Role indefinida, aplicando filtro padrão de supervisor");
+        query = query.eq("user_id", user.id);
       }
-      // Gerente Geral não tem filtros (vê todos os POPs)
 
       const { data, error } = await query.order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("❌ Erro ao buscar POPs:", error);
+        throw error;
+      }
+
+      console.log(`✅ POPs carregadas: ${data?.length || 0}`);
 
       // Transformar dados do Supabase para o formato POP
       const transformedPOPs: POP[] = (data || []).map((item: any) => ({
         id: item.id,
+        userId: item.user_id,
         condominioNome: item.condominio_nome,
         functionId: item.function_id,
         activityId: item.activity_id,

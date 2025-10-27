@@ -21,6 +21,8 @@ export const useRole = () => {
   const fetchRoles = async () => {
     if (!user) return;
 
+    console.log("🔐 Carregando roles para usuário:", user.id);
+
     try {
       const { data, error } = await supabase
         .from("user_roles")
@@ -29,9 +31,12 @@ export const useRole = () => {
 
       if (error) throw error;
       
-      setRoles(data?.map(r => r.role as AppRole) || []);
+      const fetchedRoles = data?.map(r => r.role as AppRole) || [];
+      console.log("✅ Roles carregadas:", fetchedRoles);
+      
+      setRoles(fetchedRoles);
     } catch (error) {
-      console.error("Error fetching roles:", error);
+      console.error("❌ Erro ao carregar roles:", error);
     } finally {
       setLoading(false);
     }
