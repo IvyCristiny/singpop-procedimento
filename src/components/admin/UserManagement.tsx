@@ -4,13 +4,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RoleBadge } from "@/components/RoleBadge";
 import { Button } from "@/components/ui/button";
-import { Edit, Save, X, Trash2 } from "lucide-react";
+import { Edit, Save, X, Trash2, Filter, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { AppRole } from "@/types/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRole } from "@/hooks/useRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const UserManagement = () => {
   const { users, loading, updateUserRole, updateUserZona, deleteUser } = useUsers();
@@ -21,11 +23,23 @@ export const UserManagement = () => {
   const [selectedRole, setSelectedRole] = useState<AppRole>("supervisor");
   const [selectedZona, setSelectedZona] = useState<string | null>(null);
   const [deletingUser, setDeletingUser] = useState<{ id: string; name: string } | null>(null);
+  const [roleFilter, setRoleFilter] = useState<AppRole | "all">("all");
 
-  // Filtrar usuários baseado na role
-  const filteredUsers = isGerenteZona && profile?.zona_id
+  // Filtrar usuários baseado na role do gerente
+  let baseFilteredUsers = isGerenteZona && profile?.zona_id
     ? users.filter(u => u.profile.zona_id === profile.zona_id && u.roles.includes("supervisor"))
     : users;
+
+  // Aplicar filtro de role selecionado
+  const filteredUsers = roleFilter === "all" 
+    ? baseFilteredUsers 
+    : baseFilteredUsers.filter(u => u.roles.includes(roleFilter));
+
+  // Contadores
+  const totalUsers = users.length;
+  const gerentesGerais = users.filter(u => u.roles.includes("gerente_geral")).length;
+  const gerentesZona = users.filter(u => u.roles.includes("gerente_zona")).length;
+  const supervisores = users.filter(u => u.roles.includes("supervisor")).length;
 
   const handleEdit = (userId: string, currentRole: AppRole, currentZonaId: string | null | undefined) => {
     setEditingUser(userId);
@@ -40,8 +54,23 @@ export const UserManagement = () => {
     const currentRole = user.roles[0];
     const currentZonaId = user.profile.zona_id;
 
+    // Validação: Gerente de Zona deve ter zona atribuída
+    if (selectedRole === "gerente_zona" && !selectedZona) {
+      alert("⚠️ Gerente de Zona deve ter uma zona operativa atribuída!");
+      return;
+    }
+
+    // Confirmação dupla para mudanças sensíveis
+    if (currentRole === "gerente_geral" && selectedRole !== "gerente_geral") {
+      const confirmed = confirm(
+        `⚠️ ATENÇÃO: Você está rebaixando um Gerente Geral para ${selectedRole}.\n\nEsta é uma ação sensível. Tem certeza?`
+      );
+      if (!confirmed) return;
+    }
+
     if (currentRole !== selectedRole) {
-      await updateUserRole(userId, selectedRole);
+      const result = await updateUserRole(userId, selectedRole);
+      if (result.error) return; // Se deu erro, não continuar
     }
 
     if (currentZonaId !== selectedZona) {
@@ -80,7 +109,57 @@ export const UserManagement = () => {
             : "Gerencie roles e zonas dos usuários do sistema"}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {/* Contadores e Filtros */}
+        {isGerenteGeral && (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <Card className="border-2">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Total</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalUsers}</div>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-destructive/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Gerentes Gerais</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{gerentesGerais}</div>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Gerentes Zona</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{gerentesZona}</div>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-secondary/20">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">Supervisores</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{supervisores}</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Tabs value={roleFilter} onValueChange={(v) => setRoleFilter(v as AppRole | "all")}>
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="all">Todos ({totalUsers})</TabsTrigger>
+                <TabsTrigger value="gerente_geral">GG ({gerentesGerais})</TabsTrigger>
+                <TabsTrigger value="gerente_zona">GZ ({gerentesZona})</TabsTrigger>
+                <TabsTrigger value="supervisor">SUP ({supervisores})</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
+        
+        {/* Tabela */}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -96,10 +175,19 @@ export const UserManagement = () => {
               {filteredUsers.map((user) => {
                 const isEditing = editingUser === user.id;
                 const primaryRole = user.roles[0] || "supervisor";
+                const semZona = !user.profile.zona_id;
+                const isGerenteZonaSemZona = primaryRole === "gerente_zona" && semZona;
 
                 return (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.profile.full_name}</TableCell>
+                  <TableRow key={user.id} className={isGerenteZonaSemZona ? "bg-destructive/5" : ""}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {user.profile.full_name}
+                        {isGerenteZonaSemZona && (
+                          <AlertTriangle className="w-4 h-4 text-destructive" />
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>{user.profile.email}</TableCell>
                     <TableCell>
                       {isEditing ? (

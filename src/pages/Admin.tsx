@@ -1,8 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, MapPin, BarChart3, ArrowLeft } from "lucide-react";
+import { Users, MapPin, BarChart3, ArrowLeft, GitBranch, FileText } from "lucide-react";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { ZonaManagement } from "@/components/admin/ZonaManagement";
 import { Statistics } from "@/components/admin/Statistics";
+import { HierarchyOverview } from "@/components/admin/HierarchyOverview";
+import { RoleAuditLog } from "@/components/admin/RoleAuditLog";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -25,10 +27,18 @@ export default function Admin() {
         </div>
         
         <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="users" className="gap-2">
               <Users className="w-4 h-4" />
               Usuários
+            </TabsTrigger>
+            <TabsTrigger value="hierarchy" className="gap-2">
+              <GitBranch className="w-4 h-4" />
+              Hierarquia
+            </TabsTrigger>
+            <TabsTrigger value="audit" className="gap-2">
+              <FileText className="w-4 h-4" />
+              Auditoria
             </TabsTrigger>
             <TabsTrigger value="zonas" className="gap-2">
               <MapPin className="w-4 h-4" />
@@ -42,6 +52,14 @@ export default function Admin() {
 
           <TabsContent value="users">
             <UserManagement />
+          </TabsContent>
+
+          <TabsContent value="hierarchy">
+            <HierarchyOverview />
+          </TabsContent>
+
+          <TabsContent value="audit">
+            <RoleAuditLog />
           </TabsContent>
 
           <TabsContent value="zonas">

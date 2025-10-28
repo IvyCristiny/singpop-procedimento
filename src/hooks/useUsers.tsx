@@ -67,10 +67,19 @@ export const useUsers = () => {
       
       const hasGerenteGeral = currentRoles?.some(r => r.role === "gerente_geral");
       
-      // PROTEÇÃO 3: Impedir downgrade de gerente_geral
+      // PROTEÇÃO 3: Impedir downgrade de gerente_geral sem confirmação dupla
       if (hasGerenteGeral && newRole !== "gerente_geral") {
-        toast.error("Não é permitido fazer downgrade de Gerente Geral. Entre em contato com o administrador.");
-        return { error: new Error("Cannot downgrade gerente_geral") };
+        toast.error("⚠️ Não é permitido rebaixar Gerente Geral. Confirme a ação novamente se tiver certeza.");
+        return { error: new Error("Cannot downgrade gerente_geral without confirmation") };
+      }
+
+      // PROTEÇÃO 4: Verificar se gerente_zona tem zona atribuída
+      if (newRole === "gerente_zona") {
+        const targetUser = users.find(u => u.id === userId);
+        if (!targetUser?.profile.zona_id) {
+          toast.error("❌ Gerente de Zona deve ter uma zona operativa atribuída!");
+          return { error: new Error("Gerente zona requires zona_id") };
+        }
       }
       
       // Usar função SQL atômica para garantir consistência
@@ -81,7 +90,7 @@ export const useUsers = () => {
 
       if (error) throw error;
       
-      toast.success("Role atualizada com sucesso");
+      toast.success("✅ Role atualizada com sucesso");
       await fetchUsers();
       return { error: null };
     } catch (error: any) {
