@@ -289,7 +289,7 @@ export type Database = {
       user_roles_audit: {
         Row: {
           changed_at: string | null
-          changed_by: string
+          changed_by: string | null
           id: string
           new_role: Database["public"]["Enums"]["app_role"] | null
           old_role: Database["public"]["Enums"]["app_role"] | null
@@ -297,7 +297,7 @@ export type Database = {
         }
         Insert: {
           changed_at?: string | null
-          changed_by: string
+          changed_by?: string | null
           id?: string
           new_role?: Database["public"]["Enums"]["app_role"] | null
           old_role?: Database["public"]["Enums"]["app_role"] | null
@@ -305,7 +305,7 @@ export type Database = {
         }
         Update: {
           changed_at?: string | null
-          changed_by?: string
+          changed_by?: string | null
           id?: string
           new_role?: Database["public"]["Enums"]["app_role"] | null
           old_role?: Database["public"]["Enums"]["app_role"] | null
