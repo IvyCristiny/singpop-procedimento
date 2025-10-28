@@ -55,15 +55,15 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher zona e nome do colaborador
+  // Autopreencher zona e responsável pela elaboração
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
     }
-    // Preencher nome do colaborador com report_name ou full_name
-    if (profile && !formData.nomeColaborador) {
+    // Preencher responsável pela elaboração automaticamente com o usuário logado
+    if (profile && !formData.responsavelElaboracao) {
       const displayName = profile.report_name || profile.full_name;
-      setFormData(prev => ({ ...prev, nomeColaborador: displayName }));
+      setFormData(prev => ({ ...prev, responsavelElaboracao: displayName }));
     }
   }, [profile]);
 
@@ -221,7 +221,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
-    if (!formData.condominioNome || !formData.nomeColaborador || !formData.responsavelElaboracao) {
+    if (!formData.condominioNome || !formData.nomeColaborador) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios antes de gerar o PDF.",
@@ -466,12 +466,15 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
             <div className="space-y-2">
-              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
+              <Label htmlFor="responsavelElaboracao">
+                Responsável pela Elaboração *
+                <span className="text-xs text-muted-foreground ml-2">(Preenchido automaticamente)</span>
+              </Label>
               <Input
                 id="responsavelElaboracao"
                 value={formData.responsavelElaboracao}
-                onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
-                placeholder="Nome completo do responsável"
+                disabled
+                className="bg-muted cursor-not-allowed"
               />
             </div>
 
