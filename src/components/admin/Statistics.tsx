@@ -7,6 +7,7 @@ import { useRole } from "@/hooks/useRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useZonas } from "@/hooks/useZonas";
 import { ExportActions } from "./ExportActions";
+import { POPsTable, DetailedPOP } from "./POPsTable";
 import { subDays } from "date-fns";
 
 interface Stats {
@@ -32,6 +33,7 @@ export const Statistics = () => {
     popsBySupervisor: [],
     popsByFunction: []
   });
+  const [detailedPOPs, setDetailedPOPs] = useState<DetailedPOP[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
     from: subDays(new Date(), 30),
@@ -213,6 +215,44 @@ export const Statistics = () => {
         };
       });
 
+      // Buscar POPs detalhadas apenas para Gerente Geral
+      let detailedPOPsData: DetailedPOP[] = [];
+      if (isGerenteGeral) {
+        let detailedQuery = supabase
+          .from("pops")
+          .select(`
+            id,
+            codigo_pop,
+            condominio_nome,
+            responsavel_elaboracao,
+            nome_colaborador,
+            function_id,
+            activity_id,
+            created_at,
+            profiles!inner(full_name)
+          `)
+          .gte("created_at", dateRange.from.toISOString())
+          .lte("created_at", dateRange.to.toISOString());
+
+        const { data: popsDetailedData } = await detailedQuery;
+
+        detailedPOPsData = (popsDetailedData || []).map((pop: any) => {
+          const func = catalogFunctions.find((f: any) => f.id === pop.function_id);
+          const activity = func?.activities?.find((a: any) => a.id === pop.activity_id);
+          
+          return {
+            id: pop.id,
+            codigo_pop: pop.codigo_pop,
+            condominio_nome: pop.condominio_nome,
+            responsavel_nome: pop.profiles?.full_name || "N/A",
+            nome_colaborador: pop.nome_colaborador || "N/A",
+            function_name: func?.name || pop.function_id,
+            activities_names: activity ? [activity.name] : [],
+            created_at: pop.created_at
+          };
+        });
+      }
+
       setStats({
         totalUsers: userCount || 0,
         totalPOPs: popCount || 0,
@@ -222,6 +262,7 @@ export const Statistics = () => {
         popsBySupervisor: popsBySupervisor as any,
         popsByFunction
       });
+      setDetailedPOPs(detailedPOPsData);
     } catch (error) {
       console.error("Error fetching stats:", error);
     } finally {
@@ -239,6 +280,7 @@ export const Statistics = () => {
         stats={stats} 
         dateRange={dateRange} 
         setDateRange={setDateRange}
+        detailedPOPs={detailedPOPs}
       />
       
       {isSupervisor && (
@@ -373,6 +415,20 @@ export const Statistics = () => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+
+      {isGerenteGeral && detailedPOPs.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>POPs Detalhadas</CardTitle>
+            <CardDescription>
+              Visualização completa de todas as POPs criadas no período selecionado
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <POPsTable pops={detailedPOPs} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

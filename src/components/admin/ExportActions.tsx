@@ -8,6 +8,9 @@ import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { exportToPDF } from "@/utils/exportPDF";
 import { exportToExcel } from "@/utils/exportExcel";
+import { exportPOPsToExcel } from "@/utils/exportPOPsExcel";
+import { DetailedPOP } from "./POPsTable";
+import { useRole } from "@/hooks/useRole";
 import { toast } from "sonner";
 
 interface Stats {
@@ -24,9 +27,11 @@ interface ExportActionsProps {
   stats: Stats;
   dateRange: { from: Date; to: Date };
   setDateRange: (range: { from: Date; to: Date }) => void;
+  detailedPOPs?: DetailedPOP[];
 }
 
-export const ExportActions = ({ stats, dateRange, setDateRange }: ExportActionsProps) => {
+export const ExportActions = ({ stats, dateRange, setDateRange, detailedPOPs = [] }: ExportActionsProps) => {
+  const { isGerenteGeral } = useRole();
   const [isExporting, setIsExporting] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
@@ -66,6 +71,19 @@ export const ExportActions = ({ stats, dateRange, setDateRange }: ExportActionsP
     } catch (error) {
       console.error("Error exporting Excel:", error);
       toast.error("Erro ao exportar Excel");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportPOPsExcel = async () => {
+    try {
+      setIsExporting(true);
+      await exportPOPsToExcel(detailedPOPs, dateRange);
+      toast.success("POPs detalhadas exportadas com sucesso!");
+    } catch (error) {
+      console.error("Error exporting POPs Excel:", error);
+      toast.error("Erro ao exportar POPs detalhadas");
     } finally {
       setIsExporting(false);
     }
@@ -147,7 +165,7 @@ export const ExportActions = ({ stats, dateRange, setDateRange }: ExportActionsP
         </Button>
       </div>
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         <Button
           onClick={handleExportPDF}
           disabled={isExporting}
@@ -165,6 +183,17 @@ export const ExportActions = ({ stats, dateRange, setDateRange }: ExportActionsP
           <FileSpreadsheet className="w-4 h-4 mr-2" />
           Exportar Excel
         </Button>
+        {isGerenteGeral && detailedPOPs.length > 0 && (
+          <Button
+            onClick={handleExportPOPsExcel}
+            disabled={isExporting}
+            variant="outline"
+            size="sm"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            Exportar POPs Detalhadas
+          </Button>
+        )}
       </div>
     </div>
   );
