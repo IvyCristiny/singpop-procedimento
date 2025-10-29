@@ -14,6 +14,9 @@ export default function Admin() {
   const navigate = useNavigate();
   const { users } = useUsers();
   
+  // Verificar usuários pendentes (sem role)
+  const usuariosPendentes = users.filter(u => u.roles.length === 0);
+  
   // Verificar supervisores sem zona
   const usuariosSemZona = users.filter(u => 
     u.roles.includes('supervisor') && !u.profile.zona_id
@@ -34,10 +37,34 @@ export default function Admin() {
           <h1 className="text-3xl font-bold">Painel de Administração</h1>
         </div>
         
+        {usuariosPendentes.length > 0 && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-5 w-5" />
+            <AlertTitle className="text-lg font-bold">
+              ⚠️ {usuariosPendentes.length} Usuário(s) Aguardando Aprovação
+            </AlertTitle>
+            <AlertDescription className="mt-2">
+              <p className="mb-2">
+                Os seguintes usuários criaram conta mas ainda não têm cargo nem zona atribuída:
+              </p>
+              <ul className="list-disc list-inside space-y-1">
+                {usuariosPendentes.map(u => (
+                  <li key={u.id}>
+                    <strong>{u.profile.full_name}</strong> ({u.profile.email})
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-sm">
+                Por favor, atribua um cargo e uma zona operativa para cada usuário na aba "Usuários" abaixo.
+              </p>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         {usuariosSemZona.length > 0 && (
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Atenção: Perfis Incompletos</AlertTitle>
+            <AlertTitle>Atenção: Supervisores sem Zona</AlertTitle>
             <AlertDescription>
               Há {usuariosSemZona.length} supervisor(es) sem zona atribuída. 
               Estes usuários não conseguirão criar POPs até que uma zona seja atribuída.

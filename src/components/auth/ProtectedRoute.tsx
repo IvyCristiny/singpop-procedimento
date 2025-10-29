@@ -7,21 +7,33 @@ import { AppRole } from "@/types/auth";
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requiredRole?: AppRole;
+  allowPending?: boolean;
 }
 
-export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, requiredRole, allowPending = false }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
-  const { hasRole, loading: roleLoading } = useRole();
+  const { roles, hasRole, loading: roleLoading } = useRole();
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Não logado -> vai para /auth
     if (!loading && !user) {
       navigate("/auth");
+      return;
     }
+
+    // Logado mas SEM role -> vai para página de aprovação
+    if (!loading && !roleLoading && user && roles.length === 0 && !allowPending) {
+      navigate("/pending-approval");
+      return;
+    }
+
+    // Logado COM role mas sem permissão -> vai para home
     if (!loading && !roleLoading && user && requiredRole && !hasRole(requiredRole)) {
       navigate("/");
+      return;
     }
-  }, [user, loading, roleLoading, requiredRole, hasRole, navigate]);
+  }, [user, loading, roleLoading, roles, requiredRole, hasRole, navigate, allowPending]);
 
   if (loading || roleLoading) {
     return (
