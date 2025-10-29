@@ -106,15 +106,25 @@ export const usePOPs = () => {
   // Create POP
   const createPOP = useMutation({
     mutationFn: async (input: CreatePOPInput) => {
-      if (!profile?.id) {
-        throw new Error("User not authenticated");
+      // Buscar user diretamente do auth.getUser()
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        console.error("Auth error:", authError);
+        throw new Error("Usuário não autenticado. Por favor, faça login novamente.");
       }
+      
+      if (!profile?.id) {
+        throw new Error("Perfil não carregado. Aguarde...");
+      }
+      
+      console.log("Criando POP - User ID:", user.id, "Profile ID:", profile.id);
 
       const { data, error } = await supabase
         .from("pops")
         .insert({
           ...input,
-          user_id: profile.id,
+          user_id: user.id, // Usar user.id do auth, não profile.id
           zona_id: profile.zona_id,
         })
         .select()
@@ -126,7 +136,7 @@ export const usePOPs = () => {
       if (data?.id) {
         await supabase.from("pops_history").insert([{
           pop_id: data.id,
-          user_id: profile.id,
+          user_id: user.id,
           user_name: profile.full_name,
           action_type: "create",
           changes: { created: input } as any,
