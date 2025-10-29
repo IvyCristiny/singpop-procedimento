@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
@@ -19,7 +18,6 @@ import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
 import { ArrowLeft, FileDown, Info, X, Image as ImageIcon } from "lucide-react";
-import { useZonas } from "@/hooks/useZonas";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface POPFormProps {
@@ -30,8 +28,7 @@ interface POPFormProps {
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const { catalog, loading } = useCatalog();
-  const { createPOP, isCreating } = usePOPs();
-  const { zonas } = useZonas();
+  const { savePOP } = usePOPs();
   const { profile } = useAuth();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");
@@ -58,10 +55,15 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher apenas a zona do usuário logado
+  // Autopreencher zona e nome do colaborador
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
+    }
+    // Preencher nome do colaborador com report_name ou full_name
+    if (profile && !formData.nomeColaborador) {
+      const displayName = profile.report_name || profile.full_name;
+      setFormData(prev => ({ ...prev, nomeColaborador: displayName }));
     }
   }, [profile]);
 
@@ -256,24 +258,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityIds[0]);
       
-      // Salvar no banco de dados via hook
-      await createPOP({
-        condominio_nome: formData.condominioNome,
-        function_id: selectedFunctionId,
-        activity_id: selectedActivityIds[0],
-        activity_ids: selectedActivityIds,
-        codigo_pop: codigoPOP,
-        versao: formData.versao,
-        data_revisao: formData.dataRevisao,
-        data_apresentacao: formData.dataApresentacao,
-        responsavel_elaboracao: formData.responsavelElaboracao,
-        nome_colaborador: formData.nomeColaborador,
-        observacoes: formData.observacoes,
-      });
-
-      // Gerar PDF para download
-      const pop: POP = {
-        id: Date.now().toString(),
+      const pop = {
         condominioNome: formData.condominioNome,
         functionId: selectedFunctionId,
         activityId: selectedActivityIds[0],
@@ -285,10 +270,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         nomeColaborador: formData.nomeColaborador,
         dataApresentacao: formData.dataApresentacao,
         observacoes: formData.observacoes,
-        createdAt: new Date().toISOString()
       };
 
-      await downloadMultipleActivitiesPDF(pop, activities);
+      await savePOP(pop);
+      await downloadMultipleActivitiesPDF(pop as POP, activities);
       
       localStorage.removeItem("pop_draft");
       
@@ -313,25 +298,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityId);
 
-      // Salvar no banco de dados via hook
-      await createPOP({
-        condominio_nome: formData.condominioNome,
-        function_id: selectedFunctionId,
-        activity_id: selectedActivityId,
-        codigo_pop: codigoPOP,
-        versao: formData.versao,
-        data_revisao: formData.dataRevisao,
-        data_apresentacao: formData.dataApresentacao,
-        responsavel_elaboracao: formData.responsavelElaboracao,
-        nome_colaborador: formData.nomeColaborador,
-        observacoes: formData.observacoes,
-        custom_steps: useCustomSteps ? customSteps : undefined,
-        attached_images: attachedImages.length > 0 ? attachedImages : undefined,
-      });
-
-      // Gerar PDF para download
-      const pop: POP = {
-        id: Date.now().toString(),
+      const pop = {
         condominioNome: formData.condominioNome,
         functionId: selectedFunctionId,
         activityId: selectedActivityId,
@@ -344,10 +311,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         observacoes: formData.observacoes,
         customSteps: useCustomSteps ? customSteps : undefined,
         attachedImages: attachedImages.length > 0 ? attachedImages : undefined,
-        createdAt: new Date().toISOString()
       };
 
-      await downloadPDF(pop, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
+      await savePOP(pop);
+      await downloadPDF(pop as POP, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
       
       localStorage.removeItem("pop_draft");
       
@@ -621,12 +588,12 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                   onClick={handleGeneratePDF} 
                   className="w-full gap-2" 
                   size="lg"
-                  disabled={isCreating || (useMultipleActivities ? selectedActivityIds.length === 0 : !selectedActivityId)}
+                  disabled={useMultipleActivities ? selectedActivityIds.length === 0 : !selectedActivityId}
                 >
                   <FileDown className="w-5 h-5" />
-                  {isCreating ? "Salvando..." : (useMultipleActivities && selectedActivityIds.length > 0
+                  {useMultipleActivities && selectedActivityIds.length > 0
                     ? `Gerar PDF com ${selectedActivityIds.length} Atividade${selectedActivityIds.length > 1 ? 's' : ''}`
-                    : 'Gerar PDF do POP')}
+                    : 'Gerar PDF do POP'}
                 </Button>
               </>
             )}

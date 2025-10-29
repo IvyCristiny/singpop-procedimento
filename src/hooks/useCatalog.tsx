@@ -10,7 +10,7 @@ const CATALOG_ID = "00000000-0000-0000-0000-000000000001"; // Fixed ID for the s
 export const useCatalog = () => {
   const [catalog, setCatalog] = useState<Catalog>(defaultCatalog);
   const [loading, setLoading] = useState(true);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -161,10 +161,10 @@ export const useCatalog = () => {
     }
 
     try {
-      // Get user profile for full name
+      // Get user profile for full name and report name
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, report_name")
         .eq("id", user.id)
         .single();
 
@@ -186,7 +186,7 @@ export const useCatalog = () => {
         .insert({
           catalog_id: CATALOG_ID,
           user_id: user.id,
-          user_name: profile?.full_name || user.email || "Usuário",
+          user_name: profile?.report_name || profile?.full_name || user.email || "Usuário",
           action_type: actionType,
           entity_type: entityType,
           entity_id: entityId,

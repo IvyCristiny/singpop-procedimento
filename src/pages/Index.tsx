@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Filter, FileText, BookOpen, LogOut, Settings } from "lucide-react";
+import { Plus, Search, Filter, FileText, BookOpen, LogOut, Settings, Calendar } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
@@ -13,7 +13,6 @@ import { useCatalog } from "@/hooks/useCatalog";
 import { usePOPs } from "@/hooks/usePOPs";
 import { RoleBadge } from "@/components/RoleBadge";
 import { useNavigate } from "react-router-dom";
-import { migrateLocalStorageToSupabase } from "@/utils/migration";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
 const Index = () => {
@@ -21,7 +20,7 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
   const { catalog, loading: catalogLoading } = useCatalog();
-  const { pops, isLoading: popsLoading, refetch } = usePOPs();
+  const { pops, loading: popsLoading, refetch } = usePOPs();
   const { profile, signOut } = useAuth();
   const { primaryRole, isGerenteGeral } = useRole();
   const navigate = useNavigate();
@@ -30,27 +29,6 @@ const Index = () => {
     await signOut();
     navigate("/auth");
   };
-
-  // Migração automática do localStorage para Supabase
-  useEffect(() => {
-    const runMigration = async () => {
-      if (profile?.id && profile?.full_name) {
-        const result = await migrateLocalStorageToSupabase(
-          profile.id,
-          profile.zona_id || null,
-          profile.full_name
-        );
-        
-        if (result.success && result.count > 0) {
-          console.log(result.message);
-          // Recarregar POPs após migração
-          refetch();
-        }
-      }
-    };
-
-    runMigration();
-  }, [profile, refetch]);
 
   // Mostrar loading enquanto carrega
   if (catalogLoading || popsLoading) {
@@ -110,6 +88,15 @@ const Index = () => {
                   <RoleBadge role={primaryRole as any} />
                 </div>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/profile")}
+                className="gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Perfil
+              </Button>
               {isGerenteGeral && (
                 <Button
                   variant="outline"
@@ -138,10 +125,14 @@ const Index = () => {
       {/* Content */}
       <div className="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
         <Tabs defaultValue="pops" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="pops" className="gap-2">
               <FileText className="w-4 h-4" />
               POPs Gerados
+            </TabsTrigger>
+            <TabsTrigger value="cronogramas" className="gap-2">
+              <Calendar className="w-4 h-4" />
+              Cronogramas
             </TabsTrigger>
             <TabsTrigger value="biblioteca" className="gap-2">
               <BookOpen className="w-4 h-4" />
@@ -232,6 +223,15 @@ const Index = () => {
                 </div>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="cronogramas">
+            <div className="text-center py-8">
+              <Button onClick={() => navigate("/cronogramas")} size="lg">
+                <Calendar className="w-5 h-5 mr-2" />
+                Acessar Cronogramas
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="biblioteca">
