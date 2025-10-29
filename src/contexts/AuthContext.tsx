@@ -24,32 +24,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
+    // Initialize session
     const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!isMounted) return;
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (!isMounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error initializing auth:", error);
         setLoading(false);
+      } finally {
+        if (isMounted) {
+          setInitializing(false);
+        }
       }
     };
 
     initializeAuth();
 
+    // Set up listener only after initialization
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!isMounted) return;
-        
-        console.log('🔐 Auth event:', event);
+        if (!isMounted || initializing) return;
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -70,32 +80,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const fetchProfile = async (userId: string) => {
-    console.log('🔐 [AuthContext] Iniciando fetchProfile para userId:', userId);
-    
-    const timeoutId = setTimeout(() => {
-      console.error('⚠️ [AuthContext] Timeout de 5s atingido no fetchProfile');
-      setLoading(false);
-    }, 5000);
-
     try {
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
-        .single();
-        
-      if (error) {
-        console.error('❌ [AuthContext] Erro ao buscar profile:', error);
-        throw error;
-      }
-      
-      console.log('✅ [AuthContext] Profile carregado com sucesso:', data);
+        .maybeSingle();
+
+      if (error) throw error;
       setProfile(data);
     } catch (error) {
-      console.error("❌ [AuthContext] Error fetching profile:", error);
+      console.error("Error fetching profile:", error);
     } finally {
-      clearTimeout(timeoutId);
-      console.log('🏁 [AuthContext] fetchProfile finalizado, setLoading(false)');
       setLoading(false);
     }
   };

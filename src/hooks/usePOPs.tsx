@@ -66,16 +66,12 @@ export const usePOPs = () => {
   }, [user, profile, isGerenteGeral, isGerenteZona, isSupervisor]);
 
   const savePOP = async (pop: Omit<POP, "id" | "createdAt">) => {
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    
-    if (!currentUser) {
-      throw new Error("Sessão expirada. Faça login novamente.");
+    if (!user) {
+      throw new Error("User not authenticated");
     }
-    
-    console.log('📝 Criando POP para user:', currentUser.id);
 
     const popData: any = {
-      user_id: currentUser.id,
+      user_id: user.id,
       zona_id: profile?.zona_id || null,
       condominio_nome: pop.condominioNome,
       function_id: pop.functionId,
@@ -94,12 +90,8 @@ export const usePOPs = () => {
 
     const { error } = await supabase.from("pops").insert([popData]);
 
-    if (error) {
-      console.error("❌ Erro ao criar POP:", error);
-      throw error;
-    }
-    
-    console.log('✅ POP criado com sucesso!');
+    if (error) throw error;
+
     await fetchPOPs();
   };
 
