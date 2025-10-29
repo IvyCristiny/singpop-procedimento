@@ -13,12 +13,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 export const UserManagement = () => {
   const { users, loading, updateUserRole, updateUserZona, deleteUser } = useUsers();
   const { zonas } = useZonas();
   const { isGerenteGeral, isGerenteZona } = useRole();
   const { profile, user: currentUser } = useAuth();
+  const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<AppRole>("supervisor");
   const [selectedZona, setSelectedZona] = useState<string | null>(null);
@@ -54,9 +56,14 @@ export const UserManagement = () => {
     const currentRole = user.roles[0];
     const currentZonaId = user.profile.zona_id;
 
-    // Validação: Gerente de Zona deve ter zona atribuída
-    if (selectedRole === "gerente_zona" && !selectedZona) {
-      alert("⚠️ Gerente de Zona deve ter uma zona operativa atribuída!");
+    // ✅ Validação OBRIGATÓRIA: Supervisor E Gerente de Zona devem ter zona atribuída
+    if ((selectedRole === "supervisor" || selectedRole === "gerente_zona") && !selectedZona) {
+      toast({
+        title: "Zona Operativa Obrigatória",
+        description: `${selectedRole === "supervisor" ? "Supervisores" : "Gerentes de Zona"} precisam de uma zona operativa atribuída para poder criar POPs e gerenciar condomínios.`,
+        variant: "destructive",
+        duration: 6000,
+      });
       return;
     }
 
@@ -191,19 +198,24 @@ export const UserManagement = () => {
                     <TableCell>{user.profile.email}</TableCell>
                     <TableCell>
                       {isEditing ? (
-                        <Select value={selectedZona || ""} onValueChange={setSelectedZona}>
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Selecione zona" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="null">Sem zona</SelectItem>
-                            {zonas.map((zona) => (
-                              <SelectItem key={zona.id} value={zona.id}>
-                                {zona.nome}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="space-y-1">
+                          <Select value={selectedZona || ""} onValueChange={setSelectedZona}>
+                            <SelectTrigger className={`w-[180px] ${(selectedRole === "supervisor" || selectedRole === "gerente_zona") && !selectedZona ? "border-destructive" : ""}`}>
+                              <SelectValue placeholder="Selecione zona *" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="null">Sem zona</SelectItem>
+                              {zonas.map((zona) => (
+                                <SelectItem key={zona.id} value={zona.id}>
+                                  {zona.nome}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {(selectedRole === "supervisor" || selectedRole === "gerente_zona") && !selectedZona && (
+                            <p className="text-xs text-destructive">⚠️ Obrigatório para {selectedRole === "supervisor" ? "Supervisor" : "Gerente de Zona"}</p>
+                          )}
+                        </div>
                       ) : (
                         <span className="text-sm">{user.profile.zona?.nome || "—"}</span>
                       )}
