@@ -11,10 +11,6 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
-  updateProfile: (data: Partial<Profile>) => Promise<{ error: any }>;
-  updatePassword: (newPassword: string) => Promise<{ error: any }>;
-  updateEmail: (newEmail: string) => Promise<{ error: any }>;
-  refetchProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,26 +21,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(true);
-  
-  // Cache de sessão para evitar múltiplas chamadas getSession()
-  const [sessionCache, setSessionCache] = useState<{
-    session: Session | null;
-    timestamp: number;
-  } | null>(null);
-
-  // Função para obter sessão válida com cache
-  const getValidSession = async (): Promise<Session | null> => {
-    const now = Date.now();
-    
-    // Usar cache se ainda válido (30 segundos)
-    if (sessionCache && (now - sessionCache.timestamp) < 30000) {
-      return sessionCache.session;
-    }
-    
-    const { data: { session } } = await supabase.auth.getSession();
-    setSessionCache({ session, timestamp: now });
-    return session;
-  };
 
   useEffect(() => {
     let isMounted = true;
@@ -52,7 +28,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Initialize session
     const initializeAuth = async () => {
       try {
-        const session = await getValidSession();
+        const { data: { session } } = await supabase.auth.getSession();
         
         if (!isMounted) return;
         
@@ -76,22 +52,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     initializeAuth();
 
-    // Set up listener SEM debounce mas com controle de initializing
+    // Set up listener only after initialization
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        // Ignorar eventos durante inicialização
         if (!isMounted || initializing) return;
         
-        // Atualizar estado de forma síncrona
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Buscar perfil apenas se mudou de usuário
         if (session?.user) {
-          // Usar setTimeout para evitar deadlock
-          setTimeout(() => {
-            fetchProfile(session.user.id);
-          }, 0);
+          await fetchProfile(session.user.id);
         } else {
           setProfile(null);
           setLoading(false);
@@ -158,55 +128,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
-  const updateProfile = async (data: Partial<Profile>) => {
-    if (!user) return { error: new Error("No user logged in") };
-    
-    const { error } = await supabase
-      .from("profiles")
-      .update(data)
-      .eq("id", user.id);
-    
-    if (!error) {
-      await fetchProfile(user.id);
-    }
-    
-    return { error };
-  };
-
-  const updatePassword = async (newPassword: string) => {
-    const { error } = await supabase.auth.updateUser({
-      password: newPassword
-    });
-    
-    return { error };
-  };
-
-  const updateEmail = async (newEmail: string) => {
-    const { error: authError } = await supabase.auth.updateUser({
-      email: newEmail
-    });
-    
-    if (authError) return { error: authError };
-    
-    if (user) {
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .update({ email: newEmail })
-        .eq("id", user.id);
-      
-      if (profileError) return { error: profileError };
-      await fetchProfile(user.id);
-    }
-    
-    return { error: null };
-  };
-
-  const refetchProfile = async () => {
-    if (user) {
-      await fetchProfile(user.id);
-    }
-  };
-
   return (
     <AuthContext.Provider value={{
       user,
@@ -215,11 +136,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       loading,
       signUp,
       signIn,
-      signOut,
-      updateProfile,
-      updatePassword,
-      updateEmail,
-      refetchProfile
+      signOut
     }}>
       {children}
     </AuthContext.Provider>

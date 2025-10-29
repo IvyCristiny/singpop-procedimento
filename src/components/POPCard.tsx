@@ -4,11 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { FileDown, Trash2, ShieldCheck, Eye, Sparkles, Shield, Trees, Waves, Wrench, UserCheck, Briefcase, Clock, FileText } from "lucide-react";
 import { POP } from "@/types/pop";
 import { downloadPDF } from "@/utils/pdfGenerator";
+import { deletePOP } from "@/utils/storage";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { cn } from "@/lib/utils";
 import { getCustomCatalog } from "@/utils/catalogStorage";
-import { usePOPs } from "@/hooks/usePOPs";
 
 const iconMap: Record<string, any> = {
   ShieldCheck,
@@ -25,16 +23,11 @@ const iconMap: Record<string, any> = {
 interface POPCardProps {
   pop: POP;
   onDelete: () => void;
-  showCreator?: boolean;
 }
 
-export const POPCard = ({ pop, onDelete, showCreator = false }: POPCardProps) => {
-  const { user } = useAuth();
+export const POPCard = ({ pop, onDelete }: POPCardProps) => {
   const { toast } = useToast();
-  const { deletePOP } = usePOPs();
   const catalog = getCustomCatalog();
-  
-  const isOwner = pop.userId === user?.id;
   
   // Buscar função e atividade do catálogo
   const func = catalog?.functions?.find(f => f.id === pop.functionId);
@@ -63,27 +56,16 @@ export const POPCard = ({ pop, onDelete, showCreator = false }: POPCardProps) =>
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (window.confirm("Tem certeza que deseja excluir este POP?")) {
-      try {
-        await deletePOP(pop.id);
-        toast({ title: "POP excluído com sucesso!" });
-        onDelete();
-      } catch (error) {
-        toast({ 
-          title: "Erro ao excluir POP", 
-          description: "Tente novamente mais tarde.",
-          variant: "destructive" 
-        });
-      }
+      deletePOP(pop.id);
+      toast({ title: "POP excluído com sucesso!" });
+      onDelete();
     }
   };
 
   return (
-    <Card className={cn(
-      "p-4 hover:shadow-hover transition-shadow duration-300 border-l-4",
-      showCreator && !isOwner ? "border-l-accent" : "border-l-primary"
-    )}>
+    <Card className="p-4 hover:shadow-hover transition-shadow duration-300 border-l-4 border-l-primary">
       <div className="space-y-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-3 flex-1">
@@ -95,11 +77,6 @@ export const POPCard = ({ pop, onDelete, showCreator = false }: POPCardProps) =>
                 {pop.condominioNome}
               </h3>
               <p className="text-sm text-muted-foreground">{functionName} - {displayName}</p>
-              {showCreator && !isOwner && (
-                <Badge variant="outline" className="mt-2 text-xs">
-                  Criado por outro usuário
-                </Badge>
-              )}
             </div>
           </div>
           <Badge variant="secondary" className="shrink-0">v{pop.versao}</Badge>

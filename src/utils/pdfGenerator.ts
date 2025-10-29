@@ -4,33 +4,20 @@ import { POP } from "@/types/pop";
 import { Activity } from "@/types/schema";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
-// Helper para converter imagem para base64 com fallback
+// Helper para converter imagem para base64
 const getImageAsBase64 = async (imageUrl: string): Promise<string> => {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
-    
-    const response = await fetch(imageUrl, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    
-    if (!response.ok) {
-      console.warn("Logo não carregado, status:", response.status);
-      return "";
-    }
-    
+    const response = await fetch(imageUrl);
     const blob = await response.blob();
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = () => {
-        console.warn("Erro ao ler logo como base64");
-        resolve("");
-      };
+      reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
   } catch (error) {
-    console.warn("Logo não disponível, continuando sem logo:", error);
-    return ""; // Retorna vazio ao invés de falhar
+    console.error("Error loading logo:", error);
+    return "";
   }
 };
 

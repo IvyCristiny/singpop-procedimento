@@ -1,20 +1,13 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, MapPin, BarChart3, ArrowLeft, GitBranch, FileText, AlertCircle } from "lucide-react";
+import { Users, MapPin, BarChart3, ArrowLeft } from "lucide-react";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { ZonaManagement } from "@/components/admin/ZonaManagement";
 import { Statistics } from "@/components/admin/Statistics";
-import { HierarchyOverview } from "@/components/admin/HierarchyOverview";
-import { RoleAuditLog } from "@/components/admin/RoleAuditLog";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
-import { useUsers } from "@/hooks/useUsers";
 
 export default function Admin() {
   const navigate = useNavigate();
-  const { users } = useUsers();
-  
-  const usuariosSemRole = users.filter(u => u.roles.length === 0);
 
   return (
     <div className="min-h-screen bg-gradient-light p-6">
@@ -31,45 +24,11 @@ export default function Admin() {
           <h1 className="text-3xl font-bold">Painel de Administração</h1>
         </div>
         
-        {usuariosSemRole.length > 0 && (
-          <Alert variant="destructive" className="mb-6">
-            <AlertCircle className="h-5 w-5" />
-            <AlertTitle className="text-lg font-bold">
-              ⚠️ {usuariosSemRole.length} Usuário(s) Pendente(s) de Aprovação
-            </AlertTitle>
-            <AlertDescription className="mt-2 space-y-2">
-              <p className="font-semibold">
-                Estes usuários criaram conta mas ainda não têm cargo definido:
-              </p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                {usuariosSemRole.map(u => (
-                  <li key={u.id}>
-                    <strong>{u.profile.full_name}</strong> ({u.profile.email})
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 p-3 bg-background/50 rounded-md">
-                <p className="text-sm">
-                  Atribua um cargo na aba "Usuários" para liberar o acesso.
-                </p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-        
         <Tabs defaultValue="users" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="users" className="gap-2">
               <Users className="w-4 h-4" />
               Usuários
-            </TabsTrigger>
-            <TabsTrigger value="hierarchy" className="gap-2">
-              <GitBranch className="w-4 h-4" />
-              Hierarquia
-            </TabsTrigger>
-            <TabsTrigger value="audit" className="gap-2">
-              <FileText className="w-4 h-4" />
-              Auditoria
             </TabsTrigger>
             <TabsTrigger value="zonas" className="gap-2">
               <MapPin className="w-4 h-4" />
@@ -83,14 +42,6 @@ export default function Admin() {
 
           <TabsContent value="users">
             <UserManagement />
-          </TabsContent>
-
-          <TabsContent value="hierarchy">
-            <HierarchyOverview />
-          </TabsContent>
-
-          <TabsContent value="audit">
-            <RoleAuditLog />
           </TabsContent>
 
           <TabsContent value="zonas">

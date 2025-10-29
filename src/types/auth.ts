@@ -14,7 +14,6 @@ export interface Profile {
   id: string;
   full_name: string;
   email: string;
-  report_name?: string | null;
   zona_id?: string | null;
   created_at: string;
 }

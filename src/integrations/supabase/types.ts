@@ -85,85 +85,9 @@ export type Database = {
           },
         ]
       }
-      cronogramas: {
-        Row: {
-          codigo: string
-          condominio_nome: string
-          created_at: string
-          data_revisao: string | null
-          id: string
-          observacoes: string | null
-          periodicidade: string
-          pop_ids: Json
-          responsavel: string
-          responsavel_revisao: string | null
-          rotina_diaria: Json
-          rotina_semanal: Json
-          supervisao: string | null
-          titulo: string
-          turno: string
-          updated_at: string
-          user_id: string
-          versao: string
-          zona_id: string | null
-        }
-        Insert: {
-          codigo: string
-          condominio_nome: string
-          created_at?: string
-          data_revisao?: string | null
-          id?: string
-          observacoes?: string | null
-          periodicidade: string
-          pop_ids?: Json
-          responsavel: string
-          responsavel_revisao?: string | null
-          rotina_diaria?: Json
-          rotina_semanal?: Json
-          supervisao?: string | null
-          titulo: string
-          turno: string
-          updated_at?: string
-          user_id: string
-          versao?: string
-          zona_id?: string | null
-        }
-        Update: {
-          codigo?: string
-          condominio_nome?: string
-          created_at?: string
-          data_revisao?: string | null
-          id?: string
-          observacoes?: string | null
-          periodicidade?: string
-          pop_ids?: Json
-          responsavel?: string
-          responsavel_revisao?: string | null
-          rotina_diaria?: Json
-          rotina_semanal?: Json
-          supervisao?: string | null
-          titulo?: string
-          turno?: string
-          updated_at?: string
-          user_id?: string
-          versao?: string
-          zona_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cronogramas_zona_id_fkey"
-            columns: ["zona_id"]
-            isOneToOne: false
-            referencedRelation: "zonas_operativas"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       pops: {
         Row: {
           activity_id: string
-          activity_ids: Json | null
-          attached_images: Json | null
           codigo_pop: string
           condominio_nome: string
           created_at: string
@@ -182,8 +106,6 @@ export type Database = {
         }
         Insert: {
           activity_id: string
-          activity_ids?: Json | null
-          attached_images?: Json | null
           codigo_pop: string
           condominio_nome: string
           created_at?: string
@@ -202,8 +124,6 @@ export type Database = {
         }
         Update: {
           activity_id?: string
-          activity_ids?: Json | null
-          attached_images?: Json | null
           codigo_pop?: string
           condominio_nome?: string
           created_at?: string
@@ -236,7 +156,6 @@ export type Database = {
           email: string
           full_name: string
           id: string
-          report_name: string | null
           zona_id: string | null
         }
         Insert: {
@@ -244,7 +163,6 @@ export type Database = {
           email: string
           full_name: string
           id: string
-          report_name?: string | null
           zona_id?: string | null
         }
         Update: {
@@ -252,7 +170,6 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
-          report_name?: string | null
           zona_id?: string | null
         }
         Relationships: [
@@ -286,33 +203,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_roles_audit: {
-        Row: {
-          changed_at: string | null
-          changed_by: string | null
-          id: string
-          new_role: Database["public"]["Enums"]["app_role"] | null
-          old_role: Database["public"]["Enums"]["app_role"] | null
-          user_id: string
-        }
-        Insert: {
-          changed_at?: string | null
-          changed_by?: string | null
-          id?: string
-          new_role?: Database["public"]["Enums"]["app_role"] | null
-          old_role?: Database["public"]["Enums"]["app_role"] | null
-          user_id: string
-        }
-        Update: {
-          changed_at?: string | null
-          changed_by?: string | null
-          id?: string
-          new_role?: Database["public"]["Enums"]["app_role"] | null
-          old_role?: Database["public"]["Enums"]["app_role"] | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       zonas_operativas: {
         Row: {
           created_at: string
@@ -342,7 +232,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      delete_user_safe: { Args: { p_user_id: string }; Returns: undefined }
       get_user_zona_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -350,13 +239,6 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
-      }
-      update_user_role_safe: {
-        Args: {
-          p_new_role: Database["public"]["Enums"]["app_role"]
-          p_user_id: string
-        }
-        Returns: undefined
       }
     }
     Enums: {

@@ -51,46 +51,19 @@ export const useUsers = () => {
 
   const updateUserRole = async (userId: string, newRole: AppRole) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      // PROTEÇÃO 1: Impedir que usuário altere sua própria role
-      if (user?.id === userId) {
-        toast.error("Você não pode alterar sua própria role");
-        return { error: new Error("Cannot change own role") };
-      }
-      
-      // PROTEÇÃO 2: Verificar role do usuário alvo antes de deletar
-      const { data: currentRoles } = await supabase
+      // Remove all existing roles
+      await supabase
         .from("user_roles")
-        .select("role")
+        .delete()
         .eq("user_id", userId);
-      
-      const hasGerenteGeral = currentRoles?.some(r => r.role === "gerente_geral");
-      
-      // PROTEÇÃO 3: Impedir downgrade de gerente_geral sem confirmação dupla
-      if (hasGerenteGeral && newRole !== "gerente_geral") {
-        toast.error("⚠️ Não é permitido rebaixar Gerente Geral. Confirme a ação novamente se tiver certeza.");
-        return { error: new Error("Cannot downgrade gerente_geral without confirmation") };
-      }
 
-      // PROTEÇÃO 4: Verificar se gerente_zona tem zona atribuída
-      if (newRole === "gerente_zona") {
-        const targetUser = users.find(u => u.id === userId);
-        if (!targetUser?.profile.zona_id) {
-          toast.error("❌ Gerente de Zona deve ter uma zona operativa atribuída!");
-          return { error: new Error("Gerente zona requires zona_id") };
-        }
-      }
-      
-      // Usar função SQL atômica para garantir consistência
-      const { error } = await supabase.rpc('update_user_role_safe', {
-        p_user_id: userId,
-        p_new_role: newRole
-      });
+      // Add new role
+      const { error } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role: newRole });
 
       if (error) throw error;
-      
-      toast.success("✅ Role atualizada com sucesso");
+      toast.success("Role atualizada com sucesso");
       await fetchUsers();
       return { error: null };
     } catch (error: any) {
@@ -118,39 +91,11 @@ export const useUsers = () => {
     }
   };
 
-  const deleteUser = async (userId: string) => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      // PROTEÇÃO 1: Impedir auto-exclusão
-      if (user?.id === userId) {
-        toast.error("Você não pode excluir seu próprio usuário");
-        return { error: new Error("Cannot delete own user") };
-      }
-      
-      // Usar função SQL segura
-      const { error } = await supabase.rpc('delete_user_safe', {
-        p_user_id: userId
-      });
-
-      if (error) throw error;
-      
-      toast.success("Usuário excluído com sucesso");
-      await fetchUsers();
-      return { error: null };
-    } catch (error: any) {
-      console.error("Error deleting user:", error);
-      toast.error(error.message || "Erro ao excluir usuário");
-      return { error };
-    }
-  };
-
   return {
     users,
     loading,
     updateUserRole,
     updateUserZona,
-    deleteUser,
     refetch: fetchUsers
   };
 };

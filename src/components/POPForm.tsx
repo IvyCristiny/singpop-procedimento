@@ -3,23 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { POP } from "@/types/pop";
 import { Activity, ProcedureStep } from "@/types/schema";
-import { generatePOPCode } from "@/utils/storage";
+import { savePOP, generatePOPCode } from "@/utils/storage";
 import { downloadPDF, downloadMultipleActivitiesPDF } from "@/utils/pdfGenerator";
 import { useCatalog } from "@/hooks/useCatalog";
-import { usePOPs } from "@/hooks/usePOPs";
 import { FunctionSelector } from "./FunctionSelector";
 import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
 import { ArrowLeft, FileDown, Info, X, Image as ImageIcon } from "lucide-react";
+import { useZonas } from "@/hooks/useZonas";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/hooks/useRole";
 
 interface POPFormProps {
   onBack: () => void;
@@ -29,9 +29,8 @@ interface POPFormProps {
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const { catalog, loading } = useCatalog();
-  const { savePOP } = usePOPs();
-  const { user, profile } = useAuth();
-  const { isSupervisor } = useRole();
+  const { zonas } = useZonas();
+  const { profile } = useAuth();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");
   const [selectedActivityId, setSelectedActivityId] = useState<string>("");
@@ -57,15 +56,10 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher zona e responsável pela elaboração
+  // Autopreencher apenas a zona do usuário logado
   useEffect(() => {
     if (profile?.zona_id) {
       setZonaId(profile.zona_id);
-    }
-    // Preencher responsável pela elaboração automaticamente com o usuário logado
-    if (profile && !formData.responsavelElaboracao) {
-      const displayName = profile.report_name || profile.full_name;
-      setFormData(prev => ({ ...prev, responsavelElaboracao: displayName }));
     }
   }, [profile]);
 
@@ -223,7 +217,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
-    if (!formData.condominioNome || !formData.nomeColaborador) {
+    if (!formData.condominioNome || !formData.nomeColaborador || !formData.responsavelElaboracao) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha todos os campos obrigatórios antes de gerar o PDF.",
@@ -260,7 +254,8 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityIds[0]);
       
-      const pop = {
+      const pop: POP = {
+        id: Date.now().toString(),
         condominioNome: formData.condominioNome,
         functionId: selectedFunctionId,
         activityId: selectedActivityIds[0],
@@ -272,66 +267,20 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         nomeColaborador: formData.nomeColaborador,
         dataApresentacao: formData.dataApresentacao,
         observacoes: formData.observacoes,
+        createdAt: new Date().toISOString()
       };
 
-      // Separar salvamento e geração de PDF
-      try {
-        await savePOP(pop);
-        console.log("POP salvo com sucesso:", codigoPOP);
-        
-        toast({
-          title: "POP salvo com sucesso!",
-          description: `Código: ${codigoPOP}. Gerando PDF...`,
-        });
-      } catch (saveError: any) {
-        console.error("Erro ao salvar POP:", saveError);
-        
-        let errorMessage = "Erro desconhecido ao salvar";
-        
-        if (saveError.message === "PERMISSAO_NEGADA") {
-          errorMessage = "Erro de permissão. Tente fazer login novamente.";
-        } else if (saveError.message === "SESSAO_EXPIRADA") {
-          errorMessage = "Sua sessão expirou. Faça login novamente.";
-        } else if (saveError.message === "DADOS_FALTANDO") {
-          errorMessage = "Dados obrigatórios faltando. Verifique os campos.";
-        } else if (saveError.message?.includes("zona")) {
-          errorMessage = "Seu perfil está incompleto. Entre em contato com o administrador.";
-        } else if (saveError.code === '42501') {
-          errorMessage = "Você não tem permissão para realizar esta ação.";
-        } else {
-          errorMessage = saveError.message || "Erro desconhecido ao salvar";
-        }
-        
-        toast({
-          title: "Erro ao salvar POP",
-          description: errorMessage,
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Tentar gerar PDF
-      try {
-        await downloadMultipleActivitiesPDF(pop as POP, activities);
-        console.log("PDF gerado com sucesso");
-        
-        localStorage.removeItem("pop_draft");
-        
-        toast({
-          title: "PDF gerado com sucesso!",
-          description: `${activities.length} atividades incluídas.`,
-        });
-        
-        onSave();
-      } catch (pdfError: any) {
-        console.error("Erro ao gerar PDF:", pdfError);
-        toast({
-          title: "POP salvo, mas erro ao gerar PDF",
-          description: "O POP foi salvo no sistema. Tente exportar novamente pela lista.",
-          variant: "destructive"
-        });
-        onSave();
-      }
+      savePOP(pop);
+      await downloadMultipleActivitiesPDF(pop, activities);
+      
+      localStorage.removeItem("pop_draft");
+      
+      toast({
+        title: "POP gerado com sucesso!",
+        description: `${activities.length} atividades incluídas. Código: ${codigoPOP}`,
+      });
+      
+      onSave();
     } else {
       // Gerar PDF com uma atividade (modo original)
       const selectedActivity = selectedFunction.activities.find(a => a.id === selectedActivityId);
@@ -347,7 +296,8 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityId);
 
-      const pop = {
+      const pop: POP = {
+        id: Date.now().toString(),
         condominioNome: formData.condominioNome,
         functionId: selectedFunctionId,
         activityId: selectedActivityId,
@@ -360,64 +310,20 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         observacoes: formData.observacoes,
         customSteps: useCustomSteps ? customSteps : undefined,
         attachedImages: attachedImages.length > 0 ? attachedImages : undefined,
+        createdAt: new Date().toISOString()
       };
 
-      // Separar salvamento e geração de PDF
-      try {
-        await savePOP(pop);
-        console.log("POP salvo com sucesso:", codigoPOP);
-        
-        toast({
-          title: "POP salvo com sucesso!",
-          description: `Código: ${codigoPOP}. Gerando PDF...`,
-        });
-      } catch (saveError: any) {
-        console.error("Erro ao salvar POP:", saveError);
-        
-        let errorMessage = "Erro desconhecido ao salvar";
-        
-        if (saveError.message === "SESSAO_EXPIRADA") {
-          errorMessage = "Sua sessão expirou. Faça login novamente.";
-        } else if (saveError.message === "DADOS_FALTANDO") {
-          errorMessage = "Dados obrigatórios faltando. Verifique os campos.";
-        } else if (saveError.message?.includes("zona")) {
-          errorMessage = "Seu perfil está incompleto. Entre em contato com o administrador.";
-        } else if (saveError.code === '42501') {
-          errorMessage = "Você não tem permissão para realizar esta ação.";
-        } else {
-          errorMessage = saveError.message || "Erro desconhecido ao salvar";
-        }
-        
-        toast({
-          title: "Erro ao salvar POP",
-          description: errorMessage,
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Tentar gerar PDF
-      try {
-        await downloadPDF(pop as POP, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
-        console.log("PDF gerado com sucesso");
-        
-        localStorage.removeItem("pop_draft");
-        
-        toast({
-          title: "PDF gerado com sucesso!",
-          description: "O download deve começar automaticamente.",
-        });
-        
-        onSave();
-      } catch (pdfError: any) {
-        console.error("Erro ao gerar PDF:", pdfError);
-        toast({
-          title: "POP salvo, mas erro ao gerar PDF",
-          description: "O POP foi salvo no sistema. Tente exportar novamente pela lista.",
-          variant: "destructive"
-        });
-        onSave();
-      }
+      savePOP(pop);
+      await downloadPDF(pop, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
+      
+      localStorage.removeItem("pop_draft");
+      
+      toast({
+        title: "POP gerado com sucesso!",
+        description: `Código: ${codigoPOP}`,
+      });
+      
+      onSave();
     }
   };
 
@@ -500,15 +406,12 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
             <div className="space-y-2">
-              <Label htmlFor="responsavelElaboracao">
-                Responsável pela Elaboração *
-                <span className="text-xs text-muted-foreground ml-2">(Preenchido automaticamente)</span>
-              </Label>
+              <Label htmlFor="responsavelElaboracao">Responsável pela Elaboração *</Label>
               <Input
                 id="responsavelElaboracao"
                 value={formData.responsavelElaboracao}
-                disabled
-                className="bg-muted cursor-not-allowed"
+                onChange={(e) => handleInputChange("responsavelElaboracao", e.target.value)}
+                placeholder="Nome completo do responsável"
               />
             </div>
 

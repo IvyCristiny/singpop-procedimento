@@ -6,9 +6,6 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { useRole } from "@/hooks/useRole";
 import { useAuth } from "@/contexts/AuthContext";
 import { useZonas } from "@/hooks/useZonas";
-import { ExportActions } from "./ExportActions";
-import { POPsTable, DetailedPOP } from "./POPsTable";
-import { subDays } from "date-fns";
 
 interface Stats {
   totalUsers: number;
@@ -17,7 +14,6 @@ interface Stats {
   usersByRole: { role: string; count: number }[];
   popsByZona: { zona: string; count: number }[];
   popsBySupervisor: { supervisor: string; zona: string; count: number }[];
-  popsByFunction: { function: string; count: number }[];
 }
 
 export const Statistics = () => {
@@ -30,19 +26,13 @@ export const Statistics = () => {
     totalZonas: 0,
     usersByRole: [],
     popsByZona: [],
-    popsBySupervisor: [],
-    popsByFunction: []
+    popsBySupervisor: []
   });
-  const [detailedPOPs, setDetailedPOPs] = useState<DetailedPOP[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
-    from: subDays(new Date(), 30),
-    to: new Date()
-  });
 
   useEffect(() => {
     fetchStats();
-  }, [dateRange]);
+  }, []);
 
   const fetchStats = async () => {
     try {
@@ -69,16 +59,13 @@ export const Statistics = () => {
       }
       const { count: userCount } = await usersQuery;
 
-      // Total POPs (filtrar baseado na role e período)
+      // Total POPs (filtrar baseado na role)
       let popsQuery = supabase.from("pops").select("*", { count: "exact", head: true });
       if (userFilter) {
         popsQuery = popsQuery.eq("user_id", userFilter);
       } else if (zonaFilter) {
         popsQuery = popsQuery.eq("zona_id", zonaFilter);
       }
-      popsQuery = popsQuery
-        .gte("created_at", dateRange.from.toISOString())
-        .lte("created_at", dateRange.to.toISOString());
       const { count: popCount } = await popsQuery;
 
       // Total zonas
@@ -124,7 +111,7 @@ export const Statistics = () => {
         count: count as number
       }));
 
-      // POPs by zona (filtrar baseado na role e período)
+      // POPs by zona (filtrar baseado na role)
       let popsByZonaQuery = supabase.from("pops").select(`
         zona_id,
         zona:zonas_operativas(nome)
@@ -134,9 +121,6 @@ export const Statistics = () => {
       } else if (zonaFilter) {
         popsByZonaQuery = popsByZonaQuery.eq("zona_id", zonaFilter);
       }
-      popsByZonaQuery = popsByZonaQuery
-        .gte("created_at", dateRange.from.toISOString())
-        .lte("created_at", dateRange.to.toISOString());
       const { data: popsData } = await popsByZonaQuery;
 
       const zonaCounts = popsData?.reduce((acc: any, pop: any) => {
@@ -150,7 +134,7 @@ export const Statistics = () => {
         count: count as number
       }));
 
-      // POPs by Supervisor (filtrar baseado na role e período)
+      // POPs by Supervisor (filtrar baseado na role)
       let popsBySupervisorQuery = supabase.from("pops").select(`
         user_id,
         zona_id,
@@ -162,9 +146,6 @@ export const Statistics = () => {
       } else if (zonaFilter) {
         popsBySupervisorQuery = popsBySupervisorQuery.eq("zona_id", zonaFilter);
       }
-      popsBySupervisorQuery = popsBySupervisorQuery
-        .gte("created_at", dateRange.from.toISOString())
-        .lte("created_at", dateRange.to.toISOString());
       const { data: popsBySupervisorData } = await popsBySupervisorQuery;
 
       const supervisorCounts = popsBySupervisorData?.reduce((acc: any, pop: any) => {
@@ -185,84 +166,14 @@ export const Statistics = () => {
 
       const popsBySupervisor = Object.values(supervisorCounts || {});
 
-      // POPs by Function (filtrar baseado na role e período)
-      let popsByFunctionQuery = supabase.from("pops").select("function_id");
-      if (userFilter) {
-        popsByFunctionQuery = popsByFunctionQuery.eq("user_id", userFilter);
-      } else if (zonaFilter) {
-        popsByFunctionQuery = popsByFunctionQuery.eq("zona_id", zonaFilter);
-      }
-      popsByFunctionQuery = popsByFunctionQuery
-        .gte("created_at", dateRange.from.toISOString())
-        .lte("created_at", dateRange.to.toISOString());
-      const { data: popsByFunctionData } = await popsByFunctionQuery;
-
-      // Buscar nomes das funções do catálogo
-      const { data: catalogData } = await supabase.from("catalog").select("catalog_data").single();
-      const catalogFunctions = (catalogData?.catalog_data as any)?.functions || [];
-
-      const functionCounts = popsByFunctionData?.reduce((acc: any, pop: any) => {
-        const functionId = pop.function_id;
-        acc[functionId] = (acc[functionId] || 0) + 1;
-        return acc;
-      }, {});
-
-      const popsByFunction = Object.entries(functionCounts || {}).map(([functionId, count]) => {
-        const func = catalogFunctions.find((f: any) => f.id === functionId);
-        return {
-          function: func?.name || functionId,
-          count: count as number
-        };
-      });
-
-      // Buscar POPs detalhadas apenas para Gerente Geral
-      let detailedPOPsData: DetailedPOP[] = [];
-      if (isGerenteGeral) {
-        let detailedQuery = supabase
-          .from("pops")
-          .select(`
-            id,
-            codigo_pop,
-            condominio_nome,
-            responsavel_elaboracao,
-            nome_colaborador,
-            function_id,
-            activity_id,
-            created_at,
-            profiles!inner(full_name)
-          `)
-          .gte("created_at", dateRange.from.toISOString())
-          .lte("created_at", dateRange.to.toISOString());
-
-        const { data: popsDetailedData } = await detailedQuery;
-
-        detailedPOPsData = (popsDetailedData || []).map((pop: any) => {
-          const func = catalogFunctions.find((f: any) => f.id === pop.function_id);
-          const activity = func?.activities?.find((a: any) => a.id === pop.activity_id);
-          
-          return {
-            id: pop.id,
-            codigo_pop: pop.codigo_pop,
-            condominio_nome: pop.condominio_nome,
-            responsavel_nome: pop.profiles?.full_name || "N/A",
-            nome_colaborador: pop.nome_colaborador || "N/A",
-            function_name: func?.name || pop.function_id,
-            activities_names: activity ? [activity.name] : [],
-            created_at: pop.created_at
-          };
-        });
-      }
-
       setStats({
         totalUsers: userCount || 0,
         totalPOPs: popCount || 0,
         totalZonas: zonaCount || 0,
         usersByRole,
         popsByZona,
-        popsBySupervisor: popsBySupervisor as any,
-        popsByFunction
+        popsBySupervisor: popsBySupervisor as any
       });
-      setDetailedPOPs(detailedPOPsData);
     } catch (error) {
       console.error("Error fetching stats:", error);
     } finally {
@@ -276,13 +187,6 @@ export const Statistics = () => {
 
   return (
     <div className="space-y-6">
-      <ExportActions 
-        stats={stats} 
-        dateRange={dateRange} 
-        setDateRange={setDateRange}
-        detailedPOPs={detailedPOPs}
-      />
-      
       {isSupervisor && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <p className="text-sm text-green-800">
@@ -396,39 +300,6 @@ export const Statistics = () => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>POPs por Função</CardTitle>
-          <CardDescription>Distribuição de POPs por tipo de função</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={stats.popsByFunction}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="function" angle={-45} textAnchor="end" height={100} />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count" fill="hsl(var(--chart-3))" name="POPs" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {isGerenteGeral && detailedPOPs.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>POPs Detalhadas</CardTitle>
-            <CardDescription>
-              Visualização completa de todas as POPs criadas no período selecionado
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <POPsTable pops={detailedPOPs} />
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

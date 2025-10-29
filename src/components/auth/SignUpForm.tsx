@@ -29,7 +29,7 @@ export const SignUpForm = () => {
       } else {
         toast({
           title: "Conta criada com sucesso!",
-          description: "Faça login para continuar. Sua conta será aprovada pelo administrador.",
+          description: "Você já pode fazer login.",
         });
       }
     } catch (error) {

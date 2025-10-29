@@ -6,9 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
-import Profile from "./pages/Profile";
-import Cronogramas from "./pages/Cronogramas";
-import PendingApproval from "./pages/PendingApproval";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -25,14 +22,6 @@ const App = () => (
           <Routes>
             <Route path="/auth" element={<Auth />} />
             <Route 
-              path="/pending-approval" 
-              element={
-                <ProtectedRoute allowPending={true}>
-                  <PendingApproval />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
               path="/" 
               element={
                 <ProtectedRoute>
@@ -45,22 +34,6 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Admin />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/profile" 
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/cronogramas" 
-              element={
-                <ProtectedRoute>
-                  <Cronogramas />
                 </ProtectedRoute>
               } 
             />

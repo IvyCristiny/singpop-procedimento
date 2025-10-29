@@ -2,7 +2,6 @@ import { ProcedureStep } from "./schema";
 
 export interface POP {
   id: string;
-  userId?: string;
   condominioNome: string;
   functionId: string;
   activityId: string;
