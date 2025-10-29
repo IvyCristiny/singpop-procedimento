@@ -10,9 +10,10 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { POP } from "@/types/pop";
 import { Activity, ProcedureStep } from "@/types/schema";
-import { savePOP, generatePOPCode } from "@/utils/storage";
+import { generatePOPCode } from "@/utils/storage";
 import { downloadPDF, downloadMultipleActivitiesPDF } from "@/utils/pdfGenerator";
 import { useCatalog } from "@/hooks/useCatalog";
+import { usePOPs } from "@/hooks/usePOPs";
 import { FunctionSelector } from "./FunctionSelector";
 import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
@@ -29,6 +30,7 @@ interface POPFormProps {
 export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const { catalog, loading } = useCatalog();
+  const { createPOP, isCreating } = usePOPs();
   const { zonas } = useZonas();
   const { profile } = useAuth();
   
@@ -254,6 +256,22 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityIds[0]);
       
+      // Salvar no banco de dados via hook
+      await createPOP({
+        condominio_nome: formData.condominioNome,
+        function_id: selectedFunctionId,
+        activity_id: selectedActivityIds[0],
+        activity_ids: selectedActivityIds,
+        codigo_pop: codigoPOP,
+        versao: formData.versao,
+        data_revisao: formData.dataRevisao,
+        data_apresentacao: formData.dataApresentacao,
+        responsavel_elaboracao: formData.responsavelElaboracao,
+        nome_colaborador: formData.nomeColaborador,
+        observacoes: formData.observacoes,
+      });
+
+      // Gerar PDF para download
       const pop: POP = {
         id: Date.now().toString(),
         condominioNome: formData.condominioNome,
@@ -270,7 +288,6 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         createdAt: new Date().toISOString()
       };
 
-      savePOP(pop);
       await downloadMultipleActivitiesPDF(pop, activities);
       
       localStorage.removeItem("pop_draft");
@@ -296,6 +313,23 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
 
       const codigoPOP = generatePOPCode(selectedActivityId);
 
+      // Salvar no banco de dados via hook
+      await createPOP({
+        condominio_nome: formData.condominioNome,
+        function_id: selectedFunctionId,
+        activity_id: selectedActivityId,
+        codigo_pop: codigoPOP,
+        versao: formData.versao,
+        data_revisao: formData.dataRevisao,
+        data_apresentacao: formData.dataApresentacao,
+        responsavel_elaboracao: formData.responsavelElaboracao,
+        nome_colaborador: formData.nomeColaborador,
+        observacoes: formData.observacoes,
+        custom_steps: useCustomSteps ? customSteps : undefined,
+        attached_images: attachedImages.length > 0 ? attachedImages : undefined,
+      });
+
+      // Gerar PDF para download
       const pop: POP = {
         id: Date.now().toString(),
         condominioNome: formData.condominioNome,
@@ -313,7 +347,6 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         createdAt: new Date().toISOString()
       };
 
-      savePOP(pop);
       await downloadPDF(pop, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
       
       localStorage.removeItem("pop_draft");
@@ -588,12 +621,12 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                   onClick={handleGeneratePDF} 
                   className="w-full gap-2" 
                   size="lg"
-                  disabled={useMultipleActivities ? selectedActivityIds.length === 0 : !selectedActivityId}
+                  disabled={isCreating || (useMultipleActivities ? selectedActivityIds.length === 0 : !selectedActivityId)}
                 >
                   <FileDown className="w-5 h-5" />
-                  {useMultipleActivities && selectedActivityIds.length > 0
+                  {isCreating ? "Salvando..." : (useMultipleActivities && selectedActivityIds.length > 0
                     ? `Gerar PDF com ${selectedActivityIds.length} Atividade${selectedActivityIds.length > 1 ? 's' : ''}`
-                    : 'Gerar PDF do POP'}
+                    : 'Gerar PDF do POP')}
                 </Button>
               </>
             )}

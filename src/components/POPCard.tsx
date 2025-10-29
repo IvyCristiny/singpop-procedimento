@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileDown, Trash2, ShieldCheck, Eye, Sparkles, Shield, Trees, Waves, Wrench, UserCheck, Briefcase, Clock, FileText } from "lucide-react";
 import { POP } from "@/types/pop";
 import { downloadPDF } from "@/utils/pdfGenerator";
-import { deletePOP } from "@/utils/storage";
+import { usePOPs } from "@/hooks/usePOPs";
 import { useToast } from "@/hooks/use-toast";
 import { getCustomCatalog } from "@/utils/catalogStorage";
 
@@ -26,6 +26,7 @@ interface POPCardProps {
 }
 
 export const POPCard = ({ pop, onDelete }: POPCardProps) => {
+  const { deletePOP, isDeleting } = usePOPs();
   const { toast } = useToast();
   const catalog = getCustomCatalog();
   
@@ -56,11 +57,14 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (window.confirm("Tem certeza que deseja excluir este POP?")) {
-      deletePOP(pop.id);
-      toast({ title: "POP excluído com sucesso!" });
-      onDelete();
+      try {
+        await deletePOP(pop.id);
+        onDelete();
+      } catch (error) {
+        console.error("Erro ao excluir POP:", error);
+      }
     }
   };
 
@@ -92,7 +96,12 @@ export const POPCard = ({ pop, onDelete }: POPCardProps) => {
             <FileDown className="w-4 h-4 mr-2" />
             Baixar PDF
           </Button>
-          <Button onClick={handleDelete} variant="destructive" size="sm">
+          <Button 
+            onClick={handleDelete} 
+            variant="destructive" 
+            size="sm"
+            disabled={isDeleting}
+          >
             <Trash2 className="w-4 h-4" />
           </Button>
         </div>
