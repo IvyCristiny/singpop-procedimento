@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     let isMounted = true;
-    let debounceTimer: NodeJS.Timeout;
 
     // Initialize session
     const initializeAuth = async () => {
@@ -77,30 +76,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     initializeAuth();
 
-    // Set up listener com debounce para evitar múltiplos triggers
+    // Set up listener SEM debounce mas com controle de initializing
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        // Ignorar eventos durante inicialização
         if (!isMounted || initializing) return;
         
-        // Debounce para evitar múltiplas chamadas rápidas
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchProfile(session.user.id);
-          } else {
-            setProfile(null);
-            setLoading(false);
-          }
-        }, 100);
+        // Atualizar estado de forma síncrona
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Buscar perfil apenas se mudou de usuário
+        if (session?.user) {
+          // Usar setTimeout para evitar deadlock
+          setTimeout(() => {
+            fetchProfile(session.user.id);
+          }, 0);
+        } else {
+          setProfile(null);
+          setLoading(false);
+        }
       }
     );
 
     return () => {
       isMounted = false;
-      clearTimeout(debounceTimer);
       subscription.unsubscribe();
     };
   }, []);

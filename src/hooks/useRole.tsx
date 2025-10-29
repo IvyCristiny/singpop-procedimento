@@ -3,16 +3,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppRole } from "@/types/auth";
 import { useAuth } from "@/contexts/AuthContext";
 
+// ✅ Cache global compartilhado entre todas as instâncias do hook
+let globalRolesCache: {
+  userId: string;
+  roles: AppRole[];
+  timestamp: number;
+} | null = null;
+
+const CACHE_TTL = 300000; // 5 minutos
+
 export const useRole = () => {
   const { user } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Cache de roles com TTL de 5 minutos
-  const [rolesCache, setRolesCache] = useState<{
-    roles: AppRole[];
-    timestamp: number;
-  } | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -27,11 +30,16 @@ export const useRole = () => {
   const fetchRoles = async () => {
     if (!user) return;
 
-    // Verificar cache (5 minutos de TTL)
     const now = Date.now();
-    if (rolesCache && (now - rolesCache.timestamp) < 300000) {
-      console.log("✅ Usando roles do cache");
-      setRoles(rolesCache.roles);
+    
+    // Verificar cache global (mesmo userId e ainda válido)
+    if (
+      globalRolesCache && 
+      globalRolesCache.userId === user.id &&
+      (now - globalRolesCache.timestamp) < CACHE_TTL
+    ) {
+      console.log("✅ Usando roles do cache global");
+      setRoles(globalRolesCache.roles);
       setLoading(false);
       return;
     }
@@ -49,8 +57,14 @@ export const useRole = () => {
       const fetchedRoles = data?.map(r => r.role as AppRole) || [];
       console.log("✅ Roles carregadas:", fetchedRoles);
       
+      // Atualizar cache global
+      globalRolesCache = {
+        userId: user.id,
+        roles: fetchedRoles,
+        timestamp: now
+      };
+      
       setRoles(fetchedRoles);
-      setRolesCache({ roles: fetchedRoles, timestamp: now });
     } catch (error) {
       console.error("❌ Erro ao carregar roles:", error);
     } finally {
