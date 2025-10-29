@@ -53,6 +53,7 @@ export type Database = {
           titulo: string
           turno: string
           updated_at: string
+          user_id: string | null
           versao: string
         }
         Insert: {
@@ -72,6 +73,7 @@ export type Database = {
           titulo: string
           turno: string
           updated_at?: string
+          user_id?: string | null
           versao?: string
         }
         Update: {
@@ -91,6 +93,7 @@ export type Database = {
           titulo?: string
           turno?: string
           updated_at?: string
+          user_id?: string | null
           versao?: string
         }
         Relationships: []
@@ -112,6 +115,7 @@ export type Database = {
           observacoes: string | null
           responsavel_elaboracao: string | null
           updated_at: string
+          user_id: string | null
           versao: string
         }
         Insert: {
@@ -130,6 +134,7 @@ export type Database = {
           observacoes?: string | null
           responsavel_elaboracao?: string | null
           updated_at?: string
+          user_id?: string | null
           versao: string
         }
         Update: {
@@ -148,7 +153,29 @@ export type Database = {
           observacoes?: string | null
           responsavel_elaboracao?: string | null
           updated_at?: string
+          user_id?: string | null
           versao?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          updated_at?: string
         }
         Relationships: []
       }

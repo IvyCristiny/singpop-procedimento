@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Cronograma, RotinaHorario, RotinaSemanal } from "@/types/cronograma";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -30,6 +31,7 @@ const cronogramaSchema = z.object({
 });
 
 export const useCronogramas = () => {
+  const { user } = useAuth();
   const [cronogramas, setCronogramas] = useState<Cronograma[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -105,6 +107,7 @@ export const useCronogramas = () => {
         responsavel_revisao: data.responsavel_revisao || null,
         data_revisao: data.data_revisao || null,
         observacoes: data.observacoes || null,
+        user_id: user?.id,
       };
 
       const { data: savedCronograma, error } = await supabase

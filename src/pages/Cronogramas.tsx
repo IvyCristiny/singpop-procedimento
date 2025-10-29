@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCronogramas } from "@/hooks/useCronogramas";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CronogramaCard } from "@/components/cronograma/CronogramaCard";
@@ -12,8 +13,15 @@ import { exportCronogramaExcel } from "@/utils/exportCronogramaExcel";
 
 export default function Cronogramas() {
   const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
   const { cronogramas, loading, deleteCronograma } = useCronogramas();
   const [showForm, setShowForm] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [authLoading, user, navigate]);
 
   const handleExportPDF = (cronograma: Cronograma) => {
     exportCronogramaPDF(cronograma);
