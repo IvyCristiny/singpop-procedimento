@@ -10,7 +10,7 @@ let globalRolesCache: {
   timestamp: number;
 } | null = null;
 
-const CACHE_TTL = 300000; // 5 minutos
+const CACHE_TTL = 60000; // 1 minuto
 
 export const useRole = () => {
   const { user } = useAuth();
@@ -82,11 +82,19 @@ export const useRole = () => {
       ? "gerente_zona" 
       : "supervisor";
 
+  // Função para invalidar cache manualmente
+  const invalidateRoleCache = () => {
+    console.log("🔄 Invalidando cache de roles manualmente");
+    globalRolesCache = null;
+    fetchRoles();
+  };
+
   return {
     roles,
     hasRole,
     primaryRole,
     loading,
+    invalidateCache: invalidateRoleCache,
     isSupervisor: hasRole("supervisor"),
     isGerenteZona: hasRole("gerente_zona"),
     isGerenteGeral: hasRole("gerente_geral")
