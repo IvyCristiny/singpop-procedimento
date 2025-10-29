@@ -39,7 +39,8 @@ export const usePOPs = () => {
         console.log("🔓 Gerente Geral: SEM filtros (ver tudo)");
         // SEM FILTROS - ver tudo
       } else {
-        console.warn("⚠️ Role indefinida, aplicando filtro padrão de supervisor");
+        // Usuário sem roles: filtrar por user_id para ver apenas seus próprios POPs
+        console.log("👤 Sem roles definidas: filtrando por user_id");
         query = query.eq("user_id", user.id);
       }
 

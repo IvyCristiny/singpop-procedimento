@@ -196,28 +196,6 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   };
 
   const handleGeneratePDF = async () => {
-    // ✅ Validação detalhada de perfil completo
-    if (isSupervisor && !profile?.zona_id) {
-      toast({
-        title: "❌ Perfil Incompleto - Não é Possível Criar POP",
-        description: (
-          <div className="space-y-2 mt-2">
-            <p className="font-semibold">Seu cadastro está pendente de configuração:</p>
-            <div className="space-y-1 ml-4">
-              <p>✅ Cargo: <strong>Supervisor</strong></p>
-              <p>❌ Zona Operativa: <strong className="text-destructive">Não atribuída</strong></p>
-            </div>
-            <p className="mt-3 text-sm bg-destructive/10 p-2 rounded">
-              Entre em contato com o <strong>Gerente Geral</strong> para completar seu cadastro e atribuir uma zona operativa.
-            </p>
-          </div>
-        ),
-        variant: "destructive",
-        duration: 15000,
-      });
-      return;
-    }
-
     if (!selectedFunctionId) {
       toast({
         title: "Seleção incompleta",

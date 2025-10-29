@@ -14,18 +14,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const { users } = useUsers();
   
-  // ✅ Separar usuários em 3 categorias
   const usuariosSemRole = users.filter(u => u.roles.length === 0);
-  
-  const supervisoresSemZona = users.filter(u => 
-    u.roles.includes('supervisor') && !u.profile.zona_id
-  );
-  
-  const gerentesZonaSemZona = users.filter(u =>
-    u.roles.includes('gerente_zona') && !u.profile.zona_id
-  );
-  
-  const usuariosIncompletos = [...supervisoresSemZona, ...gerentesZonaSemZona];
 
   return (
     <div className="min-h-screen bg-gradient-light p-6">
@@ -42,12 +31,11 @@ export default function Admin() {
           <h1 className="text-3xl font-bold">Painel de Administração</h1>
         </div>
         
-        {/* ⚠️ Alerta para usuários sem role (pendentes) */}
         {usuariosSemRole.length > 0 && (
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-5 w-5" />
             <AlertTitle className="text-lg font-bold">
-              🔴 {usuariosSemRole.length} Usuário(s) Sem Cargo Atribuído
+              ⚠️ {usuariosSemRole.length} Usuário(s) Pendente(s) de Aprovação
             </AlertTitle>
             <AlertDescription className="mt-2 space-y-2">
               <p className="font-semibold">
@@ -56,63 +44,13 @@ export default function Admin() {
               <ul className="list-disc list-inside space-y-1 ml-4">
                 {usuariosSemRole.map(u => (
                   <li key={u.id}>
-                    <strong>{u.profile.full_name}</strong> ({u.profile.email}) - Sem cargo
+                    <strong>{u.profile.full_name}</strong> ({u.profile.email})
                   </li>
                 ))}
               </ul>
-              <div className="mt-3 p-3 bg-background/50 rounded-md border border-destructive/30">
-                <p className="text-sm font-medium">
-                  ⚠️ Estes usuários NÃO podem acessar o sistema até receberem um cargo e zona na aba "Usuários".
-                </p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {/* ⚠️ Alerta para supervisores/gerentes COM cargo mas SEM zona */}
-        {usuariosIncompletos.length > 0 && (
-          <Alert variant="destructive" className="mb-6 border-2">
-            <AlertCircle className="h-5 w-5" />
-            <AlertTitle className="text-lg font-bold">
-              🟡 {usuariosIncompletos.length} Usuário(s) com Cargo mas Sem Zona Operativa
-            </AlertTitle>
-            <AlertDescription className="mt-2 space-y-3">
-              <p className="font-semibold">
-                Estes usuários têm cargo atribuído mas estão sem zona operativa:
-              </p>
-              
-              {supervisoresSemZona.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-1">📋 Supervisores sem Zona ({supervisoresSemZona.length}):</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4">
-                    {supervisoresSemZona.map(u => (
-                      <li key={u.id}>
-                        <strong>{u.profile.full_name}</strong> ({u.profile.email})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {gerentesZonaSemZona.length > 0 && (
-                <div>
-                  <p className="text-sm font-medium mb-1">👔 Gerentes de Zona sem Zona ({gerentesZonaSemZona.length}):</p>
-                  <ul className="list-disc list-inside space-y-1 ml-4">
-                    {gerentesZonaSemZona.map(u => (
-                      <li key={u.id}>
-                        <strong>{u.profile.full_name}</strong> ({u.profile.email})
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              <div className="mt-3 p-3 bg-destructive/10 rounded-md border border-destructive/40">
-                <p className="text-sm font-bold text-destructive">
-                  ⛔ CRÍTICO: Estes usuários NÃO podem criar POPs ou gerenciar condomínios até que uma zona seja atribuída!
-                </p>
-                <p className="text-sm mt-2">
-                  Vá para a aba "Usuários" abaixo e atribua uma zona operativa para cada um.
+              <div className="mt-3 p-3 bg-background/50 rounded-md">
+                <p className="text-sm">
+                  Atribua um cargo na aba "Usuários" para liberar o acesso.
                 </p>
               </div>
             </AlertDescription>
