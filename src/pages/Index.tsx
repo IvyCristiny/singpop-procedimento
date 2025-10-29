@@ -1,16 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Filter, FileText, BookOpen, Calendar, LogOut } from "lucide-react";
+import { Plus, Search, Filter, FileText, BookOpen, Calendar } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
 import { useCatalog } from "@/hooks/useCatalog";
 import { usePOPs } from "@/hooks/usePOPs";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
 const Index = () => {
@@ -19,14 +18,7 @@ const Index = () => {
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
   const { catalog, loading: catalogLoading } = useCatalog();
   const { pops, loading: popsLoading, refetch } = usePOPs();
-  const { user, profile, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate("/auth");
-    }
-  }, [authLoading, user, navigate]);
 
   if (catalogLoading || popsLoading) {
     return (
@@ -61,31 +53,18 @@ const Index = () => {
       {/* Header */}
       <div className="bg-white border-b border-border shadow-sm">
         <div className="max-w-6xl mx-auto p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <img 
-                src={logoSingular} 
-                alt="Singular Serviços" 
-                className="h-12 w-auto"
-              />
-              <div className="h-12 w-px bg-border"></div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">SingPOP</h1>
-                <p className="text-sm text-muted-foreground">
-                  Gerador de Procedimentos Operacionais Padrão
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-sm font-medium">{profile?.full_name}</p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-              <Button variant="outline" size="sm" onClick={signOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sair
-              </Button>
+          <div className="flex items-center gap-4">
+            <img 
+              src={logoSingular} 
+              alt="Singular Serviços" 
+              className="h-12 w-auto"
+            />
+            <div className="h-12 w-px bg-border"></div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">SingPOP</h1>
+              <p className="text-sm text-muted-foreground">
+                Gerador de Procedimentos Operacionais Padrão
+              </p>
             </div>
           </div>
         </div>

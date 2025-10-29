@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { POP } from "@/types/pop";
 
 export const usePOPs = () => {
-  const { user } = useAuth();
   const [pops, setPops] = useState<POP[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -63,7 +61,6 @@ export const usePOPs = () => {
       observacoes: pop.observacoes,
       custom_steps: pop.customSteps || null,
       attached_images: pop.attachedImages || null,
-      user_id: user?.id,
     };
 
     const { error } = await supabase.from("pops").insert([popData]);
