@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { AppRole } from "@/types/auth";
 
 interface RoleBadgeProps {
-  role: AppRole;
+  role: AppRole | null;
 }
 
 const roleConfig = {
@@ -21,6 +21,15 @@ const roleConfig = {
 };
 
 export const RoleBadge = ({ role }: RoleBadgeProps) => {
+  // Guard contra role inválida ou null
+  if (!role || !roleConfig[role]) {
+    return (
+      <Badge variant="outline">
+        Carregando...
+      </Badge>
+    );
+  }
+  
   const config = roleConfig[role];
   
   return (

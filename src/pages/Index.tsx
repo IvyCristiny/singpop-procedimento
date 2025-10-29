@@ -85,7 +85,7 @@ const Index = () => {
               <div className="text-right">
                 <p className="text-sm font-medium text-foreground">{profile?.full_name}</p>
                 <div className="flex justify-end mt-1">
-                  <RoleBadge role={primaryRole as any} />
+                  <RoleBadge role={primaryRole} />
                 </div>
               </div>
               <Button
