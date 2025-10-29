@@ -288,7 +288,9 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         
         let errorMessage = "Erro desconhecido ao salvar";
         
-        if (saveError.message === "SESSAO_EXPIRADA") {
+        if (saveError.message === "PERMISSAO_NEGADA") {
+          errorMessage = "Erro de permissão. Tente fazer login novamente.";
+        } else if (saveError.message === "SESSAO_EXPIRADA") {
           errorMessage = "Sua sessão expirou. Faça login novamente.";
         } else if (saveError.message === "DADOS_FALTANDO") {
           errorMessage = "Dados obrigatórios faltando. Verifique os campos.";

@@ -85,12 +85,13 @@ export const usePOPs = () => {
     fetchPOPs();
   }, [user, profile, isGerenteGeral, isGerenteZona, isSupervisor, rolesLoading]);
 
-  const savePOP = async (pop: Omit<POP, "id" | "createdAt">) => {
+  const savePOP = async (pop: Omit<POP, "id" | "createdAt">, retryCount = 0) => {
     if (!user) {
       throw new Error("Usuário não autenticado. Faça login novamente.");
     }
 
     console.log("✅ Salvando POP com user_id:", user.id);
+    console.log("🔍 Tentativa:", retryCount + 1);
 
     const popData: any = {
       user_id: user.id,
@@ -114,10 +115,18 @@ export const usePOPs = () => {
 
     if (error) {
       console.error("❌ Erro ao salvar POP:", error);
+      console.error("❌ Código do erro:", error.code);
+      
+      // Se for erro de RLS e primeira tentativa, fazer retry após refresh do token
+      if (error.code === '42501' && retryCount === 0) {
+        console.log("🔄 Tentando renovar token e retentar...");
+        await supabase.auth.refreshSession();
+        return savePOP(pop, retryCount + 1);
+      }
       
       // Mensagens de erro específicas
-      if (error.code === '42501' || error.message?.includes('JWT')) {
-        throw new Error("SESSAO_EXPIRADA");
+      if (error.code === '42501') {
+        throw new Error("PERMISSAO_NEGADA");
       }
       if (error.code === '23502') {
         throw new Error("DADOS_FALTANDO");
