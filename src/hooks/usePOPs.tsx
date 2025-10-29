@@ -66,25 +66,13 @@ export const usePOPs = () => {
   }, [user, profile, isGerenteGeral, isGerenteZona, isSupervisor]);
 
   const savePOP = async (pop: Omit<POP, "id" | "createdAt">) => {
-    // Validar autenticação com sessão atual
-    const { data: { user: currentUser }, error: authError } = await supabase.auth.getUser();
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
     
-    if (authError || !currentUser) {
-      console.error("❌ Auth error:", authError);
-      throw new Error("Sessão expirada. Por favor, faça login novamente.");
+    if (!currentUser) {
+      throw new Error("Sessão expirada. Faça login novamente.");
     }
     
-    if (!profile?.id) {
-      throw new Error("Perfil não carregado. Aguarde alguns segundos e tente novamente.");
-    }
-    
-    // Verificar se usuário tem role (prevenir criação sem permissões)
-    if (!isSupervisor && !isGerenteZona && !isGerenteGeral) {
-      console.error("❌ Usuário sem role atribuída");
-      throw new Error("Você não tem permissões para criar POPs. Entre em contato com o administrador.");
-    }
-    
-    console.log('📝 Criando POP - User ID:', currentUser.id, 'Profile ID:', profile.id, 'Zona:', profile.zona_id);
+    console.log('📝 Criando POP para user:', currentUser.id);
 
     const popData: any = {
       user_id: currentUser.id,
