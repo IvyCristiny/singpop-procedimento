@@ -9,7 +9,10 @@ export const useRole = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("🎭 [useRole] Iniciando para user:", user?.email);
+    
     if (!user) {
+      console.log("🎭 [useRole] Sem usuário, resetando roles");
       setRoles([]);
       setLoading(false);
       return;
@@ -21,17 +24,29 @@ export const useRole = () => {
   const fetchRoles = async () => {
     if (!user) return;
 
+    console.log("🎭 [useRole] Buscando roles para:", user.email);
+    
+    const rolesTimeout = setTimeout(() => {
+      console.warn("⏰ [useRole] TIMEOUT: Roles demoraram +5s");
+      setLoading(false);
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id);
 
+      clearTimeout(rolesTimeout);
+
       if (error) throw error;
       
-      setRoles(data?.map(r => r.role as AppRole) || []);
+      const fetchedRoles = data?.map(r => r.role as AppRole) || [];
+      console.log("✅ [useRole] Roles carregadas:", fetchedRoles);
+      setRoles(fetchedRoles);
     } catch (error) {
-      console.error("Error fetching roles:", error);
+      console.error("❌ [useRole] Erro ao buscar roles:", error);
+      clearTimeout(rolesTimeout);
     } finally {
       setLoading(false);
     }

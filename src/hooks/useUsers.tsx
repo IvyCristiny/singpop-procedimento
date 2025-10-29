@@ -51,16 +51,11 @@ export const useUsers = () => {
 
   const updateUserRole = async (userId: string, newRole: AppRole) => {
     try {
-      // Remove all existing roles
-      await supabase
-        .from("user_roles")
-        .delete()
-        .eq("user_id", userId);
-
-      // Add new role
-      const { error } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role: newRole });
+      // Usar a função segura do banco
+      const { error } = await supabase.rpc('update_user_role_safe', {
+        p_user_id: userId,
+        p_new_role: newRole
+      });
 
       if (error) throw error;
       toast.success("Role atualizada com sucesso");
@@ -68,25 +63,37 @@ export const useUsers = () => {
       return { error: null };
     } catch (error: any) {
       console.error("Error updating role:", error);
-      toast.error("Erro ao atualizar role");
+      toast.error(error.message || "Erro ao atualizar role");
       return { error };
     }
   };
 
   const updateUserZona = async (userId: string, zonaId: string | null) => {
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ zona_id: zonaId })
-        .eq("id", userId);
+      if (zonaId) {
+        // Usar a função segura do banco
+        const { error } = await supabase.rpc('assign_zona_to_user', {
+          p_user_id: userId,
+          p_zona_id: zonaId
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        // Se zona_id for null, atualizar diretamente (apenas Gerente Geral pode)
+        const { error } = await supabase
+          .from("profiles")
+          .update({ zona_id: null })
+          .eq("id", userId);
+
+        if (error) throw error;
+      }
+
       toast.success("Zona atualizada com sucesso");
       await fetchUsers();
       return { error: null };
     } catch (error: any) {
       console.error("Error updating zona:", error);
-      toast.error("Erro ao atualizar zona");
+      toast.error(error.message || "Erro ao atualizar zona");
       return { error };
     }
   };
