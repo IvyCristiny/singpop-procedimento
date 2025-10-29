@@ -26,25 +26,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const userIdRef = useRef<string | null>(null);
+  const fetchingProfileRef = useRef(false);
 
   const fetchProfile = async (userId: string) => {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single();
+    if (fetchingProfileRef.current) return;
+    
+    fetchingProfileRef.current = true;
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
 
-    if (error) {
-      console.error("Error fetching profile:", error);
-      return;
+      if (error) {
+        console.error("Error fetching profile:", error);
+        return;
+      }
+
+      setProfile(data);
+    } finally {
+      fetchingProfileRef.current = false;
     }
-
-    setProfile(data);
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        if (!mounted) return;
+
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
@@ -53,30 +65,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (currentUserId && currentUserId !== userIdRef.current) {
           userIdRef.current = currentUserId;
           setTimeout(() => {
-            fetchProfile(currentUserId);
-          }, 0);
+            if (mounted) {
+              fetchProfile(currentUserId);
+            }
+          }, 100);
         } else if (!currentUserId) {
           userIdRef.current = null;
           setProfile(null);
+          fetchingProfileRef.current = false;
         }
 
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      if (!mounted) return;
+
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
-      if (currentSession?.user?.id) {
+      if (currentSession?.user?.id && currentSession.user.id !== userIdRef.current) {
         userIdRef.current = currentSession.user.id;
         fetchProfile(currentSession.user.id);
       }
       
-      setLoading(false);
+      if (mounted) {
+        setLoading(false);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
