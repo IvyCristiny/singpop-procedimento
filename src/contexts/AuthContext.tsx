@@ -70,6 +70,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const fetchProfile = async (userId: string) => {
+    console.log('🔐 [AuthContext] Iniciando fetchProfile para userId:', userId);
+    
+    const timeoutId = setTimeout(() => {
+      console.error('⚠️ [AuthContext] Timeout de 5s atingido no fetchProfile');
+      setLoading(false);
+    }, 5000);
+
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -77,11 +84,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq("id", userId)
         .single();
         
-      if (error) throw error;
+      if (error) {
+        console.error('❌ [AuthContext] Erro ao buscar profile:', error);
+        throw error;
+      }
+      
+      console.log('✅ [AuthContext] Profile carregado com sucesso:', data);
       setProfile(data);
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("❌ [AuthContext] Error fetching profile:", error);
     } finally {
+      clearTimeout(timeoutId);
+      console.log('🏁 [AuthContext] fetchProfile finalizado, setLoading(false)');
       setLoading(false);
     }
   };
