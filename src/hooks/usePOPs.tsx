@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/hooks/useRole";
 import { POP } from "@/types/pop";
 
 export const usePOPs = () => {
   const { user, profile } = useAuth();
-  const { isGerenteGeral, isGerenteZona, isSupervisor, loading: rolesLoading } = useRole();
   const [pops, setPops] = useState<POP[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,34 +15,14 @@ export const usePOPs = () => {
       return;
     }
 
-    // CRÍTICO: Aguardar roles carregarem completamente antes de buscar POPs
-    if (rolesLoading) {
-      console.log("⏳ Aguardando roles carregarem...");
-      return;
-    }
-
-    console.log("🔍 Fetching POPs com roles:", { isGerenteGeral, isGerenteZona, isSupervisor });
+    console.log("🔍 Fetching POPs (RLS filtra automaticamente)");
 
     try {
-      let query = supabase.from("pops").select("*");
-
-      // Aplicar filtros baseados na role
-      if (isSupervisor) {
-        console.log("👤 Supervisor: filtrando por user_id");
-        query = query.eq("user_id", user.id);
-      } else if (isGerenteZona && profile?.zona_id) {
-        console.log("🌍 Gerente Zona: filtrando por zona_id", profile.zona_id);
-        query = query.eq("zona_id", profile.zona_id);
-      } else if (isGerenteGeral) {
-        console.log("🔓 Gerente Geral: SEM filtros (ver tudo)");
-        // SEM FILTROS - ver tudo
-      } else {
-        // Usuário sem roles: filtrar por user_id para ver apenas seus próprios POPs
-        console.log("👤 Sem roles definidas: filtrando por user_id");
-        query = query.eq("user_id", user.id);
-      }
-
-      const { data, error } = await query.order("created_at", { ascending: false });
+      // ✅ QUERY SIMPLES - RLS faz o trabalho de filtrar baseado nas roles do usuário
+      const { data, error } = await supabase
+        .from("pops")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("❌ Erro ao buscar POPs:", error);
@@ -83,7 +61,7 @@ export const usePOPs = () => {
 
   useEffect(() => {
     fetchPOPs();
-  }, [user, profile, isGerenteGeral, isGerenteZona, isSupervisor, rolesLoading]);
+  }, [user, profile]);
 
   const savePOP = async (pop: Omit<POP, "id" | "createdAt">, retryCount = 0) => {
     if (!user) {
