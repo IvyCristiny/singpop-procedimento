@@ -230,6 +230,44 @@ export type Database = {
           },
         ]
       }
+      pops_history: {
+        Row: {
+          action_type: string
+          changes: Json | null
+          created_at: string | null
+          id: string
+          pop_id: string | null
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          action_type: string
+          changes?: Json | null
+          created_at?: string | null
+          id?: string
+          pop_id?: string | null
+          user_id?: string | null
+          user_name: string
+        }
+        Update: {
+          action_type?: string
+          changes?: Json | null
+          created_at?: string | null
+          id?: string
+          pop_id?: string | null
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pops_history_pop_id_fkey"
+            columns: ["pop_id"]
+            isOneToOne: false
+            referencedRelation: "pops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -286,6 +324,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles_audit: {
+        Row: {
+          changed_at: string | null
+          changed_by: string | null
+          id: string
+          new_role: Database["public"]["Enums"]["app_role"] | null
+          old_role: Database["public"]["Enums"]["app_role"] | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"] | null
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string | null
+          changed_by?: string | null
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"] | null
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       zonas_operativas: {
         Row: {
           created_at: string
@@ -315,6 +380,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_user_safe: { Args: { p_user_id: string }; Returns: undefined }
       get_user_zona_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -322,6 +388,13 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      update_user_role_safe: {
+        Args: {
+          p_new_role: Database["public"]["Enums"]["app_role"]
+          p_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
