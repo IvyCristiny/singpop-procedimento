@@ -89,14 +89,6 @@ export const usePOPs = () => {
       throw new Error("Usuário não autenticado. Faça login novamente.");
     }
 
-    // Verificar sessão ativa
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !session) {
-      console.error("❌ Sessão inválida ou expirada:", sessionError);
-      throw new Error("Sessão expirada. Faça login novamente.");
-    }
-
     console.log("✅ Salvando POP com user_id:", user.id);
 
     const popData: any = {
@@ -123,8 +115,11 @@ export const usePOPs = () => {
       console.error("❌ Erro ao salvar POP:", error);
       
       // Mensagens de erro específicas
-      if (error.code === '42501') {
-        throw new Error("Erro de permissão. Faça logout e login novamente.");
+      if (error.code === '42501' || error.message?.includes('JWT')) {
+        throw new Error("SESSAO_EXPIRADA");
+      }
+      if (error.code === '23502') {
+        throw new Error("DADOS_FALTANDO");
       }
       
       throw error;

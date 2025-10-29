@@ -25,14 +25,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [initializing, setInitializing] = useState(true);
+  
+  // Cache de sessão para evitar múltiplas chamadas getSession()
+  const [sessionCache, setSessionCache] = useState<{
+    session: Session | null;
+    timestamp: number;
+  } | null>(null);
+
+  // Função para obter sessão válida com cache
+  const getValidSession = async (): Promise<Session | null> => {
+    const now = Date.now();
+    
+    // Usar cache se ainda válido (30 segundos)
+    if (sessionCache && (now - sessionCache.timestamp) < 30000) {
+      return sessionCache.session;
+    }
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    setSessionCache({ session, timestamp: now });
+    return session;
+  };
 
   useEffect(() => {
     let isMounted = true;
+    let debounceTimer: NodeJS.Timeout;
 
     // Initialize session
     const initializeAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        const session = await getValidSession();
         
         if (!isMounted) return;
         
@@ -56,25 +77,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     initializeAuth();
 
-    // Set up listener only after initialization
+    // Set up listener com debounce para evitar múltiplos triggers
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted || initializing) return;
         
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-          setLoading(false);
-        }
+        // Debounce para evitar múltiplas chamadas rápidas
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          } else {
+            setProfile(null);
+            setLoading(false);
+          }
+        }, 100);
       }
     );
 
     return () => {
       isMounted = false;
+      clearTimeout(debounceTimer);
       subscription.unsubscribe();
     };
   }, []);

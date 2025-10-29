@@ -19,6 +19,7 @@ import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
 import { ArrowLeft, FileDown, Info, X, Image as ImageIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRole } from "@/hooks/useRole";
 
 interface POPFormProps {
   onBack: () => void;
@@ -29,7 +30,8 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const { catalog, loading } = useCatalog();
   const { savePOP } = usePOPs();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
+  const { isSupervisor } = useRole();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");
   const [selectedActivityId, setSelectedActivityId] = useState<string>("");
@@ -194,6 +196,17 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   };
 
   const handleGeneratePDF = async () => {
+    // Validar se supervisor tem zona atribuída
+    if (isSupervisor && !profile?.zona_id) {
+      toast({
+        title: "Perfil Incompleto",
+        description: "Você precisa ter uma zona atribuída antes de criar POPs. Entre em contato com o Gerente Geral.",
+        variant: "destructive",
+        duration: 10000,
+      });
+      return;
+    }
+
     if (!selectedFunctionId) {
       toast({
         title: "Seleção incompleta",
@@ -283,9 +296,24 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         });
       } catch (saveError: any) {
         console.error("Erro ao salvar POP:", saveError);
+        
+        let errorMessage = "Erro desconhecido ao salvar";
+        
+        if (saveError.message === "SESSAO_EXPIRADA") {
+          errorMessage = "Sua sessão expirou. Faça login novamente.";
+        } else if (saveError.message === "DADOS_FALTANDO") {
+          errorMessage = "Dados obrigatórios faltando. Verifique os campos.";
+        } else if (saveError.message?.includes("zona")) {
+          errorMessage = "Seu perfil está incompleto. Entre em contato com o administrador.";
+        } else if (saveError.code === '42501') {
+          errorMessage = "Você não tem permissão para realizar esta ação.";
+        } else {
+          errorMessage = saveError.message || "Erro desconhecido ao salvar";
+        }
+        
         toast({
           title: "Erro ao salvar POP",
-          description: saveError.message || "Erro desconhecido ao salvar",
+          description: errorMessage,
           variant: "destructive"
         });
         return;
@@ -354,9 +382,24 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         });
       } catch (saveError: any) {
         console.error("Erro ao salvar POP:", saveError);
+        
+        let errorMessage = "Erro desconhecido ao salvar";
+        
+        if (saveError.message === "SESSAO_EXPIRADA") {
+          errorMessage = "Sua sessão expirou. Faça login novamente.";
+        } else if (saveError.message === "DADOS_FALTANDO") {
+          errorMessage = "Dados obrigatórios faltando. Verifique os campos.";
+        } else if (saveError.message?.includes("zona")) {
+          errorMessage = "Seu perfil está incompleto. Entre em contato com o administrador.";
+        } else if (saveError.code === '42501') {
+          errorMessage = "Você não tem permissão para realizar esta ação.";
+        } else {
+          errorMessage = saveError.message || "Erro desconhecido ao salvar";
+        }
+        
         toast({
           title: "Erro ao salvar POP",
-          description: saveError.message || "Erro desconhecido ao salvar",
+          description: errorMessage,
           variant: "destructive"
         });
         return;

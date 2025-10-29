@@ -7,6 +7,12 @@ export const useRole = () => {
   const { user } = useAuth();
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Cache de roles com TTL de 5 minutos
+  const [rolesCache, setRolesCache] = useState<{
+    roles: AppRole[];
+    timestamp: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -20,6 +26,15 @@ export const useRole = () => {
 
   const fetchRoles = async () => {
     if (!user) return;
+
+    // Verificar cache (5 minutos de TTL)
+    const now = Date.now();
+    if (rolesCache && (now - rolesCache.timestamp) < 300000) {
+      console.log("✅ Usando roles do cache");
+      setRoles(rolesCache.roles);
+      setLoading(false);
+      return;
+    }
 
     console.log("🔐 Carregando roles para usuário:", user.id);
 
@@ -35,6 +50,7 @@ export const useRole = () => {
       console.log("✅ Roles carregadas:", fetchedRoles);
       
       setRoles(fetchedRoles);
+      setRolesCache({ roles: fetchedRoles, timestamp: now });
     } catch (error) {
       console.error("❌ Erro ao carregar roles:", error);
     } finally {
