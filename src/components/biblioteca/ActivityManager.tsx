@@ -6,7 +6,7 @@ import { Catalog, Activity } from "@/types/schema";
 import { ActivityEditor } from "./ActivityEditor";
 import { useToast } from "@/hooks/use-toast";
 import { useCatalog } from "@/hooks/useCatalog";
-import { useRole } from "@/hooks/useRole";
+import { useRole } from "@/contexts/RoleContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 

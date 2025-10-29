@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useRole } from "@/hooks/useRole";
+import { useRole } from "@/contexts/RoleContext";
 
 export const ZonaManagement = () => {
   const { zonas, loading, createZona, updateZona, deleteZona } = useZonas();

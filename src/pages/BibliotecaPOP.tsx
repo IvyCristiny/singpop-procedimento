@@ -8,7 +8,7 @@ import { ActivityManager } from "@/components/biblioteca/ActivityManager";
 import { CatalogHistory } from "@/components/biblioteca/CatalogHistory";
 import { useToast } from "@/hooks/use-toast";
 import { useCatalog } from "@/hooks/useCatalog";
-import { useRole } from "@/hooks/useRole";
+import { useRole } from "@/contexts/RoleContext";
 
 export const BibliotecaPOP = () => {
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);

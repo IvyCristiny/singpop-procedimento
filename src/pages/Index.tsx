@@ -8,7 +8,7 @@ import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/hooks/useRole";
+import { useRole } from "@/contexts/RoleContext";
 import { useCatalog } from "@/hooks/useCatalog";
 import { usePOPs } from "@/hooks/usePOPs";
 import { RoleBadge } from "@/components/RoleBadge";

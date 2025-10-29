@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Cronograma, RotinaHorario, RotinaSemanal } from "@/types/cronograma";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "./useRole";
+import { useRole } from "@/contexts/RoleContext";
 import { toast } from "sonner";
 import { z } from "zod";
 

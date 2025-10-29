@@ -4,12 +4,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RoleBadge } from "@/components/RoleBadge";
 import { Button } from "@/components/ui/button";
-import { Edit, Save, X } from "lucide-react";
+import { Edit, Save, X, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { AppRole } from "@/types/auth";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRole } from "@/hooks/useRole";
+import { useRole } from "@/contexts/RoleContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 
 export const UserManagement = () => {
   const { users, loading, updateUserRole, updateUserZona } = useUsers();
@@ -19,11 +21,22 @@ export const UserManagement = () => {
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<AppRole>("supervisor");
   const [selectedZona, setSelectedZona] = useState<string | null>(null);
+  const [showUnassignedOnly, setShowUnassignedOnly] = useState(false);
 
   // Filtrar usuários baseado na role
-  const filteredUsers = isGerenteZona && profile?.zona_id
+  let filteredUsers = isGerenteZona && profile?.zona_id
     ? users.filter(u => u.profile.zona_id === profile.zona_id && u.roles.includes("supervisor"))
     : users;
+
+  // Filtrar supervisores sem zona
+  if (showUnassignedOnly) {
+    filteredUsers = filteredUsers.filter(u => u.roles.includes("supervisor") && !u.profile.zona_id);
+  }
+
+  // Contar supervisores sem zona
+  const unassignedSupervisors = users.filter(
+    u => u.roles.includes("supervisor") && !u.profile.zona_id
+  ).length;
 
   const handleEdit = (userId: string, currentRole: AppRole, currentZonaId: string | null | undefined) => {
     setEditingUser(userId);
@@ -68,6 +81,23 @@ export const UserManagement = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {isGerenteGeral && unassignedSupervisors > 0 && (
+          <Alert variant="default" className="mb-4">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                <strong>{unassignedSupervisors}</strong> supervisor{unassignedSupervisors > 1 ? "es" : ""} sem zona atribuída
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowUnassignedOnly(!showUnassignedOnly)}
+              >
+                {showUnassignedOnly ? "Ver todos" : "Ver não atribuídos"}
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="rounded-md border">
           <Table>
             <TableHeader>
@@ -104,7 +134,15 @@ export const UserManagement = () => {
                           </SelectContent>
                         </Select>
                       ) : (
-                        <span className="text-sm">{user.profile.zona?.nome || "—"}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">{user.profile.zona?.nome || "—"}</span>
+                          {primaryRole === "supervisor" && !user.profile.zona_id && (
+                            <Badge variant="destructive" className="text-xs">
+                              <AlertTriangle className="w-3 h-3 mr-1" />
+                              Sem zona
+                            </Badge>
+                          )}
+                        </div>
                       )}
                     </TableCell>
                     <TableCell>

@@ -1,4 +1,4 @@
-import { useRole } from "./useRole";
+import { useRole } from "@/contexts/RoleContext";
 
 export const usePermissions = () => {
   const { primaryRole, isGerenteZona, isGerenteGeral } = useRole();

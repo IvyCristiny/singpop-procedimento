@@ -9,7 +9,7 @@ import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { Catalog, Function as FunctionType } from "@/types/schema";
 import { useCatalog } from "@/hooks/useCatalog";
 import { useToast } from "@/hooks/use-toast";
-import { useRole } from "@/hooks/useRole";
+import { useRole } from "@/contexts/RoleContext";
 
 interface FunctionManagerProps {
   catalog: Catalog;

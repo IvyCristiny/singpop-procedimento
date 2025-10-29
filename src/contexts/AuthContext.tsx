@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types/auth";
@@ -24,9 +24,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastProfileFetch, setLastProfileFetch] = useState<number>(0);
+  const [profileFetching, setProfileFetching] = useState(false);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string, force = false) => {
+    // Evitar múltiplas chamadas simultâneas
+    if (profileFetching && !force) {
+      console.log("📋 [AuthContext] Já está buscando perfil, ignorando");
+      return;
+    }
+
+    // Cache: só buscar se passou >30s ou force=true
+    const now = Date.now();
+    if (!force && now - lastProfileFetch < 30000 && profile?.id === userId) {
+      console.log("📋 [AuthContext] Usando cache do perfil");
+      return;
+    }
+
     console.log("📋 [AuthContext] Buscando perfil para:", userId);
+    setProfileFetching(true);
     
     const profileTimeout = setTimeout(() => {
       console.warn("⏰ [AuthContext] TIMEOUT: Perfil demorou +5s");
@@ -46,13 +62,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       console.log("✅ [AuthContext] Perfil carregado:", data?.full_name);
       setProfile(data);
+      setLastProfileFetch(now);
     } catch (error) {
       console.error("❌ [AuthContext] Erro ao buscar perfil:", error);
       clearTimeout(profileTimeout);
     } finally {
       setLoading(false);
+      setProfileFetching(false);
     }
-  };
+  }, [profileFetching, lastProfileFetch, profile?.id]);
 
   useEffect(() => {
     console.log("🔐 [AuthContext] Iniciando...");
@@ -91,7 +109,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          // Buscar perfil apenas se mudou o user.id
+          if (user?.id !== session.user.id) {
+            fetchProfile(session.user.id);
+          }
         } else {
           setProfile(null);
           setLoading(false);
