@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types/auth";
@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [lastProfileFetch, setLastProfileFetch] = useState<number>(0);
   const [profileFetching, setProfileFetching] = useState(false);
+  const userIdRef = useRef<string | null>(null);
 
   const fetchProfile = useCallback(async (userId: string, force = false) => {
     // Evitar múltiplas chamadas simultâneas
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     // Cache: só buscar se passou >30s ou force=true
     const now = Date.now();
-    if (!force && now - lastProfileFetch < 30000 && profile?.id === userId) {
+    if (!force && now - lastProfileFetch < 30000) {
       console.log("📋 [AuthContext] Usando cache do perfil");
       return;
     }
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
       setProfileFetching(false);
     }
-  }, [profileFetching, lastProfileFetch, profile?.id]);
+  }, [profileFetching, lastProfileFetch]);
 
   useEffect(() => {
     console.log("🔐 [AuthContext] Iniciando...");
@@ -110,10 +111,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         if (session?.user) {
           // Buscar perfil apenas se mudou o user.id
-          if (user?.id !== session.user.id) {
+          if (userIdRef.current !== session.user.id) {
+            userIdRef.current = session.user.id;
             fetchProfile(session.user.id);
           }
         } else {
+          userIdRef.current = null;
           setProfile(null);
           setLoading(false);
         }
@@ -124,7 +127,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchProfile]);
 
   const signUp = async (email: string, password: string, fullName: string) => {
     const redirectUrl = `${window.location.origin}/`;

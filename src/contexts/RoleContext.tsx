@@ -93,16 +93,21 @@ export const RoleProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
       setIsFetching(false);
     }
-  }, [user, roles, lastFetch, isFetching]);
+  }, [isFetching, lastFetch]);
 
   useEffect(() => {
-    if (user) {
-      fetchRoles();
-    } else {
+    if (!user) {
       setRoles([]);
       setLoading(false);
+      return;
     }
-  }, [user?.id]); // Só reage quando o user.id muda
+    
+    const timer = setTimeout(() => {
+      fetchRoles();
+    }, 300);
+    
+    return () => clearTimeout(timer);
+  }, [user?.id, fetchRoles]);
 
   const hasRole = useCallback((role: AppRole) => roles.includes(role), [roles]);
   
