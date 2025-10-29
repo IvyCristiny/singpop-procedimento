@@ -22,18 +22,12 @@ export const ProtectedRoute = ({ children, requiredRole, allowPending = false }:
       return;
     }
 
-    // Logado mas SEM role -> vai para página de aprovação
-    if (!loading && !roleLoading && user && roles.length === 0 && !allowPending) {
-      navigate("/pending-approval");
-      return;
-    }
-
     // Logado COM role mas sem permissão -> vai para home
     if (!loading && !roleLoading && user && requiredRole && !hasRole(requiredRole)) {
       navigate("/");
       return;
     }
-  }, [user, loading, roleLoading, roles, requiredRole, hasRole, navigate, allowPending]);
+  }, [user, loading, roleLoading, requiredRole, hasRole, navigate]);
 
   if (loading || roleLoading) {
     return (
