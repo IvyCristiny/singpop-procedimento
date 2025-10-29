@@ -24,18 +24,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [initializing, setInitializing] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
+    let isInitializing = true; // Flag local ao invés de estado - resolve o closure bug
 
     // Initialize session
     const initializeAuth = async () => {
       try {
+        console.log('🔐 Inicializando autenticação...');
         const { data: { session } } = await supabase.auth.getSession();
         
         if (!isMounted) return;
         
+        console.log('🔐 Sessão obtida:', !!session, 'User:', session?.user?.email);
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -45,21 +47,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setLoading(false);
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        console.error("❌ Error initializing auth:", error);
         setLoading(false);
       } finally {
         if (isMounted) {
-          setInitializing(false);
+          isInitializing = false; // Marca fim da inicialização
+          console.log('✅ Inicialização concluída');
         }
       }
     };
 
     initializeAuth();
 
-    // Set up listener only after initialization
+    // Listener agora funciona corretamente - não fica bloqueado por closure
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!isMounted || initializing) return;
+        // Ignorar apenas durante a inicialização inicial
+        if (!isMounted || isInitializing) {
+          console.log('⏭️ Ignorando evento durante inicialização:', event);
+          return;
+        }
+        
+        console.log('🔐 Auth event:', event, 'Session exists:', !!session);
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -81,16 +90,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      console.log('👤 Buscando perfil para user:', userId);
+      
+      // Timeout de 5 segundos para evitar travamento
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+      );
+      
+      const fetchPromise = supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .maybeSingle();
-
-      if (error) throw error;
-      setProfile(data);
+      
+      const result = await Promise.race([fetchPromise, timeoutPromise]);
+      
+      if ('error' in result && result.error) throw result.error;
+      if ('data' in result) {
+        setProfile(result.data);
+        console.log('✅ Profile loaded:', result.data?.full_name, 'Zona:', result.data?.zona_id);
+      }
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("❌ Error fetching profile:", error);
+      // Não travar - usuário continua autenticado mesmo sem perfil
     } finally {
       setLoading(false);
     }
