@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Cronograma, RotinaHorario, RotinaSemanal } from "@/types/cronograma";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/contexts/RoleContext";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -32,44 +30,26 @@ const cronogramaSchema = z.object({
 });
 
 export const useCronogramas = () => {
-  const { user, profile } = useAuth();
-  const { isGerenteGeral, isGerenteZona } = useRole();
   const [cronogramas, setCronogramas] = useState<Cronograma[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchCronogramas();
-    } else {
-      setCronogramas([]);
-      setLoading(false);
-    }
-  }, [user, isGerenteGeral, isGerenteZona]);
+    fetchCronogramas();
+  }, []);
 
   const fetchCronogramas = async () => {
     try {
       setLoading(true);
-      let query = supabase.from("cronogramas").select("*");
-
-      // Filter based on role - similar to usePOPs
-      if (!isGerenteGeral && !isGerenteZona) {
-        // Supervisor: only their own
-        query = query.eq("user_id", user!.id);
-      } else if (isGerenteZona && !isGerenteGeral && profile?.zona_id) {
-        // Gerente de Zona: their zone
-        query = query.eq("zona_id", profile.zona_id);
-      }
-      // Gerente Geral sees all (no filter)
-
-      const { data, error } = await query.order("created_at", { ascending: false });
+      // Buscar TODOS os cronogramas sem filtro
+      const { data, error } = await supabase
+        .from("cronogramas")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       
-      // Transform data from Supabase to Cronograma type
       const transformedCronogramas: Cronograma[] = (data || []).map((item: any) => ({
         id: item.id,
-        user_id: item.user_id,
-        zona_id: item.zona_id,
         titulo: item.titulo,
         condominio_nome: item.condominio_nome,
         codigo: item.codigo,
@@ -106,7 +86,6 @@ export const useCronogramas = () => {
 
   const saveCronograma = async (data: Partial<Cronograma>) => {
     try {
-      // Validate
       cronogramaSchema.parse(data);
 
       const codigo = generateCodigo(data.condominio_nome!);
@@ -126,8 +105,6 @@ export const useCronogramas = () => {
         responsavel_revisao: data.responsavel_revisao || null,
         data_revisao: data.data_revisao || null,
         observacoes: data.observacoes || null,
-        user_id: user!.id,
-        zona_id: profile?.zona_id || null,
       };
 
       const { data: savedCronograma, error } = await supabase
@@ -157,7 +134,6 @@ export const useCronogramas = () => {
     try {
       const updateData: any = {};
       
-      // Only include fields that are present in data
       if (data.titulo !== undefined) updateData.titulo = data.titulo;
       if (data.condominio_nome !== undefined) updateData.condominio_nome = data.condominio_nome;
       if (data.turno !== undefined) updateData.turno = data.turno;

@@ -1,20 +1,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, RotateCcw } from "lucide-react";
 import { FunctionManager } from "@/components/biblioteca/FunctionManager";
 import { ActivityManager } from "@/components/biblioteca/ActivityManager";
-import { CatalogHistory } from "@/components/biblioteca/CatalogHistory";
 import { useToast } from "@/hooks/use-toast";
 import { useCatalog } from "@/hooks/useCatalog";
-import { useRole } from "@/contexts/RoleContext";
 
 export const BibliotecaPOP = () => {
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
   const { toast } = useToast();
   const { catalog, loading, resetToDefault, refetch } = useCatalog();
-  const { isGerenteGeral } = useRole();
 
   const handleResetToDefault = async () => {
     if (confirm("Tem certeza que deseja restaurar o catálogo padrão? Todas as suas alterações serão perdidas.")) {
@@ -61,14 +58,11 @@ export const BibliotecaPOP = () => {
       </div>
 
       <Tabs defaultValue="functions" className="w-full">
-        <TabsList className={`grid w-full ${isGerenteGeral ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="functions">Funções</TabsTrigger>
           <TabsTrigger value="activities" disabled={!selectedFunction}>
             Atividades {selectedFunction && `(${catalog?.functions?.find(f => f.id === selectedFunction)?.name})`}
           </TabsTrigger>
-          {isGerenteGeral && (
-            <TabsTrigger value="history">Histórico</TabsTrigger>
-          )}
         </TabsList>
 
         <TabsContent value="functions" className="space-y-4">
@@ -97,12 +91,6 @@ export const BibliotecaPOP = () => {
             </Card>
           )}
         </TabsContent>
-
-        {isGerenteGeral && (
-          <TabsContent value="history" className="space-y-4">
-            <CatalogHistory />
-          </TabsContent>
-        )}
       </Tabs>
     </div>
   );

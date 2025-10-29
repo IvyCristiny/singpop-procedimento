@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Edit, Trash2 } from "lucide-react";
 import { Catalog, Activity } from "@/types/schema";
 import { ActivityEditor } from "./ActivityEditor";
 import { useToast } from "@/hooks/use-toast";
 import { useCatalog } from "@/hooks/useCatalog";
-import { useRole } from "@/contexts/RoleContext";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 
@@ -21,9 +20,7 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
   const [isAdding, setIsAdding] = useState(false);
   const { toast } = useToast();
   const { deleteActivity } = useCatalog();
-  const { isGerenteGeral, isGerenteZona } = useRole();
 
-  const canEdit = isGerenteGeral || isGerenteZona;
   const currentFunction = catalog?.functions?.find(f => f.id === functionId);
   const activities = currentFunction?.activities || [];
 
@@ -78,12 +75,10 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
         <h3 className="text-lg font-semibold">
           Atividades de {currentFunction?.name}
         </h3>
-        {canEdit && (
-          <Button onClick={handleAdd}>
-            <Plus className="w-4 h-4 mr-2" />
-            Nova Atividade
-          </Button>
-        )}
+        <Button onClick={handleAdd}>
+          <Plus className="w-4 h-4 mr-2" />
+          Nova Atividade
+        </Button>
       </div>
 
       {activities.length === 0 ? (
@@ -109,24 +104,22 @@ export const ActivityManager = ({ functionId, catalog, onUpdate }: ActivityManag
                       </p>
                     </div>
                   </div>
-                  {canEdit && (
-                    <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEdit(activity.id)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDelete(activity.id)}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEdit(activity.id)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDelete(activity.id)}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
+                  </div>
                 </div>
               </AccordionTrigger>
               <AccordionContent>

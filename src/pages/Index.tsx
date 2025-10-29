@@ -3,15 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Filter, FileText, BookOpen, LogOut, Settings, Calendar } from "lucide-react";
+import { Plus, Search, Filter, FileText, BookOpen, Calendar } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/contexts/RoleContext";
 import { useCatalog } from "@/hooks/useCatalog";
 import { usePOPs } from "@/hooks/usePOPs";
-import { RoleBadge } from "@/components/RoleBadge";
 import { useNavigate } from "react-router-dom";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
@@ -21,16 +18,8 @@ const Index = () => {
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
   const { catalog, loading: catalogLoading } = useCatalog();
   const { pops, loading: popsLoading, refetch } = usePOPs();
-  const { profile, signOut } = useAuth();
-  const { primaryRole, isGerenteGeral } = useRole();
   const navigate = useNavigate();
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/auth");
-  };
-
-  // Mostrar loading enquanto carrega
   if (catalogLoading || popsLoading) {
     return (
       <div className="min-h-screen bg-gradient-light flex items-center justify-center">
@@ -39,7 +28,6 @@ const Index = () => {
     );
   }
 
-  // Filtrar POPs
   const filteredPOPs = pops.filter((pop) => {
     const matchSearch = pop.condominioNome
       .toLowerCase()
@@ -65,58 +53,18 @@ const Index = () => {
       {/* Header */}
       <div className="bg-white border-b border-border shadow-sm">
         <div className="max-w-6xl mx-auto p-6">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-4">
-              <img 
-                src={logoSingular} 
-                alt="Singular Serviços" 
-                className="h-12 w-auto"
-              />
-              <div className="h-12 w-px bg-border"></div>
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">SingPOP</h1>
-                <p className="text-sm text-muted-foreground">
-                  Gerador de Procedimentos Operacionais Padrão
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-foreground">{profile?.full_name}</p>
-                <div className="flex justify-end mt-1">
-                  <RoleBadge role={primaryRole as any} />
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/profile")}
-                className="gap-2"
-              >
-                <Settings className="w-4 h-4" />
-                Perfil
-              </Button>
-              {isGerenteGeral && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate("/admin")}
-                  className="gap-2"
-                >
-                  <Settings className="w-4 h-4" />
-                  Admin
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleSignOut}
-                className="gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                Sair
-              </Button>
+          <div className="flex items-center gap-4">
+            <img 
+              src={logoSingular} 
+              alt="Singular Serviços" 
+              className="h-12 w-auto"
+            />
+            <div className="h-12 w-px bg-border"></div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">SingPOP</h1>
+              <p className="text-sm text-muted-foreground">
+                Gerador de Procedimentos Operacionais Padrão
+              </p>
             </div>
           </div>
         </div>
@@ -151,7 +99,6 @@ const Index = () => {
                 Novo POP
               </Button>
 
-              {/* Filtros */}
               {pops.length > 0 && (
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">

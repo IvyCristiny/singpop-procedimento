@@ -18,7 +18,6 @@ import { ActivitySelector } from "./ActivitySelector";
 import { POPPreviewEnhanced } from "./POPPreviewEnhanced";
 import { StepEditor } from "./StepEditor";
 import { ArrowLeft, FileDown, Info, X, Image as ImageIcon } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
 
 interface POPFormProps {
   onBack: () => void;
@@ -29,7 +28,6 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
   const { toast } = useToast();
   const { catalog, loading } = useCatalog();
   const { savePOP } = usePOPs();
-  const { profile } = useAuth();
   
   const [selectedFunctionId, setSelectedFunctionId] = useState<string>("");
   const [selectedActivityId, setSelectedActivityId] = useState<string>("");
@@ -55,17 +53,7 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
     observacoes: ""
   });
 
-  // Autopreencher zona e nome do colaborador
-  useEffect(() => {
-    if (profile?.zona_id) {
-      setZonaId(profile.zona_id);
-    }
-    // Preencher nome do colaborador com report_name ou full_name
-    if (profile && !formData.nomeColaborador) {
-      const displayName = profile.report_name || profile.full_name;
-      setFormData(prev => ({ ...prev, nomeColaborador: displayName }));
-    }
-  }, [profile]);
+  // Removed auto-fill logic (no auth)
 
   useEffect(() => {
     const draft = localStorage.getItem("pop_draft");

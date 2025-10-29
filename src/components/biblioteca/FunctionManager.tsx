@@ -9,7 +9,6 @@ import { Plus, Edit, Trash2, Save, X } from "lucide-react";
 import { Catalog, Function as FunctionType } from "@/types/schema";
 import { useCatalog } from "@/hooks/useCatalog";
 import { useToast } from "@/hooks/use-toast";
-import { useRole } from "@/contexts/RoleContext";
 
 interface FunctionManagerProps {
   catalog: Catalog;
@@ -30,9 +29,6 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
   });
   const { toast } = useToast();
   const { addFunction, updateFunction, deleteFunction } = useCatalog();
-  const { isGerenteGeral, isGerenteZona } = useRole();
-
-  const canEdit = isGerenteGeral || isGerenteZona;
 
   const handleEdit = (func: FunctionType) => {
     setEditingId(func.id);
@@ -146,7 +142,7 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Gerenciar Funções</h3>
-        {canEdit && !isAdding && !editingId && (
+        {!isAdding && !editingId && (
           <Button onClick={handleAdd}>
             <Plus className="w-4 h-4 mr-2" />
             Nova Função
@@ -248,24 +244,22 @@ export const FunctionManager = ({ catalog, onUpdate, onSelectFunction, selectedF
                     {func.activities.length} atividades
                   </CardDescription>
                 </div>
-                {canEdit && (
-                  <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEdit(func)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDelete(func.id, func.name)}
-                    >
-                      <Trash2 className="w-4 h-4 text-destructive" />
-                    </Button>
-                  </div>
-                )}
+                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleEdit(func)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDelete(func.id, func.name)}
+                  >
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

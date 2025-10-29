@@ -1,40 +1,21 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
-import { useRole } from "@/contexts/RoleContext";
 import { POP } from "@/types/pop";
 
 export const usePOPs = () => {
-  const { user, profile } = useAuth();
-  const { isGerenteGeral, isGerenteZona, isSupervisor } = useRole();
   const [pops, setPops] = useState<POP[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchPOPs = async () => {
-    if (!user) {
-      setPops([]);
-      setLoading(false);
-      return;
-    }
-
     try {
-      let query = supabase.from("pops").select("*");
-
-      // Aplicar filtros baseados na role
-      if (isSupervisor) {
-        // Supervisor vê apenas seus próprios POPs
-        query = query.eq("user_id", user.id);
-      } else if (isGerenteZona && profile?.zona_id) {
-        // Gerente de Zona vê POPs da sua zona
-        query = query.eq("zona_id", profile.zona_id);
-      }
-      // Gerente Geral não tem filtros (vê todos os POPs)
-
-      const { data, error } = await query.order("created_at", { ascending: false });
+      // Buscar TODAS as POPs sem filtro
+      const { data, error } = await supabase
+        .from("pops")
+        .select("*")
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      // Transformar dados do Supabase para o formato POP
       const transformedPOPs: POP[] = (data || []).map((item: any) => ({
         id: item.id,
         condominioNome: item.condominio_nome,
@@ -63,16 +44,10 @@ export const usePOPs = () => {
 
   useEffect(() => {
     fetchPOPs();
-  }, [user, profile, isGerenteGeral, isGerenteZona, isSupervisor]);
+  }, []);
 
   const savePOP = async (pop: Omit<POP, "id" | "createdAt">) => {
-    if (!user) {
-      throw new Error("User not authenticated");
-    }
-
     const popData: any = {
-      user_id: user.id,
-      zona_id: profile?.zona_id || null,
       condominio_nome: pop.condominioNome,
       function_id: pop.functionId,
       activity_id: pop.activityId,

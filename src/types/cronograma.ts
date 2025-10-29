@@ -18,8 +18,6 @@ export interface RotinaSemanal {
 
 export interface Cronograma {
   id: string;
-  user_id: string;
-  zona_id: string | null;
   
   // Identificação
   titulo: string;
