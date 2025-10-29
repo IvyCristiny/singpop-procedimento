@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Profile } from "@/types/auth";
@@ -11,6 +11,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
+  validateSession: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +21,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [initializing, setInitializing] = useState(true);
+  const initializingRef = useRef(true);
+  const fetchingProfileRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -45,7 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading(false);
       } finally {
         if (isMounted) {
-          setInitializing(false);
+          initializingRef.current = false;
         }
       }
     };
@@ -55,14 +57,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Set up listener only after initialization
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        if (!isMounted || initializing) return;
+        if (!isMounted || initializingRef.current) return;
         
-        setSession(session);
-        setUser(session?.user ?? null);
+        console.log('Auth event:', event, 'Session exists:', !!session);
         
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
+        // Processar eventos importantes
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user && !fetchingProfileRef.current) {
+            fetchingProfileRef.current = true;
+            await fetchProfile(session.user.id);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setSession(null);
+          setUser(null);
           setProfile(null);
           setLoading(false);
         }
@@ -77,18 +87,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      // Timeout de 10 segundos
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+      );
+      
+      const fetchPromise = supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .maybeSingle();
-
+      
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
+      
       if (error) throw error;
       setProfile(data);
     } catch (error) {
       console.error("Error fetching profile:", error);
+      // Não travar se perfil falhar - usuário continua autenticado
     } finally {
       setLoading(false);
+      fetchingProfileRef.current = false;
     }
   };
 
@@ -128,6 +147,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return { error };
   };
 
+  const validateSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      console.warn('Sessão expirada, limpando estado...');
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      return false;
+    }
+    
+    return true;
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -136,7 +169,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       loading,
       signUp,
       signIn,
-      signOut
+      signOut,
+      validateSession
     }}>
       {children}
     </AuthContext.Provider>

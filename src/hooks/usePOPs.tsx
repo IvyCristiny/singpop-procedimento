@@ -106,6 +106,12 @@ export const usePOPs = () => {
   // Create POP
   const createPOP = useMutation({
     mutationFn: async (input: CreatePOPInput) => {
+      // Validar sessão ANTES de criar POP
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Sessão expirada. Por favor, faça login novamente.");
+      }
+      
       // Buscar user diretamente do auth.getUser()
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
