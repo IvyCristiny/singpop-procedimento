@@ -4,6 +4,13 @@ import { POP } from "@/types/pop";
 import { Activity } from "@/types/schema";
 import logoSingular from "@/assets/logo_singular_colorida.png";
 
+// Helper para parsing seguro de datas (evita problemas de timezone)
+const parseLocalDate = (dateString: string): string => {
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.toLocaleDateString("pt-BR");
+};
+
 // Helper para converter imagem para base64
 const getImageAsBase64 = async (imageUrl: string): Promise<string> => {
   try {
@@ -70,7 +77,7 @@ const addActivityPageToPDF = (
         styles: { fontSize: 10, cellPadding: 3 }
       },
       {
-        content: `Data: ${new Date(pop.dataRevisao).toLocaleDateString("pt-BR")}`,
+        content: `Data: ${parseLocalDate(pop.dataRevisao)}`,
         styles: { fontSize: 10, cellPadding: 3 }
       }
     ],
@@ -225,7 +232,7 @@ const addFooterToAllPages = (doc: jsPDF, pop: POP) => {
     doc.text(`Página ${i}/${pageCount}`, 196, 285, { align: "right" });
 
     doc.text(`Elaborado por: ${pop.responsavelElaboracao} | Colaborador: ${pop.nomeColaborador}`, 14, 289);
-    doc.text(`Apresentado em: ${new Date(pop.dataApresentacao).toLocaleDateString("pt-BR")}`, 196, 289, { align: "right" });
+    doc.text(`Apresentado em: ${parseLocalDate(pop.dataApresentacao)}`, 196, 289, { align: "right" });
   }
 };
 

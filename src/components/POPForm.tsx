@@ -373,16 +373,21 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="dataRevisao">Revisado em</Label>
+                  <Label htmlFor="dataRevisao">Revisado em *</Label>
                   <Input
                     id="dataRevisao"
                     type="date"
                     value={formData.dataRevisao}
-                    disabled
-                    className="bg-muted cursor-not-allowed"
+                    onChange={(e) => {
+                      handleInputChange("dataRevisao", e.target.value);
+                      // Ajustar dataApresentacao se ela ficar anterior à nova data de revisão
+                      if (formData.dataApresentacao < e.target.value) {
+                        handleInputChange("dataApresentacao", e.target.value);
+                      }
+                    }}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Data de revisão é automaticamente definida como hoje
+                    Data de revisão do documento (padrão: hoje)
                   </p>
                 </div>
 
