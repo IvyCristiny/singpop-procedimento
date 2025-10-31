@@ -218,6 +218,12 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
       return;
     }
 
+    // Feedback imediato
+    toast({
+      title: "Gerando POP...",
+      description: "Por favor aguarde, isso pode levar alguns segundos.",
+    });
+
     const selectedFunction = catalog?.functions?.find(f => f.id === selectedFunctionId);
     
     if (!selectedFunction) {
@@ -260,8 +266,11 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         observacoes: formData.observacoes,
       };
 
-      await savePOP(pop);
-      await downloadMultipleActivitiesPDF(pop as POP, activities);
+      // Executar operações em paralelo: salvar no banco E gerar PDF
+      await Promise.all([
+        savePOP(pop),
+        downloadMultipleActivitiesPDF(pop as POP, activities)
+      ]);
       
       localStorage.removeItem("pop_draft");
       
@@ -301,8 +310,11 @@ export const POPForm = ({ onBack, onSave }: POPFormProps) => {
         attachedImages: attachedImages.length > 0 ? attachedImages : undefined,
       };
 
-      await savePOP(pop);
-      await downloadPDF(pop as POP, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined);
+      // Executar operações em paralelo: salvar no banco E gerar PDF
+      await Promise.all([
+        savePOP(pop),
+        downloadPDF(pop as POP, selectedActivity, attachedImages.length > 0 ? attachedImages : undefined)
+      ]);
       
       localStorage.removeItem("pop_draft");
       

@@ -22,10 +22,11 @@ const getImageAsBase64 = async (imageUrl: string): Promise<string> => {
 };
 
 // Função auxiliar para adicionar uma atividade ao PDF
-const addActivityPageToPDF = async (
+const addActivityPageToPDF = (
   doc: jsPDF,
   pop: POP,
   activity: Activity,
+  logoBase64: string,
   isFirstPage: boolean
 ) => {
   if (!isFirstPage) {
@@ -33,7 +34,6 @@ const addActivityPageToPDF = async (
   }
 
   const singularGreen: [number, number, number] = [0, 120, 80];
-  const logoBase64 = await getImageAsBase64(logoSingular);
 
   // ==================== CABEÇALHO ====================
   doc.setFontSize(10);
@@ -236,7 +236,10 @@ export const generatePDF = async (
 ) => {
   const doc = new jsPDF();
 
-  await addActivityPageToPDF(doc, pop, activity, true);
+  // Converter logo uma vez só
+  const logoBase64 = await getImageAsBase64(logoSingular);
+
+  addActivityPageToPDF(doc, pop, activity, logoBase64, true);
 
   // Adicionar imagens anexas se houver
   if (attachedImages && attachedImages.length > 0) {
@@ -303,8 +306,11 @@ export const generateMultipleActivitiesPDF = async (
 ) => {
   const doc = new jsPDF();
 
+  // Converter logo uma vez só
+  const logoBase64 = await getImageAsBase64(logoSingular);
+
   for (let i = 0; i < activities.length; i++) {
-    await addActivityPageToPDF(doc, pop, activities[i], i === 0);
+    addActivityPageToPDF(doc, pop, activities[i], logoBase64, i === 0);
   }
 
   addFooterToAllPages(doc, pop);
