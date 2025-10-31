@@ -66,3 +66,13 @@ export const turnosDisponiveis = [
   { value: "22:00-06:00", label: "22h00 às 06h00 (noturno)" },
   { value: "custom", label: "Turno personalizado" },
 ] as const;
+
+export interface RotinaConfig {
+  horarioInicio: string;
+  horarioFim: string;
+  almocoInicio?: string;
+  almocoFim?: string;
+  pausaEntre: number; // minutos
+  priorizacao: 'sequencial' | 'tempo' | 'funcao';
+  distribuicao: 'compacta' | 'espacada';
+}
