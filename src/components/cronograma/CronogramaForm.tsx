@@ -8,13 +8,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useCronogramas } from "@/hooks/useCronogramas";
+import { usePOPs } from "@/hooks/usePOPs";
 import { Cronograma, RotinaHorario, RotinaSemanal, turnosDisponiveis } from "@/types/cronograma";
 import { POPSelector } from "./POPSelector";
 import { RotinaDiariaEditor } from "./RotinaDiariaEditor";
 import { RotinaSemanalEditor } from "./RotinaSemanalEditor";
-import { X, Save, Loader2 } from "lucide-react";
+import { generateRotinaFromPOPs } from "@/utils/cronogramaGenerator";
+import { catalog } from "@/data/catalog";
+import { X, Save, Loader2, Sparkles } from "lucide-react";
 
 interface CronogramaFormProps {
   cronograma?: Cronograma;
@@ -25,7 +29,10 @@ interface CronogramaFormProps {
 export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormProps) => {
   const { toast } = useToast();
   const { saveCronograma, updateCronograma } = useCronogramas();
+  const { pops } = usePOPs();
   const [isSaving, setIsSaving] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [autoFilled, setAutoFilled] = useState<string[]>([]);
 
   // Estados do formulário
   const [titulo, setTitulo] = useState(cronograma?.titulo || "");
@@ -175,6 +182,102 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
     return true;
   };
 
+  // Auto-preencher campos quando POPs são selecionados
+  useEffect(() => {
+    if (selectedPOPIds.length > 0 && !cronograma) {
+      const selectedPOPs = pops.filter((pop) => selectedPOPIds.includes(pop.id));
+      if (selectedPOPs.length > 0) {
+        const firstPOP = selectedPOPs[0];
+        const newAutoFilled: string[] = [];
+
+        // Sugerir condomínio se estiver vazio
+        if (!condominioNome && firstPOP.condominioNome) {
+          setCondominioNome(firstPOP.condominioNome);
+          newAutoFilled.push("condominioNome");
+        }
+
+        // Sugerir responsável se estiver vazio
+        if (!responsavel && (firstPOP.responsavelElaboracao || firstPOP.nomeColaborador)) {
+          setResponsavel(firstPOP.responsavelElaboracao || firstPOP.nomeColaborador);
+          newAutoFilled.push("responsavel");
+        }
+
+        setAutoFilled(newAutoFilled);
+      }
+    }
+  }, [selectedPOPIds, pops, cronograma, condominioNome, responsavel]);
+
+  const handleGenerateRotina = () => {
+    if (selectedPOPIds.length === 0) {
+      toast({
+        title: "Nenhum POP selecionado",
+        description: "Selecione pelo menos um POP para gerar a rotina automaticamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Confirmar se já existe rotina
+    if (rotinaDiaria.length > 0) {
+      const confirmed = window.confirm(
+        "Já existe uma rotina diária cadastrada. Deseja substituí-la pela rotina gerada automaticamente?"
+      );
+      if (!confirmed) return;
+    }
+
+    setIsGenerating(true);
+
+    try {
+      // Extrair horário inicial do turno selecionado
+      let horarioInicio = "07:00";
+      if (turno && turno !== "custom") {
+        const match = turno.match(/^(\d{2}:\d{2})/);
+        if (match) {
+          horarioInicio = match[1];
+        }
+      }
+
+      const result = generateRotinaFromPOPs(selectedPOPIds, pops, catalog, horarioInicio);
+
+      // Aplicar rotina gerada
+      setRotinaDiaria(result.rotinaDiaria);
+
+      // Aplicar sugestões
+      const newAutoFilled: string[] = [...autoFilled];
+      
+      if (!responsavel && result.sugestoes.responsavel) {
+        setResponsavel(result.sugestoes.responsavel);
+        newAutoFilled.push("responsavel");
+      }
+
+      if (!condominioNome && result.sugestoes.condominio) {
+        setCondominioNome(result.sugestoes.condominio);
+        newAutoFilled.push("condominioNome");
+      }
+
+      if (!periodicidade && result.sugestoes.periodicidade) {
+        setPeriodicidade(result.sugestoes.periodicidade);
+        newAutoFilled.push("periodicidade");
+      }
+
+      setAutoFilled(newAutoFilled);
+
+      toast({
+        title: "Rotina gerada com sucesso! ✨",
+        description: `${result.rotinaDiaria.length} atividades foram adicionadas à rotina diária.`,
+      });
+    } catch (error) {
+      console.error("Erro ao gerar rotina:", error);
+      toast({
+        title: "Erro ao gerar rotina",
+        description: error instanceof Error ? error.message : "Ocorreu um erro ao gerar a rotina.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!validateForm()) return;
 
@@ -260,15 +363,23 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="condominioNome">Nome do Condomínio *</Label>
-                    <Input
-                      id="condominioNome"
-                      value={condominioNome}
-                      onChange={(e) => setCondominioNome(e.target.value)}
-                      placeholder="Ex: Residencial Singular"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="condominioNome" className="flex items-center gap-2">
+                    Nome do Condomínio *
+                    {autoFilled.includes("condominioNome") && (
+                      <Badge variant="secondary" className="text-xs">Auto-preenchido</Badge>
+                    )}
+                  </Label>
+                  <Input
+                    id="condominioNome"
+                    value={condominioNome}
+                    onChange={(e) => {
+                      setCondominioNome(e.target.value);
+                      setAutoFilled(autoFilled.filter((f) => f !== "condominioNome"));
+                    }}
+                    placeholder="Ex: Residencial Singular"
+                  />
+                </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="versao">Versão</Label>
@@ -305,21 +416,37 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="periodicidade">Periodicidade *</Label>
+                  <Label htmlFor="periodicidade" className="flex items-center gap-2">
+                    Periodicidade *
+                    {autoFilled.includes("periodicidade") && (
+                      <Badge variant="secondary" className="text-xs">Auto-preenchido</Badge>
+                    )}
+                  </Label>
                   <Input
                     id="periodicidade"
                     value={periodicidade}
-                    onChange={(e) => setPeriodicidade(e.target.value)}
+                    onChange={(e) => {
+                      setPeriodicidade(e.target.value);
+                      setAutoFilled(autoFilled.filter((f) => f !== "periodicidade"));
+                    }}
                     placeholder="Ex: Diária, Semanal, Mensal"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="responsavel">Responsável *</Label>
+                  <Label htmlFor="responsavel" className="flex items-center gap-2">
+                    Responsável *
+                    {autoFilled.includes("responsavel") && (
+                      <Badge variant="secondary" className="text-xs">Auto-preenchido</Badge>
+                    )}
+                  </Label>
                   <Input
                     id="responsavel"
                     value={responsavel}
-                    onChange={(e) => setResponsavel(e.target.value)}
+                    onChange={(e) => {
+                      setResponsavel(e.target.value);
+                      setAutoFilled(autoFilled.filter((f) => f !== "responsavel"));
+                    }}
                     placeholder="Nome do responsável"
                   />
                 </div>
@@ -339,11 +466,37 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
             {/* Seção: POPs Associados */}
             <Card>
               <CardContent className="pt-6 space-y-4">
-                <h3 className="text-lg font-semibold">📄 POPs Associados *</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">📄 POPs Associados *</h3>
+                  {selectedPOPIds.length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGenerateRotina}
+                      disabled={isGenerating}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Gerando...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Gerar Rotina Automaticamente
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
                 <POPSelector
                   selectedPOPIds={selectedPOPIds}
                   onSelectionChange={setSelectedPOPIds}
                 />
+                <p className="text-xs text-muted-foreground">
+                  💡 Dica: Após selecionar os POPs, clique em "Gerar Rotina Automaticamente" para
+                  criar a rotina diária com base nas atividades dos POPs.
+                </p>
               </CardContent>
             </Card>
 
