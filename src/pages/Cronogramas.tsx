@@ -4,6 +4,7 @@ import { useCronogramas } from "@/hooks/useCronogramas";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CronogramaCard } from "@/components/cronograma/CronogramaCard";
+import { CronogramaForm } from "@/components/cronograma/CronogramaForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Plus, ArrowLeft } from "lucide-react";
 import { Cronograma } from "@/types/cronograma";
@@ -14,6 +15,7 @@ export default function Cronogramas() {
   const navigate = useNavigate();
   const { cronogramas, loading, deleteCronograma } = useCronogramas();
   const [showForm, setShowForm] = useState(false);
+  const [editingCronograma, setEditingCronograma] = useState<Cronograma | undefined>();
 
   const handleExportPDF = (cronograma: Cronograma) => {
     exportCronogramaPDF(cronograma);
@@ -24,8 +26,8 @@ export default function Cronogramas() {
   };
 
   const handleEdit = (cronograma: Cronograma) => {
-    // TODO: Implement edit functionality
-    console.log("Edit cronograma:", cronograma);
+    setEditingCronograma(cronograma);
+    setShowForm(true);
   };
 
   if (loading) {
@@ -45,6 +47,21 @@ export default function Cronogramas() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 p-4 md:p-8">
+      {/* Formulário de Cronograma */}
+      {showForm && (
+        <CronogramaForm
+          cronograma={editingCronograma}
+          onClose={() => {
+            setShowForm(false);
+            setEditingCronograma(undefined);
+          }}
+          onSave={() => {
+            setShowForm(false);
+            setEditingCronograma(undefined);
+          }}
+        />
+      )}
+
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between">
