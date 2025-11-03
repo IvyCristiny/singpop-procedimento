@@ -64,7 +64,7 @@ export const RotinaConfigDialog = ({ open, onOpenChange, onConfirm, turno }: Rot
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
@@ -75,7 +75,7 @@ export const RotinaConfigDialog = ({ open, onOpenChange, onConfirm, turno }: Rot
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 overflow-y-auto flex-1">
           {/* Horários */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-sm font-medium">
@@ -223,7 +223,7 @@ export const RotinaConfigDialog = ({ open, onOpenChange, onConfirm, turno }: Rot
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="pt-4 border-t">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
