@@ -313,6 +313,65 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
   const handleSave = async () => {
     if (!validateForm()) return;
 
+    // Validar horários da rotina diária
+    const horariosInvalidos = rotinaDiaria.filter(rotina => {
+      if (rotina.tipo_horario === 'fixo' || !rotina.tipo_horario) {
+        const [hI, mI] = rotina.horario_inicio.split(':').map(Number);
+        const [hF, mF] = rotina.horario_fim.split(':').map(Number);
+        return (hF * 60 + mF) <= (hI * 60 + mI);
+      }
+      return false;
+    });
+
+    if (horariosInvalidos.length > 0) {
+      toast({
+        title: "Horários inválidos",
+        description: `Existem ${horariosInvalidos.length} atividade(s) com horário de fim menor ou igual ao início.`,
+        variant: "destructive",
+      });
+      setCurrentStep(3);
+      setTimeout(() => {
+        const element = document.getElementById("step-3");
+        element?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+      return;
+    }
+
+    // Verificar sobreposições
+    const temSobreposicao = rotinaDiaria.some((rotina, i) => {
+      if (rotina.tipo_horario !== 'fixo' && rotina.tipo_horario) return false;
+      
+      return rotinaDiaria.some((outra, j) => {
+        if (i === j || (outra.tipo_horario !== 'fixo' && outra.tipo_horario)) return false;
+        
+        const [hI1, mI1] = rotina.horario_inicio.split(':').map(Number);
+        const [hF1, mF1] = rotina.horario_fim.split(':').map(Number);
+        const [hI2, mI2] = outra.horario_inicio.split(':').map(Number);
+        const [hF2, mF2] = outra.horario_fim.split(':').map(Number);
+        
+        const inicio1 = hI1 * 60 + mI1;
+        const fim1 = hF1 * 60 + mF1;
+        const inicio2 = hI2 * 60 + mI2;
+        const fim2 = hF2 * 60 + mF2;
+        
+        return (inicio1 < fim2 && fim1 > inicio2);
+      });
+    });
+
+    if (temSobreposicao) {
+      toast({
+        title: "Sobreposição de horários",
+        description: "Existem atividades com horários que se sobrepõem. Ajuste os horários antes de salvar.",
+        variant: "destructive",
+      });
+      setCurrentStep(3);
+      setTimeout(() => {
+        const element = document.getElementById("step-3");
+        element?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+      return;
+    }
+
     setIsSaving(true);
 
     try {

@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Plus, Trash2, Clock, AlertCircle, ArrowRightLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface RotinaDiariaEditorProps {
   rotinas: RotinaHorario[];
@@ -15,31 +16,43 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
   const validateTime = (horarioInicio: string, horarioFim: string): boolean => {
     const [hI, mI] = horarioInicio.split(':').map(Number);
     const [hF, mF] = horarioFim.split(':').map(Number);
-    const inicio = hI * 60 + mI;
-    const fim = hF * 60 + mF;
-    return fim > inicio;
+    return (hF * 60 + mF) > (hI * 60 + mI);
   };
 
   const checkOverlap = (newRotina: RotinaHorario, index: number): boolean => {
-    for (let i = 0; i < rotinas.length; i++) {
-      if (i === index) continue;
-      const existing = rotinas[i];
+    if (newRotina.tipo_horario !== 'fixo' && newRotina.tipo_horario) return false;
+    
+    return rotinas.some((rotina, i) => {
+      if (i === index || (rotina.tipo_horario !== 'fixo' && rotina.tipo_horario)) return false;
       
       const [hI1, mI1] = newRotina.horario_inicio.split(':').map(Number);
       const [hF1, mF1] = newRotina.horario_fim.split(':').map(Number);
-      const [hI2, mI2] = existing.horario_inicio.split(':').map(Number);
-      const [hF2, mF2] = existing.horario_fim.split(':').map(Number);
+      const [hI2, mI2] = rotina.horario_inicio.split(':').map(Number);
+      const [hF2, mF2] = rotina.horario_fim.split(':').map(Number);
       
       const inicio1 = hI1 * 60 + mI1;
       const fim1 = hF1 * 60 + mF1;
       const inicio2 = hI2 * 60 + mI2;
       const fim2 = hF2 * 60 + mF2;
       
-      if ((inicio1 < fim2 && fim1 > inicio2)) {
-        return true;
+      return (inicio1 < fim2 && fim1 > inicio2);
+    });
+  };
+
+  const getValidationWarnings = (rotina: RotinaHorario, index: number): string[] => {
+    const warnings: string[] = [];
+    
+    if (rotina.tipo_horario === 'fixo' || !rotina.tipo_horario) {
+      if (!validateTime(rotina.horario_inicio, rotina.horario_fim)) {
+        warnings.push('Horário de fim deve ser maior que início');
+      }
+      
+      if (checkOverlap(rotina, index)) {
+        warnings.push('Horário sobrepõe outra atividade');
       }
     }
-    return false;
+    
+    return warnings;
   };
 
   const handleAdd = () => {
@@ -63,19 +76,6 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
   const handleChange = (index: number, field: keyof RotinaHorario, value: any) => {
     const updated = [...rotinas];
     updated[index] = { ...updated[index], [field]: value };
-
-    // Validate time if changing horarios
-    if (field === 'horario_inicio' || field === 'horario_fim') {
-      if (!validateTime(updated[index].horario_inicio, updated[index].horario_fim)) {
-        toast.error("Horário de fim deve ser maior que horário de início");
-        return;
-      }
-      if (checkOverlap(updated[index], index)) {
-        toast.error("Este horário sobrepõe outro existente");
-        return;
-      }
-    }
-
     onChange(updated);
   };
 
@@ -101,9 +101,17 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
             {rotinas.map((rotina, index) => (
               <div key={rotina.id} className="p-4 border rounded-lg space-y-3">
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">
-                    Atividade #{index + 1}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Atividade #{index + 1}
+                    </span>
+                    {getValidationWarnings(rotina, index).length > 0 && (
+                      <Badge variant="destructive" className="text-xs">
+                        <AlertCircle className="w-3 h-3 mr-1" />
+                        {getValidationWarnings(rotina, index).length} aviso(s)
+                      </Badge>
+                    )}
+                  </div>
                   <Button
                     size="sm"
                     variant="ghost"
@@ -112,6 +120,19 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
+
+                {getValidationWarnings(rotina, index).length > 0 && (
+                  <Alert variant="destructive" className="py-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      <ul className="list-disc pl-4">
+                        {getValidationWarnings(rotina, index).map((warning, i) => (
+                          <li key={i}>{warning}</li>
+                        ))}
+                      </ul>
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 <div>
                   <label className="text-sm font-medium mb-1 block">Tipo de Horário</label>
