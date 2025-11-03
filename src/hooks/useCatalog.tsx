@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 export const useCatalog = () => {
   const [catalog, setCatalog] = useState<Catalog>(defaultCatalog);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -113,6 +114,22 @@ export const useCatalog = () => {
 
   const initializeCatalog = async () => {
     try {
+      // Verificar se já existe alguma linha
+      const { data: existing, error: checkError } = await supabase
+        .from("catalog")
+        .select("id")
+        .limit(1)
+        .maybeSingle();
+
+      if (checkError) throw checkError;
+
+      // Se já existe, não fazer nada
+      if (existing) {
+        console.log("Catalog already initialized");
+        return;
+      }
+
+      // Se não existe, criar a primeira linha
       const { error } = await supabase.from("catalog").insert({
         catalog_data: defaultCatalog as any,
         version: "1.0",
@@ -126,27 +143,66 @@ export const useCatalog = () => {
   };
 
   const saveCatalog = async (newCatalog: Catalog) => {
-    try {
-      const { error } = await supabase
-        .from("catalog")
-        .update({
-          catalog_data: newCatalog as any,
-          last_modified_at: new Date().toISOString(),
-        })
-        .limit(1);
+    console.log("🔄 Salvando catálogo...", {
+      functionsCount: newCatalog.functions.length,
+      timestamp: new Date().toISOString()
+    });
 
-      if (error) throw error;
+    try {
+      setSaving(true);
+
+      // Buscar a linha existente
+      const { data: existingCatalog, error: fetchError } = await supabase
+        .from("catalog")
+        .select("id")
+        .limit(1)
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
+
+      if (existingCatalog) {
+        // Atualizar linha existente
+        const { error } = await supabase
+          .from("catalog")
+          .update({
+            catalog_data: newCatalog as any,
+            last_modified_at: new Date().toISOString(),
+          })
+          .eq('id', existingCatalog.id);
+
+        if (error) throw error;
+      } else {
+        // Inserir nova linha se não existir
+        const { error } = await supabase
+          .from("catalog")
+          .insert({
+            catalog_data: newCatalog as any,
+            version: "1.0",
+          });
+
+        if (error) throw error;
+      }
 
       setCatalog(newCatalog);
+      
+      console.log("✅ Catálogo salvo com sucesso!");
+      
+      toast({
+        title: "Salvo com sucesso",
+        description: "As alterações foram salvas no banco de dados.",
+      });
+      
       return true;
     } catch (error) {
-      console.error("Error saving catalog:", error);
+      console.error("❌ Erro ao salvar catálogo:", error);
       toast({
         title: "Erro",
         description: "Não foi possível salvar as alterações",
         variant: "destructive",
       });
       return false;
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -244,6 +300,7 @@ export const useCatalog = () => {
   return {
     catalog,
     loading,
+    saving,
     updateFunction,
     addFunction,
     deleteFunction,

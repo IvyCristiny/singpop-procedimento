@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, RotateCcw } from "lucide-react";
+import { BookOpen, RotateCcw, Loader2 } from "lucide-react";
 import { FunctionManager } from "@/components/biblioteca/FunctionManager";
 import { ActivityManager } from "@/components/biblioteca/ActivityManager";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +12,7 @@ import { useCatalog } from "@/hooks/useCatalog";
 export const BibliotecaPOP = () => {
   const [selectedFunction, setSelectedFunction] = useState<string | null>(null);
   const { toast } = useToast();
-  const { catalog, loading, resetToDefault, refetch } = useCatalog();
+  const { catalog, loading, saving, resetToDefault, refetch } = useCatalog();
 
   const handleResetToDefault = async () => {
     if (confirm("Tem certeza que deseja restaurar o catálogo padrão? Todas as suas alterações serão perdidas.")) {
@@ -47,14 +48,22 @@ export const BibliotecaPOP = () => {
             </p>
           </div>
         </div>
-        <Button
-          onClick={handleResetToDefault}
-          variant="outline"
-          size="sm"
-        >
-          <RotateCcw className="w-4 h-4 mr-2" />
-          Restaurar Padrão
-        </Button>
+        <div className="flex items-center gap-3">
+          {saving && (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Salvando...
+            </Badge>
+          )}
+          <Button
+            onClick={handleResetToDefault}
+            variant="outline"
+            size="sm"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Restaurar Padrão
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="functions" className="w-full">
