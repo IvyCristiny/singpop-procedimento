@@ -75,4 +75,5 @@ export interface RotinaConfig {
   pausaEntre: number; // minutos
   priorizacao: 'sequencial' | 'tempo' | 'funcao';
   distribuicao: 'compacta' | 'espacada';
+  expandirAtividades?: 'expandir' | 'agrupar';
 }

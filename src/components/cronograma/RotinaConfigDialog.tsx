@@ -24,6 +24,7 @@ export const RotinaConfigDialog = ({ open, onOpenChange, onConfirm, turno }: Rot
     pausaEntre: 5,
     priorizacao: "sequencial",
     distribuicao: "compacta",
+    expandirAtividades: "expandir",
   });
 
   // Extrair horários do turno selecionado
@@ -216,6 +217,34 @@ export const RotinaConfigDialog = ({ open, onOpenChange, onConfirm, turno }: Rot
                   <div className="font-medium">Espaçada</div>
                   <div className="text-xs text-muted-foreground">
                     Distribuir uniformemente ao longo do turno
+                  </div>
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          {/* POPs com Múltiplas Atividades */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">POPs com Múltiplas Atividades</Label>
+            <RadioGroup
+              value={config.expandirAtividades}
+              onValueChange={(value: any) => setConfig({ ...config, expandirAtividades: value })}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="expandir" id="expandir" />
+                <Label htmlFor="expandir" className="font-normal cursor-pointer">
+                  <div className="font-medium">Expandir</div>
+                  <div className="text-xs text-muted-foreground">
+                    Criar entrada separada para cada atividade
+                  </div>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="agrupar" id="agrupar" />
+                <Label htmlFor="agrupar" className="font-normal cursor-pointer">
+                  <div className="font-medium">Agrupar</div>
+                  <div className="text-xs text-muted-foreground">
+                    Manter como uma única entrada (soma os tempos)
                   </div>
                 </Label>
               </div>

@@ -62,17 +62,25 @@ export const generateRotinaFromPOPs = (
     const funcao = catalog.functions.find((f) => f.id === pop.functionId);
     if (!funcao) continue;
 
-    const activity = funcao.activities.find((a) => a.id === pop.activityId);
-    if (!activity) continue;
+    // Suportar múltiplas atividades (activityIds) ou atividade única (activityId)
+    const activityIdsToProcess = pop.activityIds && pop.activityIds.length > 0 
+      ? pop.activityIds 
+      : [pop.activityId];
 
-    const steps =
-      pop.customSteps && pop.customSteps.length > 0
-        ? pop.customSteps
-        : activity.procedure.steps;
+    // Expandir cada atividade em uma entrada separada
+    for (const activityId of activityIdsToProcess) {
+      const activity = funcao.activities.find((a) => a.id === activityId);
+      if (!activity) continue;
 
-    const tempo = steps.reduce((sum, step) => sum + (step.time_estimate_min || 0), 0);
+      const steps =
+        pop.customSteps && pop.customSteps.length > 0
+          ? pop.customSteps
+          : activity.procedure.steps;
 
-    atividades.push({ pop, funcao, activity, tempo });
+      const tempo = steps.reduce((sum, step) => sum + (step.time_estimate_min || 0), 0);
+
+      atividades.push({ pop, funcao, activity, tempo });
+    }
   }
 
   // Validar tempo total
