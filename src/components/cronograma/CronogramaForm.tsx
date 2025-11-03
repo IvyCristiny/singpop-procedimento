@@ -19,7 +19,7 @@ import { RotinaSemanalEditor } from "./RotinaSemanalEditor";
 import { RotinaConfigDialog } from "./RotinaConfigDialog";
 import { generateRotinaFromPOPs } from "@/utils/cronogramaGenerator";
 import { catalog } from "@/data/catalog";
-import { X, Save, Loader2, Sparkles, AlertCircle } from "lucide-react";
+import { X, Save, Loader2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface CronogramaFormProps {
   cronograma?: Cronograma;
@@ -684,6 +684,44 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
                         placeholder="Observações gerais (opcional)"
                         rows={4}
                       />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Card de Finalização */}
+                <Card className="border-primary/50 bg-primary/5">
+                  <CardContent className="pt-6 pb-6">
+                    <div className="flex flex-col items-center gap-4 text-center">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-8 h-8 text-green-600" />
+                        <h4 className="text-xl font-bold">Pronto para Salvar!</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground max-w-md">
+                        Revise as configurações acima e clique no botão abaixo para salvar o cronograma.
+                      </p>
+                      <Button
+                        size="lg"
+                        onClick={handleSave}
+                        disabled={isSaving || !titulo || !condominioNome || !periodicidade || !responsavel}
+                        className="w-full max-w-md h-14 text-lg font-semibold"
+                      >
+                        {isSaving ? (
+                          <>
+                            <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                            Salvando Cronograma...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-5 h-5 mr-2" />
+                            Salvar Cronograma
+                          </>
+                        )}
+                      </Button>
+                      {(!titulo || !condominioNome || !periodicidade || !responsavel) && (
+                        <p className="text-xs text-destructive">
+                          ⚠️ Preencha os campos obrigatórios (*) antes de salvar
+                        </p>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
