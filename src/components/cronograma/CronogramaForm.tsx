@@ -35,6 +35,7 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
   const [isGenerating, setIsGenerating] = useState(false);
   const [autoFilled, setAutoFilled] = useState<string[]>([]);
   const [showConfigDialog, setShowConfigDialog] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
   // Estados do formulário
   const [titulo, setTitulo] = useState(cronograma?.titulo || "");
@@ -265,14 +266,28 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
         newAutoFilled.push("periodicidade");
       }
 
+      // ✨ Auto-sugerir título
+      if (!titulo) {
+        const suggestedTitle = `Cronograma ${result.sugestoes.periodicidade} - ${result.sugestoes.condominio}`;
+        setTitulo(suggestedTitle);
+        newAutoFilled.push("titulo");
+      }
+
       setAutoFilled(newAutoFilled);
+      setCurrentStep(4); // Avançar para etapa 4
 
       toast({
         title: "✨ Rotina gerada com sucesso!",
-        description: `${result.rotinaDiaria.length} atividades foram adicionadas à rotina diária.`,
+        description: `${result.rotinaDiaria.length} atividades foram adicionadas. Agora complete as configurações restantes.`,
       });
 
       setShowConfigDialog(false);
+
+      // Scroll suave para seção de configurações
+      setTimeout(() => {
+        const element = document.getElementById("step-4");
+        element?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
     } catch (error) {
       console.error("Erro ao gerar rotina:", error);
       toast({
@@ -285,6 +300,14 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
       setIsGenerating(false);
     }
   };
+
+  // Scroll automático entre etapas
+  useEffect(() => {
+    if (currentStep > 1 && currentStep !== 4) {
+      const element = document.getElementById(`step-${currentStep}`);
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [currentStep]);
 
   const handleSave = async () => {
     if (!validateForm()) return;
@@ -354,63 +377,64 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
 
         <ScrollArea className="h-[calc(100vh-80px)]">
           <div className="px-6 py-4 space-y-6">
-            {/* Seção: Identificação */}
-            <Card>
+            {/* ETAPA 1: Seleção de POPs - SEMPRE VISÍVEL */}
+            <Card id="step-1" className={currentStep === 1 ? "border-primary border-2" : ""}>
               <CardContent className="pt-6 space-y-4">
-                <h3 className="text-lg font-semibold">📋 Identificação</h3>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="titulo">Título *</Label>
-                  <Input
-                    id="titulo"
-                    value={titulo}
-                    onChange={(e) => setTitulo(e.target.value)}
-                    placeholder="Ex: Cronograma de Limpeza - Torre A"
-                    maxLength={200}
-                  />
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold flex items-center gap-2">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                      1
+                    </span>
+                    Selecione os POPs
+                  </h3>
+                  {selectedPOPIds.length > 0 && (
+                    <Badge variant="secondary" className="text-sm bg-green-500/10 text-green-700 dark:text-green-400">
+                      ✓ {selectedPOPIds.length} selecionados
+                    </Badge>
+                  )}
                 </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="condominioNome" className="flex items-center gap-2">
-                    Nome do Condomínio *
-                    {autoFilled.includes("condominioNome") && (
-                      <Badge variant="secondary" className="text-xs">Auto-preenchido</Badge>
-                    )}
-                  </Label>
-                  <Input
-                    id="condominioNome"
-                    value={condominioNome}
-                    onChange={(e) => {
-                      setCondominioNome(e.target.value);
-                      setAutoFilled(autoFilled.filter((f) => f !== "condominioNome"));
-                    }}
-                    placeholder="Ex: Residencial Singular"
-                  />
-                </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="versao">Versão</Label>
-                    <Input
-                      id="versao"
-                      value={versao}
-                      onChange={(e) => setVersao(e.target.value)}
-                      placeholder="1"
-                    />
-                  </div>
-                </div>
+                <POPSelector
+                  selectedPOPIds={selectedPOPIds}
+                  onSelectionChange={(ids) => {
+                    setSelectedPOPIds(ids);
+                    if (ids.length > 0) setCurrentStep(2);
+                  }}
+                />
               </CardContent>
             </Card>
 
-            {/* Seção: Dados Gerais */}
-            <Card>
-              <CardContent className="pt-6 space-y-4">
-                <h3 className="text-lg font-semibold">⚙️ Dados Gerais</h3>
+            {/* Mensagem de orientação quando nenhum POP selecionado */}
+            {selectedPOPIds.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
+                <p className="text-lg">👆 Selecione pelo menos um POP para começar</p>
+              </div>
+            )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="turno">Turno *</Label>
-                  <Select value={turno} onValueChange={setTurno}>
-                    <SelectTrigger id="turno">
+            {/* ETAPA 2: Definir Turno - SÓ APARECE SE POPS SELECIONADOS */}
+            {selectedPOPIds.length > 0 && (
+              <Card id="step-2" className={currentStep === 2 ? "border-primary border-2" : ""}>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                        2
+                      </span>
+                      Defina o Turno de Trabalho
+                    </h3>
+                    {turno && (
+                      <Badge variant="secondary" className="text-sm bg-green-500/10 text-green-700 dark:text-green-400">
+                        ✓ Definido
+                      </Badge>
+                    )}
+                  </div>
+                  <Select
+                    value={turno}
+                    onValueChange={(value) => {
+                      setTurno(value);
+                      if (value) setCurrentStep(3);
+                    }}
+                  >
+                    <SelectTrigger className="h-14 text-lg">
                       <SelectValue placeholder="Selecione o turno" />
                     </SelectTrigger>
                     <SelectContent>
@@ -421,181 +445,278 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
+                </CardContent>
+              </Card>
+            )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="periodicidade" className="flex items-center gap-2">
-                    Periodicidade *
-                    {autoFilled.includes("periodicidade") && (
-                      <Badge variant="secondary" className="text-xs">Auto-preenchido</Badge>
-                    )}
-                  </Label>
-                  <Input
-                    id="periodicidade"
-                    value={periodicidade}
-                    onChange={(e) => {
-                      setPeriodicidade(e.target.value);
-                      setAutoFilled(autoFilled.filter((f) => f !== "periodicidade"));
-                    }}
-                    placeholder="Ex: Diária, Semanal, Mensal"
-                  />
-                </div>
+            {/* Mensagem de orientação quando POPs selecionados mas sem turno */}
+            {selectedPOPIds.length > 0 && !turno && (
+              <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
+                <p className="text-lg">👆 Agora defina o turno de trabalho</p>
+              </div>
+            )}
 
-                <div className="space-y-2">
-                  <Label htmlFor="responsavel" className="flex items-center gap-2">
-                    Responsável *
-                    {autoFilled.includes("responsavel") && (
-                      <Badge variant="secondary" className="text-xs">Auto-preenchido</Badge>
-                    )}
-                  </Label>
-                  <Input
-                    id="responsavel"
-                    value={responsavel}
-                    onChange={(e) => {
-                      setResponsavel(e.target.value);
-                      setAutoFilled(autoFilled.filter((f) => f !== "responsavel"));
-                    }}
-                    placeholder="Nome do responsável"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="supervisao">Supervisão</Label>
-                  <Input
-                    id="supervisao"
-                    value={supervisao}
-                    onChange={(e) => setSupervisao(e.target.value)}
-                    placeholder="Nome do supervisor (opcional)"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Botão de Geração de Cronograma */}
-            {selectedPOPIds.length > 0 && (
-              <Card className="border-primary/50 bg-primary/5">
+            {/* ETAPA 3: Botão de Geração - SÓ APARECE SE POPS E TURNO */}
+            {selectedPOPIds.length > 0 && turno && (
+              <Card id="step-3" className="border-primary/50 bg-primary/5 shadow-lg">
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center gap-4 text-center">
-                    <Sparkles className="w-12 h-12 text-primary" />
+                    <span className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground text-xl font-bold">
+                      3
+                    </span>
+                    <Sparkles className="w-16 h-16 text-primary animate-pulse" />
                     <div>
-                      <h3 className="text-lg font-semibold mb-2">
-                        ✨ Gerar Cronograma Automaticamente
+                      <h3 className="text-2xl font-bold mb-2">
+                        Gerar Cronograma Automaticamente
                       </h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {selectedPOPIds.length} POP(s) selecionado(s). Configure e gere a rotina
-                        diária automaticamente.
+                      <p className="text-sm text-muted-foreground mb-2">
+                        <strong>{selectedPOPIds.length} POP(s)</strong> selecionado(s) | Turno:{" "}
+                        <strong>{turnosDisponiveis.find((t) => t.value === turno)?.label}</strong>
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Configure as preferências e gere a rotina inteligente
                       </p>
                     </div>
                     <Button
                       size="lg"
                       onClick={() => setShowConfigDialog(true)}
-                      disabled={isGenerating || !turno}
-                      className="w-full max-w-md"
+                      disabled={isGenerating}
+                      className="w-full max-w-md h-16 text-lg font-semibold"
                     >
                       {isGenerating ? (
                         <>
-                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          <Loader2 className="w-6 h-6 mr-2 animate-spin" />
                           Gerando Rotina...
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-5 h-5 mr-2" />
+                          <Sparkles className="w-6 h-6 mr-2" />
                           Configurar e Gerar Rotina
                         </>
                       )}
                     </Button>
-                    {!turno && (
-                      <p className="text-xs text-destructive flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Selecione um turno primeiro
-                      </p>
-                    )}
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Seção: POPs Associados */}
-            <Card>
-              <CardContent className="pt-6 space-y-4">
-                <h3 className="text-lg font-semibold">📄 POPs Associados *</h3>
-                <POPSelector
-                  selectedPOPIds={selectedPOPIds}
-                  onSelectionChange={setSelectedPOPIds}
-                />
-              </CardContent>
-            </Card>
+            {/* Mensagem de orientação quando tudo pronto mas rotina não gerada */}
+            {selectedPOPIds.length > 0 && turno && rotinaDiaria.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground bg-muted/30 rounded-lg border-2 border-dashed">
+                <p className="text-lg">👆 Clique no botão para gerar o cronograma automaticamente</p>
+              </div>
+            )}
 
-            <Separator />
+            {/* ETAPA 4: Configurações Complementares - SÓ APARECEM APÓS ROTINA GERADA */}
+            {rotinaDiaria.length > 0 && (
+              <>
+                <Separator className="my-8" />
 
-            {/* Seção: Rotina Diária */}
-            <RotinaDiariaEditor rotinas={rotinaDiaria} onChange={setRotinaDiaria} />
-
-            <Separator />
-
-            {/* Seção: Rotina Semanal */}
-            <RotinaSemanalEditor rotinas={rotinaSemanal} onChange={setRotinaSemanal} />
-
-            <Separator />
-
-            {/* Seção: Revisão */}
-            <Card>
-              <CardContent className="pt-6 space-y-4">
-                <h3 className="text-lg font-semibold">✅ Revisão</h3>
-
-                <div className="space-y-2">
-                  <Label htmlFor="responsavelRevisao">Responsável pela Revisão</Label>
-                  <Input
-                    id="responsavelRevisao"
-                    value={responsavelRevisao}
-                    onChange={(e) => setResponsavelRevisao(e.target.value)}
-                    placeholder="Nome do responsável (opcional)"
-                  />
+                <div id="step-4" className="flex items-center gap-2 mb-6">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold">
+                    4
+                  </span>
+                  <h3 className="text-xl font-bold">Complete as Configurações</h3>
+                  <Badge variant="secondary" className="ml-2 bg-green-500/10 text-green-700 dark:text-green-400">
+                    Rotina gerada com sucesso! ✓
+                  </Badge>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="dataRevisao">Data de Revisão</Label>
-                  <Input
-                    id="dataRevisao"
-                    type="date"
-                    value={dataRevisao}
-                    onChange={(e) => setDataRevisao(e.target.value)}
-                  />
-                </div>
+                {/* Identificação */}
+                <Card>
+                  <CardContent className="pt-6 space-y-4">
+                    <h4 className="font-semibold">📋 Identificação</h4>
 
-                <div className="space-y-2">
-                  <Label htmlFor="observacoes">Observações</Label>
-                  <Textarea
-                    id="observacoes"
-                    value={observacoes}
-                    onChange={(e) => setObservacoes(e.target.value)}
-                    placeholder="Observações gerais (opcional)"
-                    rows={4}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+                    <div className="space-y-2">
+                      <Label htmlFor="titulo" className="flex items-center gap-2">
+                        Título *
+                        {autoFilled.includes("titulo") && (
+                          <Badge variant="secondary" className="text-xs">
+                            Auto-sugerido
+                          </Badge>
+                        )}
+                      </Label>
+                      <Input
+                        id="titulo"
+                        value={titulo}
+                        onChange={(e) => {
+                          setTitulo(e.target.value);
+                          setAutoFilled(autoFilled.filter((f) => f !== "titulo"));
+                        }}
+                        placeholder="Ex: Cronograma de Limpeza - Torre A"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="condominioNome" className="flex items-center gap-2">
+                          Condomínio *
+                          {autoFilled.includes("condominioNome") && (
+                            <Badge variant="secondary" className="text-xs">
+                              Auto-preenchido
+                            </Badge>
+                          )}
+                        </Label>
+                        <Input
+                          id="condominioNome"
+                          value={condominioNome}
+                          onChange={(e) => {
+                            setCondominioNome(e.target.value);
+                            setAutoFilled(autoFilled.filter((f) => f !== "condominioNome"));
+                          }}
+                          placeholder="Ex: Residencial Singular"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="versao">Versão</Label>
+                        <Input
+                          id="versao"
+                          value={versao}
+                          onChange={(e) => setVersao(e.target.value)}
+                          placeholder="1"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Dados Gerais */}
+                <Card>
+                  <CardContent className="pt-6 space-y-4">
+                    <h4 className="font-semibold">⚙️ Dados Gerais</h4>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="periodicidade" className="flex items-center gap-2">
+                        Periodicidade *
+                        {autoFilled.includes("periodicidade") && (
+                          <Badge variant="secondary" className="text-xs">
+                            Auto-preenchido
+                          </Badge>
+                        )}
+                      </Label>
+                      <Input
+                        id="periodicidade"
+                        value={periodicidade}
+                        onChange={(e) => {
+                          setPeriodicidade(e.target.value);
+                          setAutoFilled(autoFilled.filter((f) => f !== "periodicidade"));
+                        }}
+                        placeholder="Ex: Diária, Semanal"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="responsavel" className="flex items-center gap-2">
+                        Responsável *
+                        {autoFilled.includes("responsavel") && (
+                          <Badge variant="secondary" className="text-xs">
+                            Auto-preenchido
+                          </Badge>
+                        )}
+                      </Label>
+                      <Input
+                        id="responsavel"
+                        value={responsavel}
+                        onChange={(e) => {
+                          setResponsavel(e.target.value);
+                          setAutoFilled(autoFilled.filter((f) => f !== "responsavel"));
+                        }}
+                        placeholder="Nome do responsável"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="supervisao">Supervisão</Label>
+                      <Input
+                        id="supervisao"
+                        value={supervisao}
+                        onChange={(e) => setSupervisao(e.target.value)}
+                        placeholder="Nome do supervisor (opcional)"
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Separator />
+
+                {/* Rotina Diária (editável) */}
+                <RotinaDiariaEditor rotinas={rotinaDiaria} onChange={setRotinaDiaria} />
+
+                <Separator />
+
+                {/* Rotina Semanal (opcional) */}
+                <RotinaSemanalEditor rotinas={rotinaSemanal} onChange={setRotinaSemanal} />
+
+                <Separator />
+
+                {/* Revisão */}
+                <Card>
+                  <CardContent className="pt-6 space-y-4">
+                    <h4 className="font-semibold">✅ Revisão</h4>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="responsavelRevisao">Responsável pela Revisão</Label>
+                      <Input
+                        id="responsavelRevisao"
+                        value={responsavelRevisao}
+                        onChange={(e) => setResponsavelRevisao(e.target.value)}
+                        placeholder="Nome (opcional)"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="dataRevisao">Data de Revisão</Label>
+                      <Input
+                        id="dataRevisao"
+                        type="date"
+                        value={dataRevisao}
+                        onChange={(e) => setDataRevisao(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="observacoes">Observações</Label>
+                      <Textarea
+                        id="observacoes"
+                        value={observacoes}
+                        onChange={(e) => setObservacoes(e.target.value)}
+                        placeholder="Observações gerais (opcional)"
+                        rows={4}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
         </ScrollArea>
 
         {/* Botões de Ação */}
-        <div className="px-6 py-4 border-t flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>
-            Cancelar
-          </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Salvando...
-              </>
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Salvar Cronograma
-              </>
-            )}
-          </Button>
+        <div className="px-6 py-4 border-t space-y-2">
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={onClose} disabled={isSaving}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSave} disabled={isSaving || rotinaDiaria.length === 0}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Salvar Cronograma
+                </>
+              )}
+            </Button>
+          </div>
+          {rotinaDiaria.length === 0 && (
+            <p className="text-xs text-center text-muted-foreground">
+              ⚠️ Gere a rotina diária primeiro para poder salvar
+            </p>
+          )}
         </div>
       </SheetContent>
 
