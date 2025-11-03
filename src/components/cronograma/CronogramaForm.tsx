@@ -19,6 +19,7 @@ import { RotinaSemanalEditor } from "./RotinaSemanalEditor";
 import { RotinaConfigDialog } from "./RotinaConfigDialog";
 import { generateRotinaFromPOPs } from "@/utils/cronogramaGenerator";
 import { catalog } from "@/data/catalog";
+import { exportCronogramaPDF } from "@/utils/exportCronogramaPDF";
 import { X, Save, Loader2, Sparkles, AlertCircle, CheckCircle2 } from "lucide-react";
 
 interface CronogramaFormProps {
@@ -331,21 +332,67 @@ export const CronogramaForm = ({ cronograma, onClose, onSave }: CronogramaFormPr
         observacoes: observacoes || undefined,
       };
 
+      let cronogramaParaExportar: Cronograma;
+
       if (cronograma) {
         // Editando cronograma existente
         await updateCronograma(cronograma.id, data);
+        
+        // Montar cronograma atualizado para exportação
+        cronogramaParaExportar = {
+          ...cronograma,
+          ...data,
+          codigo: cronograma.codigo,
+          created_at: cronograma.created_at,
+          updated_at: new Date().toISOString(),
+        } as Cronograma;
+        
         toast({
           title: "Cronograma atualizado!",
           description: `O cronograma "${titulo}" foi atualizado com sucesso.`,
         });
       } else {
         // Criando novo cronograma
-        await saveCronograma(data);
+        const savedCronograma = await saveCronograma(data);
+        
+        if (savedCronograma) {
+          cronogramaParaExportar = {
+            id: savedCronograma.id,
+            titulo: savedCronograma.titulo,
+            condominio_nome: savedCronograma.condominio_nome,
+            codigo: savedCronograma.codigo,
+            versao: savedCronograma.versao,
+            turno: savedCronograma.turno,
+            periodicidade: savedCronograma.periodicidade,
+            responsavel: savedCronograma.responsavel,
+            supervisao: savedCronograma.supervisao,
+            pop_ids: Array.isArray(savedCronograma.pop_ids) ? (savedCronograma.pop_ids as unknown as string[]) : [],
+            rotina_diaria: Array.isArray(savedCronograma.rotina_diaria) ? (savedCronograma.rotina_diaria as unknown as RotinaHorario[]) : [],
+            rotina_semanal: Array.isArray(savedCronograma.rotina_semanal) ? (savedCronograma.rotina_semanal as unknown as RotinaSemanal[]) : [],
+            responsavel_revisao: savedCronograma.responsavel_revisao,
+            data_revisao: savedCronograma.data_revisao,
+            observacoes: savedCronograma.observacoes,
+            created_at: savedCronograma.created_at,
+            updated_at: savedCronograma.updated_at,
+          };
+        }
+        
         toast({
           title: "Cronograma criado!",
           description: `O cronograma "${titulo}" foi criado com sucesso.`,
         });
         localStorage.removeItem("cronograma_draft");
+      }
+
+      // Exportar PDF automaticamente
+      if (cronogramaParaExportar) {
+        setTimeout(() => {
+          exportCronogramaPDF(cronogramaParaExportar);
+          toast({
+            title: "PDF baixado!",
+            description: "O PDF do cronograma foi baixado automaticamente.",
+          });
+        }, 500);
       }
 
       onSave();
