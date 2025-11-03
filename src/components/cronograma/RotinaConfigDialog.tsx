@@ -223,7 +223,7 @@ export const RotinaConfigDialog = ({ open, onOpenChange, onConfirm, turno }: Rot
           </div>
         </div>
 
-        <DialogFooter className="pt-4 border-t">
+        <DialogFooter className="pt-4 border-t flex-shrink-0">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
