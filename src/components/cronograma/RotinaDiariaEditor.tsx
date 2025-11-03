@@ -1,8 +1,9 @@
 import { RotinaHorario } from "@/types/cronograma";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Trash2, Clock } from "lucide-react";
+import { Plus, Trash2, Clock, AlertCircle, ArrowRightLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
 interface RotinaDiariaEditorProps {
@@ -112,6 +113,43 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
                   </Button>
                 </div>
 
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Tipo de Horário</label>
+                  <Select
+                    value={rotina.tipo_horario || 'fixo'}
+                    onValueChange={(value) => handleChange(index, 'tipo_horario', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixo">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          <span>Horário Fixo</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="flexivel">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          <span>Horário Flexível</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="sincrono">
+                        <div className="flex items-center gap-2">
+                          <ArrowRightLeft className="w-4 h-4" />
+                          <span>Atividade Síncrona</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {rotina.tipo_horario === 'flexivel' && 'Pode ser realizado a qualquer momento do turno'}
+                    {rotina.tipo_horario === 'sincrono' && 'Acontece simultaneamente com outras atividades'}
+                    {(!rotina.tipo_horario || rotina.tipo_horario === 'fixo') && 'Deve ser realizado no horário especificado'}
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium mb-1 block">Início</label>
@@ -119,6 +157,7 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
                       type="time"
                       value={rotina.horario_inicio}
                       onChange={(e) => handleChange(index, 'horario_inicio', e.target.value)}
+                      disabled={rotina.tipo_horario !== 'fixo' && rotina.tipo_horario !== undefined}
                     />
                   </div>
                   <div>
@@ -127,6 +166,7 @@ export const RotinaDiariaEditor = ({ rotinas, onChange }: RotinaDiariaEditorProp
                       type="time"
                       value={rotina.horario_fim}
                       onChange={(e) => handleChange(index, 'horario_fim', e.target.value)}
+                      disabled={rotina.tipo_horario !== 'fixo' && rotina.tipo_horario !== undefined}
                     />
                   </div>
                 </div>

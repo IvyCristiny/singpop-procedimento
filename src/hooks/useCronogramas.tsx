@@ -10,6 +10,7 @@ const rotinaHorarioSchema = z.object({
   ambiente_atividade: z.string().min(1, "Campo obrigatório"),
   detalhamento: z.string().min(1, "Campo obrigatório"),
   responsavel: z.string().min(1, "Campo obrigatório"),
+  tipo_horario: z.enum(['fixo', 'flexivel', 'sincrono']).optional(),
 });
 
 const rotinaSemanalSchema = z.object({

@@ -45,12 +45,24 @@ export const exportCronogramaPDF = (cronograma: Cronograma) => {
   doc.text("ROTINA DIÁRIA", 10, yPos);
   yPos += 2;
 
-  const dailyTableData = cronograma.rotina_diaria.map((rotina) => [
-    `${rotina.horario_inicio}-${rotina.horario_fim}`,
-    rotina.ambiente_atividade,
-    rotina.detalhamento,
-    rotina.responsavel,
-  ]);
+  const dailyTableData = cronograma.rotina_diaria.map((rotina) => {
+    let horarioDisplay = '';
+    
+    if (rotina.tipo_horario === 'flexivel') {
+      horarioDisplay = 'Flexível';
+    } else if (rotina.tipo_horario === 'sincrono') {
+      horarioDisplay = 'Síncrono';
+    } else {
+      horarioDisplay = `${rotina.horario_inicio}-${rotina.horario_fim}`;
+    }
+    
+    return [
+      horarioDisplay,
+      rotina.ambiente_atividade,
+      rotina.detalhamento,
+      rotina.responsavel,
+    ];
+  });
 
   autoTable(doc, {
     startY: yPos,

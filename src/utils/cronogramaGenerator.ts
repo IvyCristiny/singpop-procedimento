@@ -304,8 +304,7 @@ const distribuicaoCompacta = (
         : atividade.activity.procedure.steps;
 
     const detalhamento = steps
-      .slice(0, 3)
-      .map((step) => `• ${step.title}`)
+      .map((step, idx) => `${idx + 1}. ${step.title}`)
       .join("\n");
 
     rotina.push({
@@ -313,11 +312,11 @@ const distribuicaoCompacta = (
       horario_inicio: formatTime(currentTime),
       horario_fim: formatTime(currentTime + atividade.tempo),
       ambiente_atividade: `${atividade.funcao.name} - ${atividade.activity.name}`,
-      detalhamento:
-        detalhamento + (steps.length > 3 ? `\n... e mais ${steps.length - 3} passos` : ""),
+      detalhamento: detalhamento,
       responsavel:
         atividade.pop.nomeColaborador || atividade.pop.responsavelElaboracao || "",
       ordem,
+      tipo_horario: 'fixo',
     });
 
     currentTime += atividade.tempo + config.pausaEntre;
@@ -373,8 +372,7 @@ const distribuicaoEspacada = (
         : atividade.activity.procedure.steps;
 
     const detalhamento = steps
-      .slice(0, 3)
-      .map((step) => `• ${step.title}`)
+      .map((step, idx) => `${idx + 1}. ${step.title}`)
       .join("\n");
 
     rotina.push({
@@ -382,11 +380,11 @@ const distribuicaoEspacada = (
       horario_inicio: formatTime(currentTime),
       horario_fim: formatTime(currentTime + atividade.tempo),
       ambiente_atividade: `${atividade.funcao.name} - ${atividade.activity.name}`,
-      detalhamento:
-        detalhamento + (steps.length > 3 ? `\n... e mais ${steps.length - 3} passos` : ""),
+      detalhamento: detalhamento,
       responsavel:
         atividade.pop.nomeColaborador || atividade.pop.responsavelElaboracao || "",
       ordem,
+      tipo_horario: 'fixo',
     });
 
     currentTime += atividade.tempo + espacoEntre;

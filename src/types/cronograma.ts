@@ -6,6 +6,7 @@ export interface RotinaHorario {
   detalhamento: string;
   responsavel: string;
   ordem: number;
+  tipo_horario?: 'fixo' | 'flexivel' | 'sincrono';
 }
 
 export interface RotinaSemanal {
