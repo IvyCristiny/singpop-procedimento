@@ -5,14 +5,34 @@ import { POP } from "@/types/pop";
 export const usePOPs = () => {
   const [pops, setPops] = useState<POP[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
+  
+  const PAGE_SIZE = 20;
 
-  const fetchPOPs = async () => {
+  const fetchPOPs = async (pageNum = 1, append = false) => {
     try {
-      // Buscar TODAS as POPs sem filtro
+      if (!append) setLoading(true);
+      else setLoadingMore(true);
+
+      const start = (pageNum - 1) * PAGE_SIZE;
+      const end = start + PAGE_SIZE - 1;
+
+      // Buscar total de POPs
+      const { count } = await supabase
+        .from("pops")
+        .select("*", { count: "exact", head: true });
+
+      setTotalCount(count || 0);
+
+      // Buscar POPs paginadas
       const { data, error } = await supabase
         .from("pops")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(start, end);
 
       if (error) throw error;
 
@@ -34,12 +54,25 @@ export const usePOPs = () => {
         createdAt: item.created_at,
       }));
 
-      setPops(transformedPOPs);
+      if (append) {
+        setPops(prev => [...prev, ...transformedPOPs]);
+      } else {
+        setPops(transformedPOPs);
+      }
+
+      setHasMore(transformedPOPs.length === PAGE_SIZE && (count || 0) > end + 1);
+      setPage(pageNum);
     } catch (error) {
       console.error("Error fetching POPs:", error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    await fetchPOPs(page + 1, true);
   };
 
   useEffect(() => {
@@ -81,8 +114,12 @@ export const usePOPs = () => {
   return {
     pops,
     loading,
+    loadingMore,
+    hasMore,
+    totalCount,
     savePOP,
     deletePOP,
+    loadMore,
     refetch: fetchPOPs,
   };
 };

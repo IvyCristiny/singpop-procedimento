@@ -4,6 +4,14 @@ import { Catalog, Function, Activity } from "@/types/schema";
 import { catalog as defaultCatalog } from "@/data/catalog";
 import { useToast } from "@/hooks/use-toast";
 
+const CACHE_KEY = "singpop_catalog_cache";
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutos
+
+interface CachedCatalog {
+  catalog: Catalog;
+  timestamp: number;
+}
+
 export const useCatalog = () => {
   const [catalog, setCatalog] = useState<Catalog>(defaultCatalog);
   const [loading, setLoading] = useState(true);
@@ -14,8 +22,55 @@ export const useCatalog = () => {
     fetchCatalog();
   }, []);
 
+  const getCachedCatalog = (): Catalog | null => {
+    try {
+      const cached = localStorage.getItem(CACHE_KEY);
+      if (!cached) return null;
+
+      const parsed: CachedCatalog = JSON.parse(cached);
+      const now = Date.now();
+
+      // Verificar se o cache expirou
+      if (now - parsed.timestamp > CACHE_DURATION) {
+        localStorage.removeItem(CACHE_KEY);
+        return null;
+      }
+
+      return parsed.catalog;
+    } catch (error) {
+      console.error("Error reading cache:", error);
+      return null;
+    }
+  };
+
+  const setCachedCatalog = (catalog: Catalog) => {
+    try {
+      const cached: CachedCatalog = {
+        catalog,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem(CACHE_KEY, JSON.stringify(cached));
+    } catch (error) {
+      console.error("Error setting cache:", error);
+    }
+  };
+
+  const invalidateCache = () => {
+    localStorage.removeItem(CACHE_KEY);
+  };
+
   const fetchCatalog = async () => {
     try {
+      // Tentar carregar do cache primeiro
+      const cachedCatalog = getCachedCatalog();
+      if (cachedCatalog) {
+        console.log("📦 Catálogo carregado do cache");
+        setCatalog(cachedCatalog);
+        setLoading(false);
+        return;
+      }
+
+      console.log("🌐 Carregando catálogo do servidor...");
       const { data, error } = await supabase
         .from("catalog")
         .select("*")
@@ -29,6 +84,7 @@ export const useCatalog = () => {
         if (catalogData && Array.isArray(catalogData.functions)) {
           const normalizedCatalog = normalizeCatalog(catalogData);
           setCatalog(normalizedCatalog);
+          setCachedCatalog(normalizedCatalog);
         } else {
           console.error("Invalid catalog structure:", catalogData);
           await initializeCatalog();
@@ -184,6 +240,8 @@ export const useCatalog = () => {
       }
 
       setCatalog(newCatalog);
+      invalidateCache(); // Invalidar cache ao salvar
+      setCachedCatalog(newCatalog); // Atualizar cache com nova versão
       
       console.log("✅ Catálogo salvo com sucesso!");
       

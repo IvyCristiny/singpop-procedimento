@@ -3,7 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Filter, FileText, BookOpen, Calendar } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Plus, Search, Filter, FileText, BookOpen, Calendar, Loader2, AlertCircle } from "lucide-react";
 import { POPCard } from "@/components/POPCard";
 import { POPForm } from "@/components/POPForm";
 import { BibliotecaPOP } from "./BibliotecaPOP";
@@ -17,16 +19,8 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterFuncao, setFilterFuncao] = useState<string>("todos");
   const { catalog, loading: catalogLoading } = useCatalog();
-  const { pops, loading: popsLoading, refetch } = usePOPs();
+  const { pops, loading: popsLoading, loadingMore, hasMore, totalCount, loadMore, refetch } = usePOPs();
   const navigate = useNavigate();
-
-  if (catalogLoading || popsLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-light flex items-center justify-center">
-        <p className="text-lg text-muted-foreground">Carregando...</p>
-      </div>
-    );
-  }
 
   const filteredPOPs = pops.filter((pop) => {
     const matchSearch = pop.condominioNome
@@ -129,47 +123,101 @@ const Index = () => {
               )}
             </div>
 
-            {pops.length === 0 ? (
-              <div className="text-center py-16">
-                <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <h2 className="text-xl font-semibold text-foreground mb-2">
-                  Nenhum POP criado ainda
-                </h2>
-                <p className="text-muted-foreground mb-6">
-                  Clique em "Novo POP" para criar seu primeiro procedimento
-                </p>
-              </div>
-            ) : filteredPOPs.length === 0 ? (
-              <div className="text-center py-16">
-                <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                <h2 className="text-xl font-semibold text-foreground mb-2">
-                  Nenhum POP encontrado
-                </h2>
-                <p className="text-muted-foreground mb-6">
-                  Tente ajustar os filtros de busca
-                </p>
-                <Button
-                  onClick={() => {
-                    setSearchTerm("");
-                    setFilterFuncao("todos");
-                  }}
-                  variant="outline"
-                >
-                  Limpar filtros
-                </Button>
-              </div>
-            ) : (
-              <div>
-                <h2 className="text-xl font-semibold text-foreground mb-4">
-                  POPs Gerados ({filteredPOPs.length} de {pops.length})
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredPOPs.map((pop) => (
-                    <POPCard key={pop.id} pop={pop} onDelete={refetch} />
-                  ))}
+              {catalogLoading && (
+                <Alert className="mb-4">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <AlertDescription>
+                    Carregando catálogo de atividades...
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {popsLoading ? (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Carregando POPs...</span>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                      <div key={i} className="space-y-3 p-4 border rounded-lg">
+                        <Skeleton className="h-4 w-3/4" />
+                        <Skeleton className="h-4 w-1/2" />
+                        <Skeleton className="h-20 w-full" />
+                        <Skeleton className="h-8 w-full" />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : pops.length === 0 ? (
+                <div className="text-center py-16">
+                  <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <h2 className="text-xl font-semibold text-foreground mb-2">
+                    Nenhum POP criado ainda
+                  </h2>
+                  <p className="text-muted-foreground mb-6">
+                    Clique em "Novo POP" para criar seu primeiro procedimento
+                  </p>
+                </div>
+              ) : filteredPOPs.length === 0 ? (
+                <div className="text-center py-16">
+                  <FileText className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                  <h2 className="text-xl font-semibold text-foreground mb-2">
+                    Nenhum POP encontrado
+                  </h2>
+                  <p className="text-muted-foreground mb-6">
+                    Tente ajustar os filtros de busca
+                  </p>
+                  <Button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setFilterFuncao("todos");
+                    }}
+                    variant="outline"
+                  >
+                    Limpar filtros
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold text-foreground">
+                      POPs Gerados ({filteredPOPs.length} de {totalCount})
+                    </h2>
+                    {pops.length < totalCount && (
+                      <span className="text-sm text-muted-foreground">
+                        {pops.length} de {totalCount} carregados
+                      </span>
+                    )}
+                  </div>
+                  
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {filteredPOPs.map((pop) => (
+                      <POPCard key={pop.id} pop={pop} onDelete={refetch} />
+                    ))}
+                  </div>
+
+                  {hasMore && !searchTerm && filterFuncao === "todos" && (
+                    <div className="flex justify-center pt-4">
+                      <Button
+                        onClick={loadMore}
+                        disabled={loadingMore}
+                        variant="outline"
+                        size="lg"
+                      >
+                        {loadingMore ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Carregando...
+                          </>
+                        ) : (
+                          <>Carregar mais POPs</>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
           </TabsContent>
 
           <TabsContent value="cronogramas">
