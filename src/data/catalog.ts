@@ -604,6 +604,603 @@ export const catalog: Catalog = {
             last_review_date: "2025-10-27",
             changelog: ["Criação baseada no POP 05 - Ocorrências e Situações de Emergência"]
           }
+        },
+        {
+          id: "PORT_LIVRO_OCOR",
+          name: "Registro de Ocorrências no Livro",
+          objective: "Padronizar o registro de todos os eventos relevantes no livro de ocorrências, garantindo rastreabilidade, documentação completa e histórico confiável para auditorias.",
+          scope: "Todos os postos de portaria que devem manter livro de ocorrências, 24/7. O livro deve ser armazenado na sala de segurança e arquivado por 5 anos após preenchimento completo.",
+          prerequisites: [
+            "Livro de ocorrências identificado e disponível",
+            "Caneta permanente em boas condições",
+            "Conhecimento dos tipos de ocorrências registráveis"
+          ],
+          responsibilities: [
+            "Porteiro em serviço: Preencher o livro sempre que houver evento relevante",
+            "Supervisor: Revisar registros semanalmente e arquivar livros completos",
+            "Zelar pela legibilidade, veracidade e completude dos registros"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Identificar tipo de ocorrência",
+                instruction: "Determine se o evento é registrável: incidente, manutenção, falha de equipamento, situação anormal, solicitação especial ou observação importante.",
+                why: "Filtrar eventos relevantes e evitar registros desnecessários.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "N/A",
+                quality_check: "Evento é relevante para o histórico operacional.",
+                evidence: "Decisão documentada"
+              },
+              {
+                id: "S2",
+                title: "Registrar data e horário exatos",
+                instruction: "Escrever data (DD/MM/AAAA) e horário (HH:MM) no formato padrão, no início da linha.",
+                why: "Precisão temporal para investigações e relatórios.",
+                who: "Porteiro",
+                time_estimate_min: 0.5,
+                safety: "N/A",
+                quality_check: "Data e horário legíveis e corretos.",
+                evidence: "Timestamp registrado"
+              },
+              {
+                id: "S3",
+                title: "Descrever a ocorrência detalhadamente",
+                instruction: "Detalhar o evento: quem, o quê, onde, quando, como. Usar linguagem clara e objetiva. Incluir nomes, unidades e informações específicas.",
+                why: "Documentação precisa permite análise posterior e tomada de decisão.",
+                who: "Porteiro",
+                time_estimate_min: 3,
+                safety: "N/A",
+                quality_check: "Descrição completa e compreensível por terceiros.",
+                evidence: "Texto com todas as informações essenciais"
+              },
+              {
+                id: "S4",
+                title: "Registrar medidas tomadas",
+                instruction: "Descrever todas as ações realizadas em resposta à ocorrência: acionamento de supervisão, contato com terceiros, orientações dadas, etc.",
+                why: "Demonstrar resposta adequada e permitir avaliação de eficácia.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "N/A",
+                quality_check: "Ações registradas de forma cronológica e clara.",
+                evidence: "Lista de medidas adotadas"
+              },
+              {
+                id: "S5",
+                title: "Identificar e assinar",
+                instruction: "Registrar nome completo, matrícula (se aplicável) e assinar de forma legível. Caso outro colaborador tenha participado, incluir sua identificação.",
+                why: "Responsabilização e rastreabilidade do registro.",
+                who: "Porteiro",
+                time_estimate_min: 0.5,
+                safety: "N/A",
+                quality_check: "Assinatura e identificação presentes e legíveis.",
+                evidence: "Nome e assinatura do responsável"
+              },
+              {
+                id: "S6",
+                title: "Comunicar supervisor (se necessário)",
+                instruction: "Para ocorrências graves ou que exijam providências urgentes, comunicar imediatamente o supervisor após o registro.",
+                why: "Garantir resposta rápida e adequada a situações críticas.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "N/A",
+                quality_check: "Supervisor informado em tempo hábil.",
+                evidence: "Confirmação de comunicação"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: [],
+            tools: ["Livro de ocorrências", "Caneta permanente"],
+            consumables: []
+          },
+          training: {
+            modules: [
+              "Tipos de ocorrências registráveis",
+              "Técnicas de redação objetiva",
+              "Aspectos legais do registro",
+              "Organização e arquivamento"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Completude dos registros (% com todas as informações)",
+              "Tempo médio de registro",
+              "Legibilidade avaliada pelo supervisor",
+              "Número de registros por plantão"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Portaria"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Livro de Ocorrências"]
+          },
+          attachments: {
+            templates: ["Modelo de registro padrão"],
+            photos: []
+          }
+        },
+        {
+          id: "PORT_APP_CTRL",
+          name: "Uso do Aplicativo de Controle de Acesso",
+          objective: "Padronizar o uso do aplicativo de controle de acesso (ex: Severino ou similar) para cadastro, monitoramento e registro de pessoas e veículos, garantindo precisão e conformidade.",
+          scope: "Todas as portarias equipadas com sistema digital de controle de acesso.",
+          prerequisites: [
+            "Aplicativo instalado e configurado",
+            "Login e senha ativos",
+            "Conexão à internet estável",
+            "Dispositivo (tablet/smartphone) carregado"
+          ],
+          responsibilities: [
+            "Porteiro: Operar o aplicativo corretamente e manter registros atualizados",
+            "Supervisor: Garantir treinamento, resolver problemas técnicos e auditar registros",
+            "Suporte TI: Manter sistema funcionando e prestar suporte técnico"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Login no aplicativo",
+                instruction: "Abrir o aplicativo, inserir usuário e senha, e confirmar acesso ao sistema. Verificar se o perfil está correto (portaria específica).",
+                why: "Garantir rastreabilidade e acesso aos dados corretos.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "Não compartilhar senha com terceiros.",
+                quality_check: "Login bem-sucedido e perfil correto.",
+                evidence: "Log de acesso ao sistema"
+              },
+              {
+                id: "S2",
+                title: "Cadastrar visitante/prestador",
+                instruction: "Acessar aba 'Visitantes' ou 'Prestadores', preencher nome completo, tipo e número do documento, empresa (se aplicável), unidade de destino.",
+                why: "Criar registro completo e rastreável.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "N/A",
+                quality_check: "Todos os campos obrigatórios preenchidos.",
+                evidence: "Cadastro salvo no sistema"
+              },
+              {
+                id: "S3",
+                title: "Fotografar documento",
+                instruction: "Utilizar câmera do aplicativo para capturar foto nítida do documento de identificação (frente e verso, se necessário). Verificar legibilidade antes de salvar.",
+                why: "Comprovar identidade e criar evidência documental.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "Respeitar privacidade do documento.",
+                quality_check: "Foto legível e associada ao cadastro.",
+                evidence: "Imagem do documento armazenada"
+              },
+              {
+                id: "S4",
+                title: "Registrar horários de entrada e saída",
+                instruction: "Na entrada, registrar horário automaticamente ou manualmente (conforme sistema). Na saída, localizar o cadastro e registrar horário de saída.",
+                why: "Controlar permanência e fechar ciclo de acesso.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "N/A",
+                quality_check: "Entrada e saída registradas corretamente.",
+                evidence: "Timestamps de entrada e saída"
+              },
+              {
+                id: "S5",
+                title: "Conferir autorização no sistema",
+                instruction: "Antes de liberar o acesso, verificar se há autorização registrada no sistema (nome do autorizador, unidade, validade). Não liberar sem confirmação.",
+                why: "Evitar acessos não autorizados e garantir segurança.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "Em caso de dúvida, negar acesso e consultar supervisor.",
+                quality_check: "Autorização confirmada antes da liberação.",
+                evidence: "Campo 'autorização' validado no sistema"
+              },
+              {
+                id: "S6",
+                title: "Solucionar problemas comuns",
+                instruction: "Em caso de falha de internet: usar registro manual e atualizar sistema após retorno. Erro no login: verificar senha, reiniciar app ou acionar suporte. Sistema lento: aguardar ou reiniciar dispositivo.",
+                why: "Manter operação contínua mesmo com imprevistos técnicos.",
+                who: "Porteiro",
+                time_estimate_min: 5,
+                safety: "Sempre ter backup manual (papel) para registros críticos.",
+                quality_check: "Problema solucionado ou escalado para suporte.",
+                evidence: "Registro de problema e solução aplicada"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: [],
+            tools: ["Tablet/Smartphone com aplicativo", "Conexão à internet", "Backup de papel (contingência)"],
+            consumables: []
+          },
+          training: {
+            modules: [
+              "Navegação no aplicativo",
+              "Cadastro de visitantes e prestadores",
+              "Resolução de problemas técnicos básicos",
+              "Política de privacidade e LGPD"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Taxa de cadastros completos (% com todos os campos)",
+              "Tempo médio de cadastro",
+              "Número de incidentes técnicos por mês",
+              "Aderência ao uso do sistema (vs. registro manual)"
+            ],
+            audit_frequency_days: 15,
+            auditor_role: "Supervisor de Portaria"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Aplicativo de Controle de Acesso"]
+          },
+          attachments: {
+            templates: ["Guia rápido do aplicativo", "FAQ de problemas comuns"],
+            photos: []
+          }
+        },
+        {
+          id: "PORT_ECLUSA",
+          name: "Operação de Eclusa de Pedestres",
+          objective: "Garantir segurança máxima no acesso de pedestres através de eclusa, controlando o fluxo, evitando invasões e permitindo inspeção adequada em ambiente isolado.",
+          scope: "Portarias equipadas com sistema de eclusa (dupla porta com travamento sequencial).",
+          prerequisites: [
+            "Eclusa em funcionamento correto",
+            "Sistema de travamento das portas operacional",
+            "Câmeras de monitoramento ativas",
+            "Protocolo de emergência conhecido"
+          ],
+          responsibilities: [
+            "Porteiro: Operar a eclusa conforme procedimento, verificar identidade e autorizar acessos",
+            "Supervisor: Garantir manutenção do sistema e resposta a emergências",
+            "Manutenção: Realizar verificações periódicas e reparos"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Verificar identificação do pedestre",
+                instruction: "Solicitar documento com foto através do interfone ou visor. Confirmar identidade visual comparando documento com a pessoa.",
+                why: "Garantir que apenas pessoas identificadas acessem a eclusa.",
+                who: "Porteiro",
+                time_estimate_min: 1,
+                safety: "Manter portas fechadas até confirmação de identidade.",
+                quality_check: "Documento verificado e identidade confirmada.",
+                evidence: "Registro de identificação no sistema"
+              },
+              {
+                id: "S2",
+                title: "Confirmar autorização de acesso",
+                instruction: "Consultar sistema, lista de autorizados ou contatar responsável para confirmar permissão de entrada. Verificar horário permitido e restrições.",
+                why: "Evitar acesso não autorizado e garantir conformidade.",
+                who: "Porteiro",
+                time_estimate_min: 1.5,
+                safety: "Em caso de dúvida, negar acesso e consultar supervisor.",
+                quality_check: "Autorização confirmada no sistema.",
+                evidence: "Campo de autorização validado"
+              },
+              {
+                id: "S3",
+                title: "Liberar primeira porta",
+                instruction: "Acionar controle para abrir a primeira porta (externa). Aguardar o pedestre entrar completamente na eclusa. Monitorar através das câmeras.",
+                why: "Permitir entrada controlada em ambiente isolado.",
+                who: "Porteiro",
+                time_estimate_min: 0.5,
+                safety: "Verificar que apenas uma pessoa entra por vez.",
+                quality_check: "Pedestre dentro da eclusa.",
+                evidence: "Log de abertura da porta 1"
+              },
+              {
+                id: "S4",
+                title: "Fechar primeira porta",
+                instruction: "Após o pedestre entrar completamente, acionar fechamento da primeira porta. Aguardar travamento total (luz indicadora ou sinal sonoro).",
+                why: "Isolar a eclusa antes de liberar acesso interno.",
+                who: "Porteiro",
+                time_estimate_min: 0.5,
+                safety: "Nunca abrir segunda porta antes do fechamento completo da primeira.",
+                quality_check: "Porta 1 completamente fechada e travada.",
+                evidence: "Confirmação de travamento da porta 1"
+              },
+              {
+                id: "S5",
+                title: "Liberar segunda porta",
+                instruction: "Somente após confirmação de travamento da primeira porta, acionar abertura da segunda porta (interna). Orientar o pedestre sobre trajeto permitido.",
+                why: "Completar acesso seguro mantendo controle do fluxo.",
+                who: "Porteiro",
+                time_estimate_min: 0.5,
+                safety: "Garantir que apenas o pedestre autorizado saia da eclusa.",
+                quality_check: "Segunda porta aberta somente após primeira travada.",
+                evidence: "Log de abertura da porta 2"
+              },
+              {
+                id: "S6",
+                title: "Acionar protocolo de emergência",
+                instruction: "Em caso de tentativa de invasão, comportamento suspeito ou emergência médica: travar ambas as portas, acionar alarme, comunicar supervisor e seguir protocolo de emergência específico.",
+                why: "Garantir segurança máxima e resposta adequada a situações críticas.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "Manter calma e seguir protocolo. Não abrir portas em situação de risco.",
+                quality_check: "Protocolo acionado e supervisor informado.",
+                evidence: "Registro de ocorrência e ações tomadas"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Eclusa com duplo travamento", "Câmeras de monitoramento", "Interfone", "Alarme de emergência"],
+            epi: [],
+            tools: ["Painel de controle da eclusa", "Rádio comunicador"],
+            consumables: []
+          },
+          training: {
+            modules: [
+              "Funcionamento da eclusa",
+              "Protocolos de segurança",
+              "Resposta a emergências",
+              "Identificação de comportamentos suspeitos"
+            ],
+            refresh_cadence_days: 90
+          },
+          review: {
+            kpis: [
+              "Número de acessos por eclusa/dia",
+              "Tempo médio de processamento por pedestre",
+              "Incidentes de segurança registrados",
+              "Taxa de conformidade no uso do protocolo"
+            ],
+            audit_frequency_days: 15,
+            auditor_role: "Supervisor de Segurança"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Eclusa de Pedestres"]
+          },
+          attachments: {
+            templates: ["Diagrama de funcionamento da eclusa", "Protocolo de emergência"],
+            photos: []
+          }
+        },
+        {
+          id: "PORT_PORTOES",
+          name: "Inspeção e Operação de Portões",
+          objective: "Assegurar o funcionamento adequado de portões de veículos e pedestres através de inspeção diária, operação segura e reporte imediato de anomalias, garantindo acesso controlado e seguro.",
+          scope: "Todos os portões de acesso (veículos e pedestres) sob responsabilidade da portaria.",
+          prerequisites: [
+            "Portões em condições operacionais",
+            "Acesso aos controles e comandos",
+            "Conhecimento dos pontos de inspeção",
+            "Contato do responsável pela manutenção"
+          ],
+          responsibilities: [
+            "Porteiro: Realizar inspeção diária, operar portões com segurança e reportar problemas",
+            "Supervisor: Acompanhar relatórios e acionar manutenção quando necessário",
+            "Manutenção: Realizar reparos e manutenção preventiva"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Inspeção visual diária",
+                instruction: "No início do turno, verificar visualmente: alinhamento das portas, estado das dobradiças, ausência de obstruções, integridade de trancas e fechaduras, luzes indicadoras funcionando.",
+                why: "Detectar problemas antes que causem falhas ou acidentes.",
+                who: "Porteiro",
+                time_estimate_min: 3,
+                safety: "Não tocar em partes móveis ou elétricas sem autorização.",
+                quality_check: "Checklist visual completo.",
+                evidence: "Registro de inspeção no livro de ocorrências"
+              },
+              {
+                id: "S2",
+                title: "Teste de abertura e fechamento",
+                instruction: "Testar abertura e fechamento completos dos portões (manual ou automático). Verificar ruídos anormais, travamentos, velocidade adequada e parada correta.",
+                why: "Garantir funcionamento seguro e evitar falhas durante operação.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "Manter distância segura durante teste. Usar comandos adequados.",
+                quality_check: "Portões abrem e fecham completamente sem problemas.",
+                evidence: "Log de teste operacional"
+              },
+              {
+                id: "S3",
+                title: "Verificar sensores e travas",
+                instruction: "Para portões automáticos, verificar funcionamento dos sensores de presença, fotocélulas e travas de segurança. Testar parada de emergência.",
+                why: "Sensores e travas previnem acidentes e danos.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "Nunca desabilitar sensores ou travas de segurança.",
+                quality_check: "Todos os dispositivos de segurança operacionais.",
+                evidence: "Confirmação de teste dos sensores"
+              },
+              {
+                id: "S4",
+                title: "Lubrificar dobradiças (se aplicável)",
+                instruction: "Semanalmente ou conforme necessidade, aplicar lubrificante apropriado nas dobradiças e pontos de articulação. Remover excesso.",
+                why: "Prolongar vida útil e garantir movimento suave.",
+                who: "Porteiro",
+                time_estimate_min: 5,
+                safety: "Usar lubrificante adequado. Evitar contato com pele.",
+                quality_check: "Movimento suave e sem ruídos.",
+                evidence: "Registro de lubrificação"
+              },
+              {
+                id: "S5",
+                title: "Reportar anomalias ao supervisor",
+                instruction: "Qualquer problema identificado (ruído, travamento, sensor defeituoso, dano estrutural) deve ser imediatamente reportado ao supervisor, registrado no livro de ocorrências e, se crítico, acionar manutenção.",
+                why: "Garantir reparo rápido e evitar agravamento do problema.",
+                who: "Porteiro",
+                time_estimate_min: 2,
+                safety: "Não usar portão defeituoso se houver risco de segurança.",
+                quality_check: "Supervisor informado e registro completo.",
+                evidence: "Relatório de anomalia com data, horário e descrição"
+              },
+              {
+                id: "S6",
+                title: "Operar em horários de pico e emergências",
+                instruction: "Em horários de grande fluxo, coordenar abertura/fechamento para otimizar passagem. Em emergências (evacuação, incêndio), seguir protocolo específico de abertura prioritária ou travamento.",
+                why: "Garantir eficiência no fluxo e segurança em situações críticas.",
+                who: "Porteiro",
+                time_estimate_min: 0,
+                safety: "Conhecer protocolo de emergência previamente.",
+                quality_check: "Operação adequada ao contexto (pico ou emergência).",
+                evidence: "Log de operações especiais"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de portão em movimento", "Iluminação adequada"],
+            epi: ["Luvas (para lubrificação)"],
+            tools: ["Controle remoto/painel de comando", "Lubrificante apropriado", "Lanterna", "Rádio comunicador"],
+            consumables: ["Lubrificante", "Pano para limpeza"]
+          },
+          training: {
+            modules: [
+              "Funcionamento de portões manuais e automáticos",
+              "Inspeção e detecção de problemas",
+              "Lubrificação e manutenção básica",
+              "Protocolos de emergência"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Taxa de conformidade nas inspeções diárias",
+              "Número de falhas reportadas vs detectadas",
+              "Tempo médio para reporte de anomalias",
+              "Disponibilidade dos portões (%)"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Portaria"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Inspeção e Operação de Portões"]
+          },
+          attachments: {
+            templates: ["Checklist de inspeção diária"],
+            photos: ["Pontos de lubrificação", "Sensores e travas"]
+          }
+        },
+        {
+          id: "PORT_5S",
+          name: "Programa 5S - Portaria",
+          objective: "Implementar metodologia 5S para melhorar organização, limpeza, padronização e disciplina na área de portaria, aumentando eficiência operacional e qualidade do ambiente de trabalho.",
+          scope: "Todos os postos de portaria e controle de acesso.",
+          prerequisites: [
+            "Comprometimento da equipe com mudança cultural",
+            "Materiais organizadores disponíveis",
+            "Tempo alocado para implementação inicial"
+          ],
+          responsibilities: [
+            "Porteiro: Aplicar 5S diariamente em seu posto de trabalho",
+            "Supervisor: Realizar auditorias periódicas e fornecer feedback",
+            "Todos: Manter disciplina e melhorias contínuas"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Seiri - Senso de Utilização",
+                instruction: "Identificar e eliminar documentos antigos, materiais promocionais vencidos, objetos pessoais em excesso e itens sem utilidade. Manter apenas o essencial no posto.",
+                why: "Reduzir desperdício, liberar espaço e facilitar localização do essencial.",
+                who: "Porteiro",
+                time_estimate_min: 30,
+                safety: "Descartar materiais perigosos conforme regulamentação.",
+                quality_check: "Apenas itens necessários permanecem no local de trabalho.",
+                evidence: "Lista de itens descartados/realocados"
+              },
+              {
+                id: "S2",
+                title: "Seiton - Senso de Organização",
+                instruction: "Definir lugar específico para cada item: documentos por tipo, crachás por numeração, chaves em painel identificado. Posicionar materiais de uso frequente próximos. Criar identificação visual clara.",
+                why: "Facilitar acesso, reduzir tempo de busca e aumentar produtividade.",
+                who: "Porteiro",
+                time_estimate_min: 45,
+                safety: "Itens pesados em prateleiras baixas, identificação clara.",
+                quality_check: "Cada item tem lugar definido e identificado.",
+                evidence: "Fotos do antes/depois, etiquetas aplicadas"
+              },
+              {
+                id: "S3",
+                title: "Seiso - Senso de Limpeza",
+                instruction: "Limpar completamente balcão, teclado, monitores, gavetas e área de atendimento. Verificar funcionamento de equipamentos durante limpeza. Identificar vazamentos, desgastes ou defeitos.",
+                why: "Manter higiene, identificar problemas ocultos e prevenir defeitos.",
+                who: "Porteiro",
+                time_estimate_min: 60,
+                safety: "Usar produtos adequados para eletrônicos.",
+                quality_check: "Ambiente limpo, equipamentos funcionando, problemas identificados.",
+                evidence: "Checklist de limpeza, registro de problemas encontrados"
+              },
+              {
+                id: "S4",
+                title: "Seiketsu - Senso de Padronização",
+                instruction: "Estabelecer procedimentos padrão: checklist de início/fim de turno, padrão de organização de documentos, rotina de limpeza. Criar checklists visuais e fotos padrão.",
+                why: "Garantir que todos sigam as mesmas práticas de organização e limpeza.",
+                who: "Porteiro + Supervisor",
+                time_estimate_min: 30,
+                safety: "Padrões devem incluir aspectos de segurança.",
+                quality_check: "Procedimentos documentados e compreendidos por todos.",
+                evidence: "Checklists visuais, fotos padrão, procedimentos escritos"
+              },
+              {
+                id: "S5",
+                title: "Shitsuke - Senso de Disciplina",
+                instruction: "Manter 5S como hábito diário. Realizar revisão diária pelo supervisor e auditoria semanal. Celebrar conquistas e corrigir desvios. Comprometimento contínuo da equipe.",
+                why: "Transformar 5S em hábito permanente e cultura organizacional.",
+                who: "Todos",
+                time_estimate_min: 15,
+                safety: "Reforçar práticas seguras continuamente.",
+                quality_check: "Auditorias periódicas com resultados crescentes ao longo do tempo.",
+                evidence: "Resultados de auditorias, ações corretivas, melhorias implementadas"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: ["Luvas (para limpeza)"],
+            tools: [
+              "Organizadores de gaveta",
+              "Etiquetas e identificação visual",
+              "Produtos de limpeza para eletrônicos",
+              "Checklist de auditoria"
+            ],
+            consumables: ["Etiquetas", "Marcadores", "Material de limpeza"]
+          },
+          training: {
+            modules: [
+              "Fundamentos da metodologia 5S",
+              "Benefícios e objetivos do programa",
+              "Práticas específicas para portaria",
+              "Auditoria e melhoria contínua"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Pontuação em auditorias 5S (escala 0-100)",
+              "Tempo de busca de documentos e materiais",
+              "Número de melhorias sugeridas pela equipe",
+              "Satisfação da equipe com ambiente de trabalho"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Portaria"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Programa 5S Portaria"]
+          },
+          attachments: {
+            templates: ["Checklist de auditoria 5S", "Formulário de ação corretiva"],
+            photos: ["Fotos padrão de organização"]
+          }
         }
       ]
     },
@@ -699,6 +1296,120 @@ export const catalog: Catalog = {
             current_version: "01",
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
+          }
+        },
+        {
+          id: "ROND_5S",
+          name: "Programa 5S - Ronda Noturna",
+          objective: "Implementar metodologia 5S para melhorar organização, limpeza, padronização e disciplina na área de ronda noturna, aumentando eficiência operacional e qualidade do ambiente de trabalho.",
+          scope: "Área de ronda noturna, vestiários e posto de controle.",
+          prerequisites: [
+            "Comprometimento da equipe com mudança cultural",
+            "Materiais organizadores disponíveis",
+            "Tempo alocado para implementação inicial"
+          ],
+          responsibilities: [
+            "Rondante: Aplicar 5S diariamente em seu posto de trabalho",
+            "Supervisor: Realizar auditorias periódicas e fornecer feedback",
+            "Todos: Manter disciplina e melhorias contínuas"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Seiri - Senso de Utilização",
+                instruction: "Identificar e eliminar equipamentos quebrados, lanternas sem bateria, rádios obsoletos, uniformes danificados e materiais sem uso. Manter apenas o essencial.",
+                why: "Reduzir desperdício, liberar espaço e facilitar localização do essencial.",
+                who: "Rondante Noturno",
+                time_estimate_min: 30,
+                safety: "Descartar materiais perigosos conforme regulamentação.",
+                quality_check: "Apenas itens necessários permanecem no local de trabalho.",
+                evidence: "Lista de itens descartados/realocados"
+              },
+              {
+                id: "S2",
+                title: "Seiton - Senso de Organização",
+                instruction: "Definir lugar específico para equipamentos de ronda, relatórios, chaves de acesso. Criar organização padronizada com etiquetas refletivas para lanternas e rádios.",
+                why: "Facilitar acesso, reduzir tempo de busca e aumentar produtividade.",
+                who: "Rondante Noturno",
+                time_estimate_min: 45,
+                safety: "Equipamentos críticos em locais de fácil acesso.",
+                quality_check: "Cada item tem lugar definido e identificado.",
+                evidence: "Fotos do antes/depois, etiquetas aplicadas"
+              },
+              {
+                id: "S3",
+                title: "Seiso - Senso de Limpeza",
+                instruction: "Limpar completamente lanternas, rádios, uniformes e área de descanso. Verificar estado de EPIs e funcionamento de equipamentos durante limpeza.",
+                why: "Manter higiene, identificar problemas ocultos e prevenir defeitos.",
+                who: "Rondante Noturno",
+                time_estimate_min: 60,
+                safety: "Usar produtos adequados para eletrônicos.",
+                quality_check: "Ambiente limpo, equipamentos funcionando, problemas identificados.",
+                evidence: "Checklist de limpeza, registro de problemas encontrados"
+              },
+              {
+                id: "S4",
+                title: "Seiketsu - Senso de Padronização",
+                instruction: "Estabelecer procedimentos padrão: checklist pré-ronda, protocolo de armazenamento de equipamentos, rotina de manutenção. Criar checklists visuais.",
+                why: "Garantir que todos sigam as mesmas práticas de organização e limpeza.",
+                who: "Rondante Noturno + Supervisor",
+                time_estimate_min: 30,
+                safety: "Padrões devem incluir aspectos de segurança.",
+                quality_check: "Procedimentos documentados e compreendidos por todos.",
+                evidence: "Checklists visuais, fotos padrão, procedimentos escritos"
+              },
+              {
+                id: "S5",
+                title: "Shitsuke - Senso de Disciplina",
+                instruction: "Manter 5S como hábito diário. Realizar verificação diária de equipamentos e relatório de condição. Auditorias periódicas.",
+                why: "Transformar 5S em hábito permanente e cultura organizacional.",
+                who: "Todos",
+                time_estimate_min: 15,
+                safety: "Reforçar práticas seguras continuamente.",
+                quality_check: "Auditorias periódicas com resultados crescentes ao longo do tempo.",
+                evidence: "Resultados de auditorias, ações corretivas, melhorias implementadas"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: ["Luvas (para limpeza)"],
+            tools: [
+              "Estante para equipamentos",
+              "Organizador de lanternas",
+              "Etiquetas refletivas",
+              "Checklist de auditoria"
+            ],
+            consumables: ["Etiquetas", "Marcadores", "Material de limpeza"]
+          },
+          training: {
+            modules: [
+              "Fundamentos da metodologia 5S",
+              "Benefícios e objetivos do programa",
+              "Práticas específicas para ronda noturna",
+              "Auditoria e melhoria contínua"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Pontuação em auditorias 5S (escala 0-100)",
+              "Tempo de preparação para ronda",
+              "% de equipamentos funcionais",
+              "Zero ocorrências por falta de equipamento"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Segurança"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Programa 5S Ronda Noturna"]
+          },
+          attachments: {
+            templates: ["Checklist de auditoria 5S", "Formulário de ação corretiva"],
+            photos: ["Fotos padrão de organização"]
           }
         }
       ]
@@ -1066,6 +1777,120 @@ export const catalog: Catalog = {
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
           }
+        },
+        {
+          id: "ASG_5S",
+          name: "Programa 5S - Limpeza/Zeladoria",
+          objective: "Implementar metodologia 5S para melhorar organização, limpeza, padronização e disciplina na área de limpeza/zeladoria, aumentando eficiência operacional e qualidade do ambiente de trabalho.",
+          scope: "DML (Depósito de Material de Limpeza) e áreas de zeladoria.",
+          prerequisites: [
+            "Comprometimento da equipe com mudança cultural",
+            "Materiais organizadores disponíveis",
+            "Tempo alocado para implementação inicial"
+          ],
+          responsibilities: [
+            "Zelador/ASG: Aplicar 5S diariamente em seu posto de trabalho",
+            "Supervisor: Realizar auditorias periódicas e fornecer feedback",
+            "Todos: Manter disciplina e melhorias contínuas"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Seiri - Senso de Utilização",
+                instruction: "Identificar e descartar produtos vencidos, embalagens vazias, panos e esponjas gastas, ferramentas quebradas. Manter apenas o essencial no DML.",
+                why: "Reduzir desperdício, liberar espaço e facilitar localização do essencial.",
+                who: "Zelador/ASG",
+                time_estimate_min: 30,
+                safety: "Descartar produtos químicos conforme regulamentação.",
+                quality_check: "Apenas itens necessários permanecem no local de trabalho.",
+                evidence: "Lista de itens descartados/realocados"
+              },
+              {
+                id: "S2",
+                title: "Seiton - Senso de Organização",
+                instruction: "Organizar produtos por tipo, padronizar carrinho de limpeza, definir lugar para cada ferramenta. Criar prateleiras identificadas com etiquetas.",
+                why: "Facilitar acesso, reduzir tempo de busca e aumentar produtividade.",
+                who: "Zelador/ASG",
+                time_estimate_min: 45,
+                safety: "Produtos químicos em prateleiras adequadas com FISPQ visível.",
+                quality_check: "Cada item tem lugar definido e identificado.",
+                evidence: "Fotos do antes/depois, etiquetas aplicadas"
+              },
+              {
+                id: "S3",
+                title: "Seiso - Senso de Limpeza",
+                instruction: "Limpar completamente o DML, lavar equipamentos de limpeza, organizar prateleiras. Verificar vazamentos e estado de embalagens.",
+                why: "Manter higiene, identificar problemas ocultos e prevenir defeitos.",
+                who: "Zelador/ASG",
+                time_estimate_min: 60,
+                safety: "Ventilar área ao limpar produtos químicos.",
+                quality_check: "Ambiente limpo, equipamentos funcionando, problemas identificados.",
+                evidence: "Checklist de limpeza, registro de problemas encontrados"
+              },
+              {
+                id: "S4",
+                title: "Seiketsu - Senso de Padronização",
+                instruction: "Estabelecer padrão de carrinho de limpeza, criar fichas técnicas de produtos na parede, protocolo de reabastecimento.",
+                why: "Garantir que todos sigam as mesmas práticas de organização e limpeza.",
+                who: "Zelador/ASG + Supervisor",
+                time_estimate_min: 30,
+                safety: "Fichas técnicas devem incluir procedimentos de segurança.",
+                quality_check: "Procedimentos documentados e compreendidos por todos.",
+                evidence: "Checklists visuais, fichas técnicas plastificadas, procedimentos escritos"
+              },
+              {
+                id: "S5",
+                title: "Shitsuke - Senso de Disciplina",
+                instruction: "Manter 5S como hábito diário. Realizar inspeção semanal do DML, reabastecimento programado. Auditorias periódicas.",
+                why: "Transformar 5S em hábito permanente e cultura organizacional.",
+                who: "Todos",
+                time_estimate_min: 15,
+                safety: "Reforçar práticas seguras com produtos químicos continuamente.",
+                quality_check: "Auditorias periódicas com resultados crescentes ao longo do tempo.",
+                evidence: "Resultados de auditorias, ações corretivas, melhorias implementadas"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: ["Luvas (para manuseio de químicos)"],
+            tools: [
+              "Prateleiras identificadas",
+              "Caixas organizadoras",
+              "Fichas técnicas plastificadas",
+              "Checklist de auditoria"
+            ],
+            consumables: ["Etiquetas", "Marcadores", "Material de limpeza"]
+          },
+          training: {
+            modules: [
+              "Fundamentos da metodologia 5S",
+              "Benefícios e objetivos do programa",
+              "Práticas específicas para limpeza/zeladoria",
+              "Auditoria e melhoria contínua"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Pontuação em auditorias 5S (escala 0-100)",
+              "Tempo de preparação de carrinho de limpeza",
+              "Consumo otimizado de produtos",
+              "Zero acidentes com produtos"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Zeladoria"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Programa 5S Limpeza/Zeladoria"]
+          },
+          attachments: {
+            templates: ["Checklist de auditoria 5S", "Formulário de ação corretiva"],
+            photos: ["Fotos padrão de organização do DML"]
+          }
         }
       ]
     },
@@ -1272,6 +2097,120 @@ export const catalog: Catalog = {
             current_version: "01",
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
+          }
+        },
+        {
+          id: "VIGIL_5S",
+          name: "Programa 5S - Vigilância",
+          objective: "Implementar metodologia 5S para melhorar organização, limpeza, padronização e disciplina na área de vigilância, aumentando eficiência operacional e qualidade do ambiente de trabalho.",
+          scope: "Posto de vigilância, armário tático e área de equipamentos.",
+          prerequisites: [
+            "Comprometimento da equipe com mudança cultural",
+            "Materiais organizadores disponíveis",
+            "Tempo alocado para implementação inicial"
+          ],
+          responsibilities: [
+            "Vigilante: Aplicar 5S diariamente em seu posto de trabalho",
+            "Supervisor: Realizar auditorias periódicas e fornecer feedback",
+            "Todos: Manter disciplina e melhorias contínuas"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Seiri - Senso de Utilização",
+                instruction: "Identificar e eliminar uniformes danificados, equipamentos quebrados, documentos antigos e materiais sem utilidade. Manter apenas o essencial.",
+                why: "Reduzir desperdício, liberar espaço e facilitar localização do essencial.",
+                who: "Vigilante",
+                time_estimate_min: 30,
+                safety: "Descartar munições vencidas conforme protocolo específico.",
+                quality_check: "Apenas itens necessários permanecem no local de trabalho.",
+                evidence: "Lista de itens descartados/realocados"
+              },
+              {
+                id: "S2",
+                title: "Seiton - Senso de Organização",
+                instruction: "Organizar armário tático, equipamentos de comunicação, registros de ocorrências. Criar identificação visual clara para cada item crítico.",
+                why: "Facilitar acesso, reduzir tempo de busca e aumentar produtividade.",
+                who: "Vigilante",
+                time_estimate_min: 45,
+                safety: "Armas e munições em local seguro com cadeado.",
+                quality_check: "Cada item tem lugar definido e identificado.",
+                evidence: "Fotos do antes/depois, etiquetas aplicadas"
+              },
+              {
+                id: "S3",
+                title: "Seiso - Senso de Limpeza",
+                instruction: "Limpar colete balístico, rádio, arma (conforme protocolo), uniformes e área de trabalho. Verificar estado de conservação durante limpeza.",
+                why: "Manter higiene, identificar problemas ocultos e prevenir defeitos.",
+                who: "Vigilante",
+                time_estimate_min: 60,
+                safety: "Seguir protocolo de limpeza de arma com munição separada.",
+                quality_check: "Ambiente limpo, equipamentos funcionando, problemas identificados.",
+                evidence: "Checklist de limpeza, registro de problemas encontrados"
+              },
+              {
+                id: "S4",
+                title: "Seiketsu - Senso de Padronização",
+                instruction: "Estabelecer checklist de equipamentos de segurança, protocolo de manutenção de arma, rotina de verificação. Criar padrões visuais.",
+                why: "Garantir que todos sigam as mesmas práticas de organização e limpeza.",
+                who: "Vigilante + Supervisor",
+                time_estimate_min: 30,
+                safety: "Padrões devem incluir todos os aspectos de segurança armada.",
+                quality_check: "Procedimentos documentados e compreendidos por todos.",
+                evidence: "Checklists visuais, fotos padrão, procedimentos escritos"
+              },
+              {
+                id: "S5",
+                title: "Shitsuke - Senso de Disciplina",
+                instruction: "Manter 5S como hábito diário. Realizar revista diária de equipamentos, manutenção preventiva mensal. Auditorias rigorosas.",
+                why: "Transformar 5S em hábito permanente e cultura organizacional.",
+                who: "Todos",
+                time_estimate_min: 15,
+                safety: "Reforçar práticas seguras com armas e equipamentos táticos.",
+                quality_check: "Auditorias periódicas com resultados crescentes ao longo do tempo.",
+                evidence: "Resultados de auditorias, ações corretivas, melhorias implementadas"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: ["Luvas (para limpeza de equipamentos)"],
+            tools: [
+              "Armário com cadeado",
+              "Organizador de equipamentos táticos",
+              "Kit de limpeza de arma",
+              "Checklist de auditoria"
+            ],
+            consumables: ["Etiquetas", "Marcadores", "Material de limpeza para arma"]
+          },
+          training: {
+            modules: [
+              "Fundamentos da metodologia 5S",
+              "Benefícios e objetivos do programa",
+              "Práticas específicas para vigilância",
+              "Auditoria e melhoria contínua"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Pontuação em auditorias 5S (escala 0-100)",
+              "Disponibilidade 100% de equipamentos críticos",
+              "Conformidade em inspeções",
+              "Tempo de resposta a ocorrências"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Segurança"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Programa 5S Vigilância"]
+          },
+          attachments: {
+            templates: ["Checklist de auditoria 5S", "Formulário de ação corretiva"],
+            photos: ["Fotos padrão de organização"]
           }
         }
       ]
@@ -1538,6 +2477,120 @@ export const catalog: Catalog = {
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
           }
+        },
+        {
+          id: "JARD_5S",
+          name: "Programa 5S - Jardinagem",
+          objective: "Implementar metodologia 5S para melhorar organização, limpeza, padronização e disciplina na área de jardinagem, aumentando eficiência operacional e qualidade do ambiente de trabalho.",
+          scope: "Depósito de jardinagem, área de ferramentas e insumos.",
+          prerequisites: [
+            "Comprometimento da equipe com mudança cultural",
+            "Materiais organizadores disponíveis",
+            "Tempo alocado para implementação inicial"
+          ],
+          responsibilities: [
+            "Jardineiro: Aplicar 5S diariamente em seu posto de trabalho",
+            "Supervisor: Realizar auditorias periódicas e fornecer feedback",
+            "Todos: Manter disciplina e melhorias contínuas"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Seiri - Senso de Utilização",
+                instruction: "Identificar e descartar ferramentas quebradas, plantas mortas, embalagens de insumos vazias, materiais sem uso. Manter apenas o essencial.",
+                why: "Reduzir desperdício, liberar espaço e facilitar localização do essencial.",
+                who: "Jardineiro",
+                time_estimate_min: 30,
+                safety: "Descartar defensivos vencidos conforme regulamentação.",
+                quality_check: "Apenas itens necessários permanecem no local de trabalho.",
+                evidence: "Lista de itens descartados/realocados"
+              },
+              {
+                id: "S2",
+                title: "Seiton - Senso de Organização",
+                instruction: "Organizar ferramentas por tipo em painel, insumos por validade, padronizar carrinho de jardinagem. Usar etiquetas impermeáveis.",
+                why: "Facilitar acesso, reduzir tempo de busca e aumentar produtividade.",
+                who: "Jardineiro",
+                time_estimate_min: 45,
+                safety: "Ferramentas cortantes em locais seguros.",
+                quality_check: "Cada item tem lugar definido e identificado.",
+                evidence: "Fotos do antes/depois, etiquetas aplicadas"
+              },
+              {
+                id: "S3",
+                title: "Seiso - Senso de Limpeza",
+                instruction: "Limpar ferramentas após uso, lavar carrinho, organizar depósito. Verificar estado de conservação de ferramentas e equipamentos.",
+                why: "Manter higiene, identificar problemas ocultos e prevenir defeitos.",
+                who: "Jardineiro",
+                time_estimate_min: 60,
+                safety: "Limpar ferramentas antes de guardar para evitar oxidação.",
+                quality_check: "Ambiente limpo, equipamentos funcionando, problemas identificados.",
+                evidence: "Checklist de limpeza, registro de problemas encontrados"
+              },
+              {
+                id: "S4",
+                title: "Seiketsu - Senso de Padronização",
+                instruction: "Estabelecer padrão de armazenamento de ferramentas, controle de estoque de insumos, protocolo de manutenção de equipamentos.",
+                why: "Garantir que todos sigam as mesmas práticas de organização e limpeza.",
+                who: "Jardineiro + Supervisor",
+                time_estimate_min: 30,
+                safety: "Padrões devem incluir manuseio seguro de ferramentas.",
+                quality_check: "Procedimentos documentados e compreendidos por todos.",
+                evidence: "Checklists visuais, fotos padrão, procedimentos escritos"
+              },
+              {
+                id: "S5",
+                title: "Shitsuke - Senso de Disciplina",
+                instruction: "Manter 5S como hábito diário. Realizar limpeza diária de ferramentas, inventário mensal de insumos. Auditorias periódicas.",
+                why: "Transformar 5S em hábito permanente e cultura organizacional.",
+                who: "Todos",
+                time_estimate_min: 15,
+                safety: "Reforçar práticas seguras com ferramentas cortantes.",
+                quality_check: "Auditorias periódicas com resultados crescentes ao longo do tempo.",
+                evidence: "Resultados de auditorias, ações corretivas, melhorias implementadas"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: ["Luvas (para limpeza)"],
+            tools: [
+              "Painel para ferramentas",
+              "Prateleiras para insumos",
+              "Etiquetas impermeáveis",
+              "Checklist de auditoria"
+            ],
+            consumables: ["Etiquetas", "Marcadores", "Material de limpeza"]
+          },
+          training: {
+            modules: [
+              "Fundamentos da metodologia 5S",
+              "Benefícios e objetivos do programa",
+              "Práticas específicas para jardinagem",
+              "Auditoria e melhoria contínua"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Pontuação em auditorias 5S (escala 0-100)",
+              "Vida útil de ferramentas",
+              "Zero acidentes",
+              "Tempo de busca de materiais"
+            ],
+            audit_frequency_days: 30,
+            auditor_role: "Supervisor de Jardinagem"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-13",
+            changelog: ["Criação inicial do POP - Programa 5S Jardinagem"]
+          },
+          attachments: {
+            templates: ["Checklist de auditoria 5S", "Formulário de ação corretiva"],
+            photos: ["Fotos padrão de organização"]
+          }
         }
       ]
     },
@@ -1747,6 +2800,27 @@ export const catalog: Catalog = {
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
           }
+        },
+        {
+          id: "PISC_5S",
+          name: "Programa 5S - Piscineiro",
+          objective: "Implementar metodologia 5S para melhorar organização, limpeza, padronização e disciplina na área de piscina.",
+          scope: "Casa de máquinas, área de produtos químicos.",
+          prerequisites: ["Comprometimento da equipe", "Materiais organizadores", "Tempo para implementação"],
+          responsibilities: ["Piscineiro: Aplicar 5S diariamente", "Supervisor: Auditorias periódicas"],
+          procedure: {
+            steps: [
+              {id: "S1", title: "Seiri - Senso de Utilização", instruction: "Descartar produtos químicos vencidos, equipamentos quebrados, embalagens vazias.", why: "Reduzir desperdício e facilitar acesso.", who: "Piscineiro", time_estimate_min: 30, safety: "Descartar químicos conforme FISPQ.", quality_check: "Apenas itens necessários permanecem.", evidence: "Lista de descarte"},
+              {id: "S2", title: "Seiton - Senso de Organização", instruction: "Organizar produtos químicos por tipo em armário trancado, testes por frequência, criar identificação GHS.", why: "Facilitar acesso seguro.", who: "Piscineiro", time_estimate_min: 45, safety: "Produtos químicos separados e identificados.", quality_check: "Cada item tem lugar definido.", evidence: "Fotos e etiquetas"},
+              {id: "S3", title: "Seiso - Senso de Limpeza", instruction: "Limpar casa de máquinas, equipamentos, área química. Identificar vazamentos e corrosões.", why: "Manter higiene e identificar problemas.", who: "Piscineiro", time_estimate_min: 60, safety: "Ventilar área.", quality_check: "Ambiente limpo, problemas identificados.", evidence: "Checklist de limpeza"},
+              {id: "S4", title: "Seiketsu - Senso de Padronização", instruction: "Criar protocolo de armazenamento químico, checklist de segurança, FISPQ visível.", why: "Garantir conformidade de todos.", who: "Piscineiro + Supervisor", time_estimate_min: 30, safety: "Padrões incluem segurança química.", quality_check: "Procedimentos documentados.", evidence: "Checklists e FISPQ"},
+              {id: "S5", title: "Shitsuke - Senso de Disciplina", instruction: "Inspeção diária de segurança química, auditoria mensal. Manter 5S como hábito.", why: "Transformar em cultura.", who: "Todos", time_estimate_min: 15, safety: "Reforçar práticas seguras.", quality_check: "Auditorias com resultados crescentes.", evidence: "Resultados de auditorias"}
+            ]
+          },
+          equipment: {epc: [], epi: ["Luvas", "Óculos"], tools: ["Armário trancado", "Etiquetas GHS"], consumables: ["Etiquetas"]},
+          training: {modules: ["Fundamentos 5S", "Práticas para piscineiro"], refresh_cadence_days: 180},
+          review: {kpis: ["Pontuação 5S (0-100)", "Zero incidentes químicos"], audit_frequency_days: 30, auditor_role: "Supervisor"},
+          versioning: {current_version: "01", last_review_date: "2025-11-13", changelog: ["Criação POP 5S Piscineiro"]}
         }
       ]
     },
@@ -1960,6 +3034,27 @@ export const catalog: Catalog = {
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
           }
+        },
+        {
+          id: "MANUT_5S",
+          name: "Programa 5S - Manutenção",
+          objective: "Implementar 5S para melhorar organização e eficiência na oficina de manutenção.",
+          scope: "Oficina, bancada, depósito de ferramentas.",
+          prerequisites: ["Comprometimento", "Materiais organizadores"],
+          responsibilities: ["Auxiliar: Aplicar 5S", "Supervisor: Auditorias"],
+          procedure: {
+            steps: [
+              {id: "S1", title: "Seiri", instruction: "Descartar peças quebradas, ferramentas obsoletas.", why: "Liberar espaço.", who: "Auxiliar", time_estimate_min: 30, safety: "Descarte adequado.", quality_check: "Apenas essencial.", evidence: "Lista descarte"},
+              {id: "S2", title: "Seiton", instruction: "Shadow board para ferramentas, organizar por tipo.", why: "Facilitar busca.", who: "Auxiliar", time_estimate_min: 45, safety: "Ferramentas seguras.", quality_check: "Lugar definido.", evidence: "Fotos"},
+              {id: "S3", title: "Seiso", instruction: "Limpar oficina, ferramentas, bancada.", why: "Higiene e identificação.", who: "Auxiliar", time_estimate_min: 60, safety: "EPIs.", quality_check: "Limpo.", evidence: "Checklist"},
+              {id: "S4", title: "Seiketsu", instruction: "Checklist de ferramentas, padrão de bancada.", why: "Padronização.", who: "Auxiliar + Supervisor", time_estimate_min: 30, safety: "Segurança.", quality_check: "Documentado.", evidence: "Procedimentos"},
+              {id: "S5", title: "Shitsuke", instruction: "Limpeza após uso, auditoria semanal.", why: "Hábito.", who: "Todos", time_estimate_min: 15, safety: "Práticas seguras.", quality_check: "Auditorias.", evidence: "Resultados"}
+            ]
+          },
+          equipment: {epc: [], epi: ["Luvas"], tools: ["Shadow board", "Caixas"], consumables: ["Etiquetas"]},
+          training: {modules: ["5S", "Práticas manutenção"], refresh_cadence_days: 180},
+          review: {kpis: ["Pontuação 5S", "Tempo busca ferramentas"], audit_frequency_days: 30, auditor_role: "Supervisor"},
+          versioning: {current_version: "01", last_review_date: "2025-11-13", changelog: ["Criação 5S Manutenção"]}
         }
       ]
     },
@@ -2138,6 +3233,27 @@ export const catalog: Catalog = {
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
           }
+        },
+        {
+          id: "CONC_5S",
+          name: "Programa 5S - Concierge",
+          objective: "Implementar 5S para melhorar organização no atendimento.",
+          scope: "Mesa de atendimento, arquivo.",
+          prerequisites: ["Comprometimento", "Organizadores"],
+          responsibilities: ["Concierge: Aplicar 5S", "Supervisor: Auditorias"],
+          procedure: {
+            steps: [
+              {id: "S1", title: "Seiri", instruction: "Eliminar folhetos desatualizados, documentos antigos.", why: "Liberar espaço.", who: "Concierge", time_estimate_min: 30, safety: "N/A", quality_check: "Essencial.", evidence: "Lista"},
+              {id: "S2", title: "Seiton", instruction: "Organizar agenda, contatos, material.", why: "Facilitar acesso.", who: "Concierge", time_estimate_min: 45, safety: "N/A", quality_check: "Definido.", evidence: "Fotos"},
+              {id: "S3", title: "Seiso", instruction: "Limpar mesa, telefones, computador.", why: "Higiene.", who: "Concierge", time_estimate_min: 60, safety: "Produtos adequados.", quality_check: "Limpo.", evidence: "Checklist"},
+              {id: "S4", title: "Seiketsu", instruction: "Padrão de atendimento, checklist.", why: "Padronização.", who: "Concierge + Supervisor", time_estimate_min: 30, safety: "N/A", quality_check: "Documentado.", evidence: "Procedimentos"},
+              {id: "S5", title: "Shitsuke", instruction: "Revisão diária, feedback moradores.", why: "Hábito.", who: "Todos", time_estimate_min: 15, safety: "N/A", quality_check: "Auditorias.", evidence: "Resultados"}
+            ]
+          },
+          equipment: {epc: [], epi: [], tools: ["Organizador mesa", "Arquivo"], consumables: ["Etiquetas"]},
+          training: {modules: ["5S", "Práticas concierge"], refresh_cadence_days: 180},
+          review: {kpis: ["Pontuação 5S", "Tempo atendimento"], audit_frequency_days: 30, auditor_role: "Supervisor"},
+          versioning: {current_version: "01", last_review_date: "2025-11-13", changelog: ["Criação 5S Concierge"]}
         }
       ]
     },
@@ -2363,6 +3479,27 @@ export const catalog: Catalog = {
             last_review_date: "2025-10-27",
             changelog: ["Migração completa dos templates POP"]
           }
+        },
+        {
+          id: "ADM_5S",
+          name: "Programa 5S - Administração",
+          objective: "Implementar 5S para organização administrativa.",
+          scope: "Escritório, arquivo físico e digital.",
+          prerequisites: ["Comprometimento", "Sistema backup"],
+          responsibilities: ["Administrador: Aplicar 5S", "Gerente: Auditorias"],
+          procedure: {
+            steps: [
+              {id: "S1", title: "Seiri", instruction: "Eliminar documentos antigos (conforme retenção legal), duplicatas.", why: "Liberar espaço.", who: "Administrador", time_estimate_min: 30, safety: "Conformidade legal.", quality_check: "Essencial.", evidence: "Lista"},
+              {id: "S2", title: "Seiton", instruction: "Organizar pastas, arquivos digitais, nomenclatura.", why: "Facilitar busca.", who: "Administrador", time_estimate_min: 45, safety: "Backup.", quality_check: "Definido.", evidence: "Estrutura"},
+              {id: "S3", title: "Seiso", instruction: "Limpar escritório, equipamentos, arquivo. Organizar e-mails.", why: "Higiene física e digital.", who: "Administrador", time_estimate_min: 60, safety: "N/A", quality_check: "Limpo.", evidence: "Checklist"},
+              {id: "S4", title: "Seiketsu", instruction: "Protocolo nomenclatura, política retenção.", why: "Padronização.", who: "Administrador + Gerente", time_estimate_min: 30, safety: "Conformidade.", quality_check: "Documentado.", evidence: "Políticas"},
+              {id: "S5", title: "Shitsuke", instruction: "Revisão mensal arquivos, auditoria trimestral.", why: "Hábito.", who: "Todos", time_estimate_min: 15, safety: "N/A", quality_check: "Auditorias.", evidence: "Resultados"}
+            ]
+          },
+          equipment: {epc: [], epi: [], tools: ["Arquivo deslizante", "Backup digital"], consumables: ["Etiquetas"]},
+          training: {modules: ["5S", "Gestão documental"], refresh_cadence_days: 180},
+          review: {kpis: ["Pontuação 5S", "Tempo busca documentos"], audit_frequency_days: 30, auditor_role: "Gerente"},
+          versioning: {current_version: "01", last_review_date: "2025-11-13", changelog: ["Criação 5S Administração"]}
         }
       ]
     }
