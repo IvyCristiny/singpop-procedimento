@@ -112,7 +112,7 @@ export const catalog: Catalog = {
           id: "PORT_VEIC",
           name: "Controle de Acesso de Veículos",
           objective: "Definir o procedimento para entrada, permanência e saída de veículos, garantindo controle, segurança e rastreabilidade de todas as movimentações.",
-          scope: "Aplica-se às portarias e áreas de controle de acesso do Residencial Praça da Luz que realizam o monitoramento de veículos.",
+          scope: "Aplica-se às portarias e áreas de controle de acesso do condomínio que realizam o monitoramento de veículos.",
           prerequisites: ["Sistema de controle de veículos ativo", "Equipamentos de controle funcionando"],
           responsibilities: [
             "Porteiro: Controlar acessos conforme cadastro e autorização prévia",
@@ -213,7 +213,7 @@ export const catalog: Catalog = {
           id: "PORT_CORRESP",
           name: "Recebimento de Correspondências e Encomendas",
           objective: "Garantir o correto recebimento, conferência, registro, armazenamento e entrega de correspondências e encomendas, evitando extravios e falhas no processo.",
-          scope: "Aplica-se a todas as portarias e áreas responsáveis pelo recebimento e controle de entregas do Residencial Praça da Luz.",
+          scope: "Aplica-se a todas as portarias e áreas responsáveis pelo recebimento e controle de entregas do condomínio.",
           prerequisites: ["Local de armazenamento seguro e identificado", "Sistema de registro ativo"],
           responsibilities: [
             "Porteiro: Receber, conferir e armazenar os itens com segurança",
@@ -390,7 +390,7 @@ export const catalog: Catalog = {
           id: "PORT_ATEND",
           name: "Atendimento e Postura Profissional",
           objective: "Padronizar a conduta, apresentação pessoal e comunicação dos colaboradores da portaria, assegurando atendimento cordial, empático e imagem institucional positiva.",
-          scope: "Aplica-se a todos os colaboradores que atuam na recepção, portaria e controle de acesso do Residencial Praça da Luz.",
+          scope: "Aplica-se a todos os colaboradores que atuam na recepção, portaria e controle de acesso do condomínio.",
           prerequisites: ["Uniforme completo e limpo", "Identificação funcional"],
           responsibilities: [
             "Porteiro: Cumprir as normas de conduta e apresentação",
@@ -499,7 +499,7 @@ export const catalog: Catalog = {
           id: "PORT_EMERG",
           name: "Ocorrências e Situações de Emergência",
           objective: "Definir os procedimentos a serem adotados em casos de incidentes, emergências e situações atípicas, garantindo resposta rápida, segura e coordenada.",
-          scope: "Aplica-se a todos os postos de portaria e controle de acesso sob responsabilidade da Singular Serviços no Residencial Praça da Luz.",
+          scope: "Aplica-se a todos os postos de portaria e controle de acesso sob responsabilidade da Singular Serviços no condomínio.",
           prerequisites: ["Rotas de fuga conhecidas", "Contatos de emergência atualizados", "Pontos de encontro definidos"],
           responsibilities: [
             "Porteiro: Agir conforme o protocolo, manter a calma e comunicar imediatamente a supervisão",
