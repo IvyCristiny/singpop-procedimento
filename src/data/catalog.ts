@@ -1891,6 +1891,975 @@ export const catalog: Catalog = {
             templates: ["Checklist de auditoria 5S", "Formulário de ação corretiva"],
             photos: ["Fotos padrão de organização do DML"]
           }
+        },
+        {
+          id: "ASG_LIXEIRA",
+          name: "Limpeza de Lixeira / Área de Resíduos",
+          objective: "Estabelecer o procedimento padronizado para a limpeza, higienização e organização das lixeiras e áreas de resíduos, garantindo condições sanitárias adequadas, eliminação de odores, prevenção de pragas e um ambiente seguro para moradores e colaboradores.",
+          scope: "Aplica-se a todas as áreas de lixeiras, depósitos de resíduos, halls de descarte, casa de lixo e coletores internos sob responsabilidade da Singular.",
+          prerequisites: [
+            "EPIs obrigatórios disponíveis",
+            "Materiais de limpeza e desinfecção",
+            "Sacos de lixo reforçados em estoque",
+            "Área sinalizável durante limpeza"
+          ],
+          responsibilities: [
+            "ASG: Executar a limpeza e higienização de acordo com este POP",
+            "ASG: Utilizar EPIs obrigatórios e comunicar avarias ou excesso de resíduos",
+            "Zelador/Supervisor: Monitorar execução e solicitar reparos quando necessário",
+            "Gestão Operacional: Atualizar POP e garantir treinamento dos colaboradores"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação da Atividade",
+                instruction: "Utilizar EPIs obrigatórios (luvas de borracha grossa, botas antiderrapantes, máscara, avental impermeável). Reunir materiais (sacos de lixo reforçados, detergente neutro, desinfetante ou cloro, pá e vassoura, balde e rodo, escova de lavagem, desodorizador sanitário). Afixar placa de 'Limpeza em Andamento – Não entre' na área da lixeira.",
+                why: "Garantir segurança do colaborador e prevenir acidentes durante a limpeza.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "EPIs completos, área sinalizada.",
+                quality_check: "Todos EPIs vestidos, materiais reunidos, sinalização posicionada.",
+                evidence: "Checklist de materiais, placa afixada"
+              },
+              {
+                id: "S2",
+                title: "Coleta e Remoção dos Resíduos",
+                instruction: "Amarrar corretamente todos os sacos de lixo existentes. Remover todos os resíduos da área antes de iniciar a limpeza. Verificar se não há sacos rasgados; caso haja, reforçar com um segundo saco. Levar os sacos para o local de armazenamento ou ponto de coleta definido pelo condomínio. Higienizar as mãos imediatamente após essa etapa.",
+                why: "Preparar a área para limpeza profunda e evitar contaminação.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Atenção a objetos cortantes e perfurantes nos sacos.",
+                quality_check: "Todos os resíduos removidos, área livre para limpeza.",
+                evidence: "Área vazia, sacos no ponto de coleta"
+              },
+              {
+                id: "S3",
+                title: "Limpeza das Lixeiras Internas",
+                instruction: "Remover eventuais respingos ou resíduos grudados manualmente com a pá. Lavar internamente com água e detergente. Esfregar as paredes internas com escova. Enxaguar completamente. Aplicar desinfetante e deixar agir por 5 minutos. Secar com rodo ou pano limpo. Colocar novo saco reforçado, fixando as bordas externas para evitar que caiam dentro.",
+                why: "Eliminar odores, bactérias e garantir higiene dos coletores.",
+                who: "ASG",
+                time_estimate_min: 15,
+                safety: "Evitar contato direto com resíduos. Ventilar área durante aplicação de químicos.",
+                quality_check: "Lixeiras limpas, secas e com saco novo fixado.",
+                evidence: "Lixeiras higienizadas e prontas para uso"
+              },
+              {
+                id: "S4",
+                title: "Limpeza da Área da Lixeira / Casa de Lixo",
+                instruction: "Remover todo o lixo solto do chão com pá e vassoura. Lavar o piso com água e detergente, esfregando as áreas de maior sujeira. Aplicar desinfetante no piso e paredes (até 1 metro de altura). Deixar agir por alguns minutos e enxaguar. Puxar o excesso de água com o rodo em direção ao ralo. Verificar se há entupimento do ralo; caso sim, comunicar o zelador. Borrifar desodorizador exclusivo para áreas de resíduos.",
+                why: "Garantir ambiente sanitário, sem odores e livre de pragas.",
+                who: "ASG",
+                time_estimate_min: 20,
+                safety: "Piso molhado - atenção a quedas. Produtos químicos - usar com ventilação.",
+                quality_check: "Piso limpo, sem água parada, sem resíduos visíveis, ambiente desodorizado.",
+                evidence: "Área limpa e sem odores"
+              },
+              {
+                id: "S5",
+                title: "Organização Final",
+                instruction: "Fixar os sacos de lixo nos coletores internos. Garantir que nada fique no chão — nem respingos, nem água parada. Fechar corretamente as tampas das lixeiras e portas da área de resíduos. Retirar EPIs e higienizar as mãos. Registrar no checklist diário a conclusão da atividade.",
+                why: "Liberar área para uso com padrão de qualidade e organização.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Verificar se área está completamente seca antes de liberar.",
+                quality_check: "Sacos fixados, área organizada, tampas fechadas, checklist preenchido.",
+                evidence: "Checklist diário assinado, fotos da área final"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de limpeza em andamento"],
+            epi: ["Luvas de borracha grossa", "Botas antiderrapantes", "Máscara", "Avental impermeável"],
+            tools: ["Pá", "Vassoura", "Rodo", "Balde", "Escova de lavagem", "Carrinho funcional"],
+            consumables: ["Sacos de lixo reforçados", "Detergente neutro", "Desinfetante/Cloro", "Desodorizador sanitário"]
+          },
+          training: {
+            modules: [
+              "Técnicas de limpeza e higienização de áreas de resíduos",
+              "Segurança no uso de produtos químicos",
+              "Manejo de resíduos conforme boas práticas sanitárias",
+              "Uso correto de EPIs",
+              "Prevenção de acidentes com materiais cortantes"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Checklist diário 100% preenchido",
+              "Zero reclamações de odores",
+              "Zero infestações de pragas na área",
+              "Consumo controlado de produtos químicos"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Lixeira/Área de Resíduos"]
+          },
+          attachments: {
+            templates: ["Checklist diário de limpeza da área de resíduos"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_ECLUSA",
+          name: "Limpeza de Eclusa",
+          objective: "Garantir a limpeza e organização da eclusa, assegurando que a entrada para áreas privadas do condomínio seja segura, acessível e sem resíduos.",
+          scope: "Aplica-se às eclusas de acesso, entradas de segurança e áreas restritas de cada condomínio.",
+          prerequisites: [
+            "Materiais de limpeza disponíveis",
+            "EPIs adequados",
+            "Sinalização de área em limpeza"
+          ],
+          responsibilities: [
+            "ASG: Limpeza da área de eclusa, verificação de resíduos e desinfecção",
+            "Zelador: Supervisão e checagem das condições de limpeza",
+            "Gestão Operacional: Atualização do POP e controle de qualidade"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação",
+                instruction: "Vestir EPIs (luvas, máscara se necessário). Reunir materiais (detergente neutro, desinfetante, pá, vassoura, pano, balde). Sinalizar área em limpeza.",
+                why: "Segurança do colaborador e organização do trabalho.",
+                who: "ASG",
+                time_estimate_min: 3,
+                safety: "EPIs vestidos, área sinalizada.",
+                quality_check: "Materiais completos reunidos.",
+                evidence: "Checklist de materiais"
+              },
+              {
+                id: "S2",
+                title: "Remoção de Resíduos",
+                instruction: "Retirar lixo e materiais acumulados na eclusa com pá e vassoura. Verificar e organizar a área de acesso, garantindo que tudo esteja livre de obstruções.",
+                why: "Preparar área para limpeza profunda e garantir acessibilidade.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Atenção a objetos pontiagudos.",
+                quality_check: "Área livre de resíduos e obstruções.",
+                evidence: "Inspeção visual"
+              },
+              {
+                id: "S3",
+                title: "Limpeza e Desinfecção",
+                instruction: "Limpar o chão com detergente neutro e água. Esfregar áreas de maior sujeira. Aplicar desinfetante e deixar agir. Enxaguar e secar com rodo ou pano.",
+                why: "Higienização completa e eliminação de microorganismos.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Piso molhado - cuidado com quedas.",
+                quality_check: "Piso limpo, desinfetado e seco.",
+                evidence: "Piso brilhante e sem resíduos"
+              },
+              {
+                id: "S4",
+                title: "Finalização e Ventilação",
+                instruction: "Garantir a ventilação adequada da área e secagem completa do piso. Remover sinalização. Registrar conclusão no checklist diário.",
+                why: "Liberar área para uso com segurança.",
+                who: "ASG",
+                time_estimate_min: 2,
+                safety: "Verificar secagem completa antes de liberar.",
+                quality_check: "Área seca, ventilada e pronta para uso.",
+                evidence: "Checklist diário preenchido"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de piso molhado"],
+            epi: ["Luvas", "Máscara (quando necessário)"],
+            tools: ["Pá", "Vassoura", "Balde", "Rodo", "Panos de limpeza"],
+            consumables: ["Detergente neutro", "Desinfetante"]
+          },
+          training: {
+            modules: [
+              "Técnicas de limpeza de áreas de acesso",
+              "Uso de produtos de limpeza e desinfecção",
+              "Segurança em áreas de circulação"
+            ],
+            refresh_cadence_days: 365
+          },
+          review: {
+            kpis: [
+              "Checklist diário completo",
+              "Zero reclamações de sujeira",
+              "Área sempre acessível e organizada"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Eclusa"]
+          },
+          attachments: {
+            templates: ["Checklist diário"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_CALCADA",
+          name: "Limpeza de Calçada Externa",
+          objective: "Manter a calçada externa limpa, organizada e sem resíduos, oferecendo uma boa apresentação do condomínio e conforto para pedestres.",
+          scope: "Aplica-se às calçadas externas e áreas de circulação de pedestres ao redor do condomínio.",
+          prerequisites: [
+            "Materiais de limpeza disponíveis",
+            "Acesso à água (mangueira ou balde)",
+            "EPIs adequados"
+          ],
+          responsibilities: [
+            "ASG: Limpeza e varrição de resíduos",
+            "Zelador: Supervisão e controle de qualidade da execução",
+            "Gestão Operacional: Garantir que as áreas de calçada estejam sempre limpas e sem obstáculos"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação",
+                instruction: "Reunir materiais (vassoura, pá, balde ou mangueira, detergente neutro, desinfetante). Vestir EPIs (luvas, botas se necessário).",
+                why: "Organização e segurança do trabalho.",
+                who: "ASG",
+                time_estimate_min: 3,
+                safety: "EPIs adequados para área externa.",
+                quality_check: "Materiais completos.",
+                evidence: "Checklist de materiais"
+              },
+              {
+                id: "S2",
+                title: "Varrição Completa",
+                instruction: "Varrer completamente a calçada, removendo folhas, papéis, terra e demais resíduos. Recolher com pá e descartar em saco apropriado.",
+                why: "Remoção de resíduos visíveis e preparação para lavagem.",
+                who: "ASG",
+                time_estimate_min: 15,
+                safety: "Atenção ao trânsito de pedestres e veículos.",
+                quality_check: "Calçada livre de resíduos secos.",
+                evidence: "Inspeção visual"
+              },
+              {
+                id: "S3",
+                title: "Limpeza de Manchas",
+                instruction: "Aplicar detergente neutro em manchas e sujeiras difíceis. Esfregar com escova ou vassoura de cerdas duras. Deixar agir por alguns minutos.",
+                why: "Remoção de sujeiras incrustadas.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Evitar produtos escorregadios em excesso.",
+                quality_check: "Manchas removidas ou atenuadas.",
+                evidence: "Calçada sem manchas visíveis"
+              },
+              {
+                id: "S4",
+                title: "Lavagem com Água",
+                instruction: "Lavar a calçada com mangueira ou balde com água. Garantir que a água escoe para o ralo ou sarjeta. Aplicar desinfetante para eliminar odores e bactericidas se necessário.",
+                why: "Higienização completa e eliminação de odores.",
+                who: "ASG",
+                time_estimate_min: 15,
+                safety: "Atenção ao piso molhado e escorregadio.",
+                quality_check: "Calçada limpa, sem manchas e sem resíduos.",
+                evidence: "Calçada limpa e seca"
+              },
+              {
+                id: "S5",
+                title: "Finalização",
+                instruction: "Aguardar secagem natural. Verificar se não há resíduos ou poças d'água. Registrar conclusão no checklist diário.",
+                why: "Garantir segurança para pedestres e padrão de qualidade.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Área totalmente seca antes de considerar concluída.",
+                quality_check: "Calçada seca, limpa e apresentável.",
+                evidence: "Checklist diário preenchido"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: ["Luvas", "Botas (quando necessário)"],
+            tools: ["Vassoura", "Pá", "Escova de cerdas duras", "Mangueira ou balde", "Rodo"],
+            consumables: ["Detergente neutro", "Desinfetante", "Sacos de lixo"]
+          },
+          training: {
+            modules: [
+              "Técnicas de limpeza de áreas externas",
+              "Segurança em áreas públicas e com trânsito",
+              "Uso eficiente de água"
+            ],
+            refresh_cadence_days: 365
+          },
+          review: {
+            kpis: [
+              "Checklist diário completo",
+              "Calçada sempre limpa e apresentável",
+              "Zero reclamações de moradores ou pedestres"
+            ],
+            audit_frequency_days: 14,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Calçada Externa"]
+          },
+          attachments: {
+            templates: ["Checklist diário"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_SALAO",
+          name: "Limpeza de Salão de Festa",
+          objective: "Manter o salão de festas limpo, organizado e com um ambiente agradável para os moradores, garantindo uma boa experiência para os eventos.",
+          scope: "Aplica-se a todas as áreas comuns destinadas a festas e eventos do condomínio.",
+          prerequisites: [
+            "Materiais de limpeza completos",
+            "EPIs disponíveis",
+            "Utensílios e materiais de reposição em estoque"
+          ],
+          responsibilities: [
+            "ASG: Limpeza do salão de festas, incluindo móveis e utensílios",
+            "Zelador: Supervisão da execução e do cumprimento do procedimento",
+            "Gestão Operacional: Treinamento contínuo dos colaboradores e revisão do POP"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação",
+                instruction: "Vestir EPIs (luvas, máscara se necessário). Reunir materiais de limpeza (detergente, desinfetante, panos, vassoura, rodo, balde, produtos para móveis).",
+                why: "Organização e segurança do trabalho.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "EPIs adequados, materiais organizados.",
+                quality_check: "Todos materiais reunidos.",
+                evidence: "Checklist de materiais"
+              },
+              {
+                id: "S2",
+                title: "Retirada de Lixo e Objetos",
+                instruction: "Retirar lixo e objetos deixados pelos usuários do salão. Verificar todas as áreas (mesas, cadeiras, banheiros, cozinha). Descartar em local apropriado.",
+                why: "Preparar ambiente para limpeza profunda.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Atenção a objetos pontiagudos ou quebrados.",
+                quality_check: "Área livre de lixo e objetos pessoais.",
+                evidence: "Inspeção visual"
+              },
+              {
+                id: "S3",
+                title: "Limpeza de Pisos",
+                instruction: "Varrer o piso para remover resíduos secos. Limpar pisos com detergente neutro e água. Esfregar áreas de maior sujeira. Aplicar desinfetante. Enxaguar e secar com rodo.",
+                why: "Higienização completa do ambiente.",
+                who: "ASG",
+                time_estimate_min: 20,
+                safety: "Piso molhado - sinalizar área.",
+                quality_check: "Piso limpo, desinfetado e seco.",
+                evidence: "Piso brilhante"
+              },
+              {
+                id: "S4",
+                title: "Higienização de Móveis e Superfícies",
+                instruction: "Higienizar mesas, cadeiras e superfícies com produtos adequados. Limpar estofados se necessário. Desinfetar maçanetas, interruptores e pontos de contato.",
+                why: "Garantir higiene de todos os pontos de contato.",
+                who: "ASG",
+                time_estimate_min: 15,
+                safety: "Usar produtos adequados para cada tipo de superfície.",
+                quality_check: "Móveis e superfícies limpos e desinfetados.",
+                evidence: "Móveis limpos e organizados"
+              },
+              {
+                id: "S5",
+                title: "Reposição e Organização Final",
+                instruction: "Repor materiais como toalhas e utensílios necessários para eventos. Organizar mesas e cadeiras. Verificar funcionamento de equipamentos (ar-condicionado, som, etc.). Realizar inspeção visual final. Registrar no checklist.",
+                why: "Deixar ambiente pronto para próximo uso.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Verificar se todos equipamentos estão funcionando.",
+                quality_check: "Ambiente organizado, limpo e pronto para uso.",
+                evidence: "Checklist preenchido, foto do ambiente final"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de piso molhado"],
+            epi: ["Luvas", "Máscara (quando necessário)"],
+            tools: ["Vassoura", "Rodo", "Balde", "Panos de limpeza", "Mop", "Escova"],
+            consumables: ["Detergente neutro", "Desinfetante", "Produto para móveis", "Limpa vidros", "Toalhas de papel"]
+          },
+          training: {
+            modules: [
+              "Limpeza de espaços de eventos",
+              "Higienização de móveis e utensílios",
+              "Organização e preparação de ambientes",
+              "Atendimento e postura profissional"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Checklist 100% preenchido após cada limpeza",
+              "Zero reclamações de usuários",
+              "Ambiente sempre pronto para uso",
+              "Avaliação positiva dos moradores"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Salão de Festa"]
+          },
+          attachments: {
+            templates: ["Checklist de limpeza do salão"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_BRINQ",
+          name: "Limpeza de Brinquedoteca",
+          objective: "Garantir a limpeza, organização e segurança da brinquedoteca, criando um ambiente saudável e seguro para as crianças.",
+          scope: "Aplica-se à brinquedoteca, áreas de lazer infantil e salas de jogos do condomínio.",
+          prerequisites: [
+            "Produtos de limpeza não tóxicos e seguros para crianças",
+            "EPIs adequados",
+            "Materiais organizadores"
+          ],
+          responsibilities: [
+            "ASG: Limpeza e organização das brinquedotecas e brinquedos",
+            "Zelador: Supervisão e inspeção da área",
+            "Gestão Operacional: Garantir materiais adequados de limpeza e acompanhamento do procedimento"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação",
+                instruction: "Vestir EPIs (luvas). Reunir produtos de limpeza não tóxicos, seguros para crianças (detergente neutro, álcool 70%, desinfetante próprio para áreas infantis). Reunir panos, vassoura, rodo, balde.",
+                why: "Segurança das crianças e organização do trabalho.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Usar apenas produtos atóxicos e seguros para crianças.",
+                quality_check: "Produtos adequados reunidos.",
+                evidence: "Checklist de produtos seguros"
+              },
+              {
+                id: "S2",
+                title: "Retirada de Resíduos",
+                instruction: "Retirar resíduos do piso com vassoura. Coletar objetos fora do lugar e organizar temporariamente.",
+                why: "Preparar área para limpeza profunda.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Atenção a peças pequenas que podem ser engolidas.",
+                quality_check: "Piso livre de resíduos.",
+                evidence: "Inspeção visual"
+              },
+              {
+                id: "S3",
+                title: "Limpeza de Brinquedos",
+                instruction: "Limpar brinquedos com produtos não tóxicos e seguros. Usar álcool 70% ou desinfetante infantil. Limpar brinquedos de plástico, madeira e tecido conforme material. Deixar secar naturalmente.",
+                why: "Prevenir contaminação e doenças em crianças.",
+                who: "ASG",
+                time_estimate_min: 25,
+                safety: "Produtos atóxicos, secar completamente antes de disponibilizar.",
+                quality_check: "Todos brinquedos limpos e desinfetados.",
+                evidence: "Brinquedos limpos e secos"
+              },
+              {
+                id: "S4",
+                title: "Limpeza do Piso e Superfícies",
+                instruction: "Higienizar o chão com detergente neutro e desinfetante infantil. Limpar mesas, cadeiras e prateleiras. Desinfetar pontos de contato (maçanetas, interruptores).",
+                why: "Higienização completa do ambiente infantil.",
+                who: "ASG",
+                time_estimate_min: 15,
+                safety: "Piso molhado - sinalizar. Produtos adequados para crianças.",
+                quality_check: "Piso e superfícies limpos e desinfetados.",
+                evidence: "Ambiente limpo"
+              },
+              {
+                id: "S5",
+                title: "Organização e Inspeção Final",
+                instruction: "Organizar brinquedos nas prateleiras e caixas identificadas. Garantir que não haja peças soltas, quebradas ou pontiagudas. Verificar se os brinquedos estão em boas condições de uso. Registrar no checklist.",
+                why: "Garantir segurança e organização para as crianças.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Remover brinquedos quebrados ou perigosos.",
+                quality_check: "Ambiente organizado, brinquedos seguros e em bom estado.",
+                evidence: "Checklist preenchido, foto do ambiente organizado"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de piso molhado"],
+            epi: ["Luvas"],
+            tools: ["Vassoura", "Panos de microfibra", "Balde", "Rodo", "Caixas organizadoras"],
+            consumables: ["Detergente neutro", "Álcool 70%", "Desinfetante infantil atóxico"]
+          },
+          training: {
+            modules: [
+              "Limpeza e desinfecção de áreas infantis",
+              "Produtos seguros para crianças",
+              "Organização de brinquedos e materiais",
+              "Identificação de brinquedos danificados ou perigosos"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Checklist diário 100%",
+              "Zero acidentes com brinquedos",
+              "Zero reclamações de pais/responsáveis",
+              "Brinquedos sempre organizados e seguros"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Brinquedoteca"]
+          },
+          attachments: {
+            templates: ["Checklist de limpeza da brinquedoteca"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_DECK",
+          name: "Limpeza de Deck de Piscina/Churrasqueira",
+          objective: "Manter a área de lazer com piscina e churrasqueira limpa e bem organizada, garantindo a segurança, higiene e uma experiência agradável para os moradores.",
+          scope: "Aplica-se à área externa de lazer, incluindo o deck da piscina e a churrasqueira.",
+          prerequisites: [
+            "Materiais de limpeza para áreas externas",
+            "EPIs adequados para trabalho ao ar livre",
+            "Produtos específicos para deck de madeira/sintético"
+          ],
+          responsibilities: [
+            "ASG: Limpeza e organização da área externa",
+            "Zelador: Inspeção das condições da área e acompanhamento da execução",
+            "Gestão Operacional: Garantir que os procedimentos sejam atualizados e a equipe treinada"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação",
+                instruction: "Vestir EPIs (luvas, botas, máscara se necessário). Reunir materiais (vassoura, rodo, mangueira, detergente neutro, desinfetante, escova, produtos específicos para deck e churrasqueira).",
+                why: "Segurança e organização do trabalho em área externa.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "EPIs adequados para área externa e produtos químicos.",
+                quality_check: "Materiais completos reunidos.",
+                evidence: "Checklist de materiais"
+              },
+              {
+                id: "S2",
+                title: "Retirada de Resíduos e Lixo",
+                instruction: "Retirar lixo e resíduos da área externa. Esvaziar lixeiras. Remover folhas, galhos e detritos do deck e da área da churrasqueira.",
+                why: "Preparar área para limpeza profunda.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Atenção a objetos pontiagudos e resíduos orgânicos.",
+                quality_check: "Área livre de lixo e resíduos visíveis.",
+                evidence: "Inspeção visual"
+              },
+              {
+                id: "S3",
+                title: "Limpeza do Deck",
+                instruction: "Varrer o deck completamente. Lavar com mangueira e produto específico para o tipo de deck (madeira ou sintético). Esfregar com escova em áreas de maior sujeira. Enxaguar completamente. Deixar secar naturalmente.",
+                why: "Higienização e conservação do deck.",
+                who: "ASG",
+                time_estimate_min: 25,
+                safety: "Piso molhado - atenção a quedas. Produtos adequados ao material do deck.",
+                quality_check: "Deck limpo, sem manchas e conservado.",
+                evidence: "Deck limpo e apresentável"
+              },
+              {
+                id: "S4",
+                title: "Limpeza de Mesas, Cadeiras e Churrasqueira",
+                instruction: "Limpar as mesas e cadeiras da churrasqueira com produtos adequados. Limpar a churrasqueira, removendo restos de carvão e gordura. Desinfetar superfícies de contato. Verificar o uso adequado dos utensílios e acessórios.",
+                why: "Garantir higiene e funcionalidade dos equipamentos.",
+                who: "ASG",
+                time_estimate_min: 20,
+                safety: "Churrasqueira fria antes de limpar. Produtos adequados para gordura.",
+                quality_check: "Móveis e churrasqueira limpos e prontos para uso.",
+                evidence: "Equipamentos limpos"
+              },
+              {
+                id: "S5",
+                title: "Organização e Inspeção da Piscina",
+                instruction: "Verificar visualmente a limpeza da água da piscina (reportar ao piscineiro se necessário). Garantir que a área de lazer esteja segura, organizada e sem obstruções. Registrar conclusão no checklist.",
+                why: "Garantir área de lazer completa e segura.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Não entrar na piscina durante limpeza do deck.",
+                quality_check: "Área organizada, segura e pronta para uso.",
+                evidence: "Checklist preenchido"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de piso molhado"],
+            epi: ["Luvas", "Botas antiderrapantes", "Máscara (quando necessário)"],
+            tools: ["Vassoura", "Rodo", "Mangueira", "Escova de cerdas duras", "Balde"],
+            consumables: ["Detergente neutro", "Produto específico para deck", "Desengordurante", "Desinfetante"]
+          },
+          training: {
+            modules: [
+              "Limpeza de áreas externas de lazer",
+              "Conservação de deck de madeira/sintético",
+              "Limpeza de churrasqueiras",
+              "Segurança em áreas úmidas e escorregadias"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Checklist diário completo",
+              "Zero reclamações de moradores",
+              "Deck sempre limpo e conservado",
+              "Churrasqueira sempre pronta para uso"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Deck de Piscina/Churrasqueira"]
+          },
+          attachments: {
+            templates: ["Checklist de limpeza de área externa"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_COWORK",
+          name: "Limpeza de Coworking",
+          objective: "Assegurar que o espaço de coworking seja limpo, confortável e funcional para os moradores, proporcionando um ambiente adequado para o trabalho.",
+          scope: "Aplica-se às áreas de coworking, incluindo mesas, cadeiras e equipamentos de trabalho.",
+          prerequisites: [
+            "Materiais de limpeza adequados para ambientes de trabalho",
+            "EPIs disponíveis",
+            "Produtos específicos para equipamentos eletrônicos"
+          ],
+          responsibilities: [
+            "ASG: Limpeza de mesas, cadeiras, equipamentos e áreas de circulação",
+            "Zelador: Inspeção da área e supervisão",
+            "Gestão Operacional: Atualização do POP e treinamentos"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação",
+                instruction: "Vestir EPIs (luvas). Reunir materiais (detergente neutro, álcool 70%, panos de microfibra, produtos para eletrônicos, vassoura, rodo, balde).",
+                why: "Organização e preparação adequada.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Produtos adequados para equipamentos eletrônicos.",
+                quality_check: "Materiais completos e apropriados.",
+                evidence: "Checklist de materiais"
+              },
+              {
+                id: "S2",
+                title: "Organização Prévia",
+                instruction: "Organizar os materiais de uso comum no ambiente. Verificar se há objetos pessoais deixados e guardar em local apropriado se necessário.",
+                why: "Preparar ambiente para limpeza.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Respeitar objetos pessoais dos usuários.",
+                quality_check: "Ambiente organizado.",
+                evidence: "Inspeção visual"
+              },
+              {
+                id: "S3",
+                title: "Limpeza de Mesas, Cadeiras e Superfícies",
+                instruction: "Limpar as mesas, cadeiras e superfícies com produtos adequados (álcool 70% ou detergente neutro). Desinfetar pontos de contato (maçanetas, interruptores). Limpar teclados, mouses e monitores com produto específico para eletrônicos.",
+                why: "Higienização e desinfecção de pontos de contato.",
+                who: "ASG",
+                time_estimate_min: 20,
+                safety: "Produtos adequados para cada superfície. Não molhar equipamentos eletrônicos.",
+                quality_check: "Superfícies limpas e desinfetadas.",
+                evidence: "Superfícies brilhantes e limpas"
+              },
+              {
+                id: "S4",
+                title: "Limpeza do Piso e Áreas de Circulação",
+                instruction: "Varrer o piso. Higienizar o chão com detergente neutro e água. Secar com rodo.",
+                why: "Higienização completa do ambiente.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Piso molhado - sinalizar área.",
+                quality_check: "Piso limpo e seco.",
+                evidence: "Piso brilhante"
+              },
+              {
+                id: "S5",
+                title: "Inspeção de Equipamentos e Finalização",
+                instruction: "Verificar o funcionamento adequado das tomadas e equipamentos (reportar problemas ao zelador). Garantir que o ambiente esteja livre de resíduos e pronto para uso. Registrar no checklist.",
+                why: "Garantir funcionalidade e qualidade do ambiente de trabalho.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Não mexer em configurações de equipamentos eletrônicos.",
+                quality_check: "Ambiente funcional, limpo e organizado.",
+                evidence: "Checklist preenchido"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de piso molhado"],
+            epi: ["Luvas"],
+            tools: ["Vassoura", "Rodo", "Balde", "Panos de microfibra"],
+            consumables: ["Detergente neutro", "Álcool 70%", "Produto para eletrônicos"]
+          },
+          training: {
+            modules: [
+              "Limpeza de ambientes de trabalho",
+              "Cuidados com equipamentos eletrônicos",
+              "Desinfecção de superfícies de alto contato",
+              "Organização e respeito ao espaço compartilhado"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Checklist diário 100%",
+              "Zero reclamações de usuários",
+              "Ambiente sempre funcional e limpo",
+              "Equipamentos sempre operacionais"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Coworking"]
+          },
+          attachments: {
+            templates: ["Checklist de limpeza de coworking"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_ACAD",
+          name: "Limpeza de Academia",
+          objective: "Garantir a limpeza, desinfecção e organização da academia, promovendo a saúde e o bem-estar dos moradores.",
+          scope: "Aplica-se à academia e áreas de exercícios do condomínio.",
+          prerequisites: [
+            "Produtos de limpeza e desinfecção adequados para academias",
+            "EPIs disponíveis",
+            "Produtos específicos para equipamentos de ginástica"
+          ],
+          responsibilities: [
+            "ASG: Limpeza dos equipamentos e do espaço",
+            "Zelador: Supervisão e verificação das condições de uso",
+            "Gestão Operacional: Treinamento da equipe e atualização de procedimentos"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação",
+                instruction: "Vestir EPIs (luvas, máscara se necessário). Reunir produtos de limpeza (desinfetante, álcool 70%, detergente neutro, produto para espelhos, panos de microfibra, vassoura, rodo).",
+                why: "Segurança e organização do trabalho em ambiente de exercícios.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Produtos adequados para equipamentos de ginástica.",
+                quality_check: "Materiais completos.",
+                evidence: "Checklist de materiais"
+              },
+              {
+                id: "S2",
+                title: "Limpeza e Desinfecção de Equipamentos",
+                instruction: "Limpar os equipamentos de musculação, esteiras, bicicletas e demais aparelhos. Usar álcool 70% ou desinfetante próprio para academias. Limpar manoplas, bancos, displays. Verificar que todos os aparelhos estejam em bom estado de uso (reportar defeitos ao zelador).",
+                why: "Prevenir contaminação e garantir higiene dos equipamentos.",
+                who: "ASG",
+                time_estimate_min: 30,
+                safety: "Não molhar partes elétricas. Produtos adequados para equipamentos.",
+                quality_check: "Todos equipamentos limpos e desinfetados.",
+                evidence: "Equipamentos limpos"
+              },
+              {
+                id: "S3",
+                title: "Limpeza de Espelhos e Superfícies",
+                instruction: "Limpar os espelhos com produto não abrasivo e pano de microfibra. Limpar prateleiras, apoios e demais superfícies com desinfetante.",
+                why: "Manter ambiente visualmente limpo e higienizado.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Produtos não abrasivos em espelhos.",
+                quality_check: "Espelhos sem manchas, superfícies limpas.",
+                evidence: "Espelhos transparentes"
+              },
+              {
+                id: "S4",
+                title: "Limpeza do Piso",
+                instruction: "Varrer o piso removendo resíduos. Limpar com detergente neutro e desinfetante. Secar com rodo.",
+                why: "Higienização completa do ambiente.",
+                who: "ASG",
+                time_estimate_min: 15,
+                safety: "Piso molhado - sinalizar. Produtos antiderrapantes.",
+                quality_check: "Piso limpo, desinfetado e seco.",
+                evidence: "Piso brilhante"
+              },
+              {
+                id: "S5",
+                title: "Organização e Finalização",
+                instruction: "Organizar materiais de uso comum, como pesos, tapetes de yoga, faixas elásticas. Verificar funcionamento de ventiladores e ar-condicionado. Garantir que o ambiente esteja ventilado. Registrar no checklist.",
+                why: "Deixar ambiente organizado e funcional para os usuários.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Verificar se equipamentos elétricos estão funcionando.",
+                quality_check: "Academia organizada, limpa e pronta para uso.",
+                evidence: "Checklist preenchido"
+              }
+            ]
+          },
+          equipment: {
+            epc: ["Sinalização de piso molhado"],
+            epi: ["Luvas", "Máscara (quando necessário)"],
+            tools: ["Vassoura", "Rodo", "Balde", "Panos de microfibra"],
+            consumables: ["Detergente neutro", "Álcool 70%", "Desinfetante para academias", "Limpa vidros"]
+          },
+          training: {
+            modules: [
+              "Limpeza e desinfecção de academias",
+              "Cuidados com equipamentos de ginástica",
+              "Produtos adequados para ambientes esportivos",
+              "Organização de materiais de uso comum"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Checklist diário 100%",
+              "Zero reclamações de usuários",
+              "Equipamentos sempre limpos e funcionais",
+              "Ambiente sempre higienizado"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Academia"]
+          },
+          attachments: {
+            templates: ["Checklist de limpeza de academia"],
+            photos: []
+          }
+        },
+        {
+          id: "ASG_SAUNA",
+          name: "Limpeza de Sauna",
+          objective: "Assegurar a limpeza e desinfecção da sauna, garantindo a segurança e o conforto dos usuários.",
+          scope: "Aplica-se à sauna do condomínio e à área adjacente de descanso.",
+          prerequisites: [
+            "Produtos de limpeza adequados para áreas úmidas e de alta temperatura",
+            "EPIs apropriados",
+            "Ventilação adequada da área"
+          ],
+          responsibilities: [
+            "ASG: Limpeza e desinfecção da sauna e áreas adjacentes",
+            "Zelador: Verificação das condições da sauna e supervisão da execução",
+            "Gestão Operacional: Treinamento e manutenção de normas de higiene"
+          ],
+          procedure: {
+            steps: [
+              {
+                id: "S1",
+                title: "Preparação e Ventilação",
+                instruction: "Desligar a sauna e aguardar resfriamento completo. Ventilar a área abrindo portas e janelas. Vestir EPIs (luvas, máscara). Reunir materiais (detergente neutro, desinfetante para saunas, escova macia, panos, balde, rodo).",
+                why: "Segurança do colaborador e preparação adequada.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Sauna completamente fria e ventilada antes de iniciar.",
+                quality_check: "Área fria e ventilada, materiais adequados reunidos.",
+                evidence: "Temperatura ambiente, checklist de materiais"
+              },
+              {
+                id: "S2",
+                title: "Limpeza das Superfícies Internas",
+                instruction: "Limpar as superfícies internas da sauna (bancos de madeira, paredes, piso) com produto adequado para madeira. Usar escova macia. Não encharcar a madeira. Aplicar desinfetante específico para saunas.",
+                why: "Higienização e conservação da madeira.",
+                who: "ASG",
+                time_estimate_min: 20,
+                safety: "Produtos adequados para madeira. Não encharcar.",
+                quality_check: "Superfícies limpas, desinfetadas e não encharcadas.",
+                evidence: "Interior da sauna limpo"
+              },
+              {
+                id: "S3",
+                title: "Limpeza do Piso e Paredes",
+                instruction: "Limpar o piso da sauna com detergente neutro e desinfetante. Desinfetar paredes internas. Secar bem com rodo e panos.",
+                why: "Eliminar umidade excessiva e prevenir fungos.",
+                who: "ASG",
+                time_estimate_min: 15,
+                safety: "Verificar se há acúmulo de umidade excessiva (reportar ao zelador).",
+                quality_check: "Piso e paredes limpos e secos.",
+                evidence: "Sauna seca e limpa"
+              },
+              {
+                id: "S4",
+                title: "Limpeza da Área de Descanso",
+                instruction: "Limpar as cadeiras, bancos e superfícies da área de descanso adjacente. Higienizar o piso. Organizar toalhas e roupas de uso comum (se aplicável).",
+                why: "Garantir higiene da área completa de sauna.",
+                who: "ASG",
+                time_estimate_min: 10,
+                safety: "Produtos adequados para cada tipo de superfície.",
+                quality_check: "Área de descanso limpa e organizada.",
+                evidence: "Ambiente de descanso limpo"
+              },
+              {
+                id: "S5",
+                title: "Ventilação Final e Organização",
+                instruction: "Manter a sauna ventilada por tempo adequado para secagem completa. Verificar funcionamento dos equipamentos (reportar problemas ao zelador). Garantir que toalhas e roupas de uso comum estejam limpas e organizadas. Registrar no checklist.",
+                why: "Prevenir umidade excessiva, fungos e garantir funcionalidade.",
+                who: "ASG",
+                time_estimate_min: 5,
+                safety: "Sauna completamente seca antes de religar.",
+                quality_check: "Sauna seca, ventilada, limpa e pronta para uso.",
+                evidence: "Checklist preenchido"
+              }
+            ]
+          },
+          equipment: {
+            epc: [],
+            epi: ["Luvas", "Máscara"],
+            tools: ["Escova macia", "Panos de limpeza", "Balde", "Rodo"],
+            consumables: ["Detergente neutro", "Desinfetante específico para saunas", "Produto para madeira"]
+          },
+          training: {
+            modules: [
+              "Limpeza de saunas e áreas úmidas",
+              "Cuidados com madeira e superfícies especiais",
+              "Prevenção de fungos e bactérias em ambientes úmidos",
+              "Produtos adequados para saunas"
+            ],
+            refresh_cadence_days: 180
+          },
+          review: {
+            kpis: [
+              "Checklist após cada limpeza 100%",
+              "Zero reclamações de usuários",
+              "Zero infestações de fungos ou mofo",
+              "Sauna sempre seca e higienizada"
+            ],
+            audit_frequency_days: 7,
+            auditor_role: "Zelador"
+          },
+          versioning: {
+            current_version: "01",
+            last_review_date: "2025-11-14",
+            changelog: ["Criação inicial do POP - Limpeza de Sauna"]
+          },
+          attachments: {
+            templates: ["Checklist de limpeza de sauna"],
+            photos: []
+          }
         }
       ]
     },
